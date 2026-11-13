@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente, com 78 testes de PHP e 1 teste de navegador passando. **Nunca foi publicado.** A imagem Docker nunca foi construída. **Não há nenhum commit no git** (o repositório existe, vazio, na branch `main`).
+- **Estado:** funciona localmente e na nuvem, com 78 testes de PHP e 1 teste de navegador passando. **Nunca foi publicado.** A imagem Docker nunca foi construída. O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -80,7 +80,7 @@ node tests/browser_test.js   # ponta a ponta num navegador sem janela; SHOT=past
 
 - `tests/run.php` é um executor próprio (funções `t`, `eq`, `ok`, `lanca` em `tests/helpers.php`). Cada teste usa banco em memória. Os testes rodam com `ROTINA_SENHA_MIN=8` (regra de produção), definido em `helpers.php`.
 - `tests/browser_test.js` sobe o próprio servidor PHP (porta 8231) com banco temporário e seed, abre o navegador por CDP (porta 9362) e percorre login, rotina, tarefas, quadro, automações, clientes, histórico, importar, os 2 temas e o celular. Falha se houver qualquer erro de JavaScript no console.
-- **Ajustes para Linux no teste de navegador:** ele procura o Edge do Windows. Na nuvem, aponte para um Chromium: `EDGE_PATH=$(which chromium) node tests/browser_test.js`. Em contêiner pode ser preciso acrescentar `--no-sandbox` na lista de argumentos do navegador (linha do `spawn(EDGE, ...)`). O teste também passa `-d extension=pdo_sqlite` ao PHP; onde a extensão já vem ligada isso só gera um aviso.
+- **No Linux (nuvem):** fora do Windows o teste já abre o navegador com `--no-sandbox`. Aponte para o Chromium: `EDGE_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome node tests/browser_test.js` (caminho do ambiente da nuvem em 13/11/2026; se mudar, procure em `/opt/pw-browsers`). O teste também passa `-d extension=pdo_sqlite` ao PHP; onde a extensão já vem ligada isso só gera um aviso.
 - A pasta de `SHOT` precisa existir ou ser criável. Os prints são a forma de conferir o visual sem o dono.
 
 ## 6. Mapa do código
