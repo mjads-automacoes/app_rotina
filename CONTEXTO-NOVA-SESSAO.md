@@ -308,7 +308,7 @@ Tarefas recorrentes por cliente, subtarefas, anexos, visão de calendário, carg
 
 ### Preview na VPS (pedido em 13/11/2026)
 
-O dono pediu um preview na VPS dele (Hostinger com Easypanel) até ter domínio próprio, usando o endereço provisório `*.easypanel.host`. A sessão na nuvem **não alcança a VPS**: a rede da sessão bloqueia o IP, e o painel do Easypanel fica numa porta (3000) que o proxy não atravessa. O código foi preparado; a criação do serviço no Easypanel fica com o dono, pelo passo a passo do `README.md`. Ele colou o login e a senha do Easypanel no chat e foi orientado a trocar a senha. **Nunca grave credenciais em arquivo.**
+**No ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (subdomínio provisório do WhatsRedirect, a pedido do dono, até ele ter domínio próprio; registro A `rotina` → `217.196.60.39`, passando pela Cloudflare). Também responde no endereço provisório do Easypanel `rotina-app.wgt1ud.easypanel.host`. Easypanel: projeto `rotina`, serviço App `app`, origem GitHub `mjads-automacoes/app_rotina` ramo `claude/new-session-10ewul`, build Dockerfile, volume `dados` em `/data`, variáveis `ROTINA_SENHA_MIN=8`, `ROTINA_COOKIE_SECURE=1`, `ROTINA_TIMEZONE=America/Fortaleza`, porta 80. Banco começou vazio (sem seed): o dono cria o administrador no Primeiro acesso. O dono fez tudo no painel guiado por prints: a sessão na nuvem **não alcança a VPS** (IP bloqueado; o painel fica na porta 3000, que o proxy não atravessa). Atualizar a VPS = enviar ao ramo e clicar Implantar (ou ligar um webhook do GitHub para o Gatilho de Implantação do serviço, que é secreto). Ele colou o login e a senha do Easypanel no chat e foi orientado a trocar a senha. **Nunca grave credenciais em arquivo.**
 
 ## 12. Fora deste projeto (não tratar aqui)
 
