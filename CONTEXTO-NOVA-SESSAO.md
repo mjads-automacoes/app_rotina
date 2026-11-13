@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente e na nuvem, com 78 testes de PHP e 1 teste de navegador passando. **Nunca foi publicado.** A imagem Docker nunca foi construída. O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
+- **Estado:** funciona localmente e na nuvem, com 78 testes de PHP e 1 teste de navegador passando. **Nunca foi publicado.** A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -67,9 +67,11 @@ $env:ROTINA_DATA_DIR = 'C:/Users/MAQUIN~1/AppData/Local/Temp/rotina-preview'
 Start-Process -WindowStyle Hidden -FilePath php -ArgumentList '-d','extension=pdo_sqlite','-d','extension=sqlite3','-S','127.0.0.1:8200','-t','public','public/router.php' -WorkingDirectory "C:\Users\Maquina 01\Documents\Rotina"
 ```
 
-### Docker (nunca testado)
+### Docker (testado em 13/11/2026)
 
-`docker compose up --build` deveria abrir em `http://localhost:8200` (imagem `php:8.2-apache`, volume `/data`). A imagem nunca foi construída: trate como não verificado.
+`docker compose up --build` abre em `http://localhost:8200` (imagem `php:8.2-apache`, volume `/data`, porta interna 80). Na nuvem o Docker existe, mas o serviço não vem ligado: rode `dockerd &` antes.
+
+A partida do container é `scripts/docker-entrypoint.sh`: acerta o dono do volume `/data` (sem isso, um volume vindo de fora dava erro 500 "unable to open database file") e roda `scripts/tick.php` a cada minuto, então as automações não dependem de cron no servidor. Conferido: banco vazio abre o Primeiro acesso, senha curta é recusada com `ROTINA_SENHA_MIN=8`, os dados sobrevivem a reiniciar o container e o tick roda no fuso de Fortaleza.
 
 ## 5. Testes
 
@@ -295,15 +297,18 @@ Tema escuro (padrão) e claro, com botão no menu; segue o sistema na primeira v
 ### Antes de qualquer publicação (quando o dono pedir)
 
 - `ROTINA_SENHA_MIN=8`, trocar as senhas `1`, `ROTINA_COOKIE_SECURE=1`, definir `ROTINA_SECRET`.
-- Construir e testar a imagem Docker pela primeira vez.
 - Conferir o bloqueio de login atrás de proxy: ele usa o IP da conexão; o Dockerfile liga o `mod_remoteip` para faixas privadas.
-- Agendar `php scripts/tick.php` a cada minuto e o backup do `rotina.sqlite`.
+- Backup do `rotina.sqlite` (o tick já roda sozinho dentro do container).
 - Testar a importação com um token real do ClickUp.
 - Projeto **separado** no Easypanel, com volume em `/data` e domínio próprio. O roteiro está no `README.md`.
 
 ### Ideias anotadas, não pedidas
 
 Tarefas recorrentes por cliente, subtarefas, anexos, visão de calendário, carga por gestor, checklist editável pelo gestor, notificações, recuperação de senha por e-mail.
+
+### Preview na VPS (pedido em 13/11/2026)
+
+O dono pediu um preview na VPS dele (Hostinger com Easypanel) até ter domínio próprio, usando o endereço provisório `*.easypanel.host`. A sessão na nuvem **não alcança a VPS**: a rede da sessão bloqueia o IP, e o painel do Easypanel fica numa porta (3000) que o proxy não atravessa. O código foi preparado; a criação do serviço no Easypanel fica com o dono, pelo passo a passo do `README.md`. Ele colou o login e a senha do Easypanel no chat e foi orientado a trocar a senha. **Nunca grave credenciais em arquivo.**
 
 ## 12. Fora deste projeto (não tratar aqui)
 

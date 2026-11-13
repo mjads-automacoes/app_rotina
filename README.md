@@ -69,8 +69,8 @@ Crie um **projeto novo** no Easypanel (por exemplo `rotina`), sem reaproveitar `
 1. Serviço do tipo **App** a partir deste repositório (build pelo `Dockerfile`).
 2. **Volume** persistente montado em `/data` (banco e chave).
 3. Variáveis: `ROTINA_COOKIE_SECURE=1`, `ROTINA_SENHA_MIN=8` e, se quiser, `ROTINA_APP_NAME`.
-4. **Domínio próprio** apontando para o serviço (HTTPS pelo Traefik do Easypanel).
-5. Cron do servidor (a cada minuto) chamando `php scripts/tick.php` no container, para as automações rodarem sem ninguém acessar.
+4. **Domínio:** enquanto não houver domínio próprio, use o endereço provisório que o Easypanel gera para o serviço (`*.easypanel.host`, já com HTTPS). Depois, aponte o domínio próprio para o mesmo serviço; os dados continuam no volume. Porta interna do container: **80**.
+5. As automações rodam sozinhas a cada minuto dentro do container (`scripts/docker-entrypoint.sh`); não é preciso cron no servidor. O mesmo script acerta a permissão do volume `/data` na partida.
 6. Backup: copiar `rotina.sqlite` do volume (`sqlite3 rotina.sqlite ".backup rotina-AAAAMMDD.sqlite"`).
 
 ## Importar do ClickUp
