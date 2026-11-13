@@ -16,8 +16,8 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 ## 2. Regras de trabalho (valem para toda sessão)
 
 1. **Responder sempre em português do Brasil**, em linguagem simples. O dono não é programador: ele pede mudanças por print de tela com riscos e setas. Explique o que mudou na tela, não o código.
-2. **Não publicar.** O dono disse: "a rotina não é pra publicar ainda". Nada de deploy, VPS, Easypanel ou domínio sem ele pedir com todas as letras.
-3. **Commit e push só quando o dono pedir.**
+2. **Toda mudança vai para o ar.** Desde 13/11/2026 o sistema está online em `https://rotina.whatsredirect.pro` e o dono decidiu: "toda alteração feita, você terá de publicar pra que possa ser vista na versão online". Mexer no Easypanel, na VPS, no domínio ou na infraestrutura continua exigindo pedido explícito.
+3. **Commit e push a cada mudança**, no ramo `claude/new-session-10ewul`, sem esperar pedido, mas só com os testes passando. Se um teste falhar, não envie e avise.
 4. **Toda mudança termina com os testes rodados** (seção 5) e, quando for visual, com o preview no ar para ele olhar. Se um teste falhar, diga que falhou.
 5. **Fazer exatamente o que foi pedido.** Mudanças de tela são pontuais ("remova isso", "mude o nome para X"). Não redesenhe o resto. Quando uma remoção deixar algo sem acesso ou sem uso, avise e pergunte, não decida sozinho.
 6. **Manter o padrão do código:** sem dependências novas, sem script ou estilo inline (a CSP bloqueia), todo texto do servidor entra na tela por `textContent`, toda regra de negócio nova ganha teste em `tests/`.
@@ -322,5 +322,5 @@ O dono tem pendências no WhatsRedirect (outra pasta, outro repositório): um er
 4. Rodar o teste de navegador (com `EDGE_PATH` apontando para um Chromium). Se não houver navegador no ambiente, diga isso ao dono em vez de pular em silêncio.
 5. Subir o preview (seção 4) e entrar com `admin` / `1`.
 6. Perguntar ao dono o que ele quer mudar. Se ele não trouxer nada, apresentar as 4 perguntas da seção 11.
-7. A cada mudança: código, teste novo ou ajustado, os dois conjuntos de teste, preview, explicação simples. Commit só se ele pedir.
+7. A cada mudança: código, teste novo ou ajustado, os dois conjuntos de teste, preview, explicação simples, commit e push (vai para o ar).
 8. No fim, atualizar este arquivo.
