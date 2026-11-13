@@ -1,0 +1,7 @@
+.git
+data
+tests
+scripts/*.ps1
+scripts/seed-demo.php
+*.md
+.gitignore

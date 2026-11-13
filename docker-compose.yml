@@ -1,0 +1,13 @@
+# Uso local com Docker:  docker compose up --build   (abre em http://localhost:8200)
+services:
+  rotina:
+    build: .
+    ports: ["8200:80"]
+    environment:
+      ROTINA_APP_NAME: "Rotina"
+      ROTINA_TIMEZONE: "America/Fortaleza"
+      ROTINA_COOKIE_SECURE: "0"   # em producao (HTTPS) use 1
+    volumes:
+      - rotina-data:/data
+volumes:
+  rotina-data:
