@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente e na nuvem, com 81 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
+- **Estado:** funciona localmente e na nuvem, com 82 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -76,7 +76,7 @@ A partida do container é `scripts/docker-entrypoint.sh`: acerta o dono do volum
 ## 5. Testes
 
 ```bash
-php tests/run.php            # 81 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
+php tests/run.php            # 82 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
 node tests/browser_test.js   # ponta a ponta num navegador sem janela; SHOT=pasta salva os prints
 ```
 
@@ -108,7 +108,7 @@ src/
                    Sessao, Request, Response, View
   App.php          rotas (páginas e API), CSRF, cabeçalhos de segurança, flash
   Nucleo.php       monta os serviços; Nucleo::sistema() é o usuário "Sistema"
-  Demo.php         dados FICTÍCIOS (10 clientes, semana da rotina, tarefas gerais); carregar/apagar
+  Demo.php         dados FICTÍCIOS (19 clientes, 6+ por dia útil, semana da rotina, tarefas gerais); carregar/apagar
   Auth.php         usuários, login, bloqueio por tentativas, senha
   Clientes.php     clientes, ficha, notas
   Listas.php       listas e status
@@ -313,7 +313,7 @@ Tarefas recorrentes por cliente, subtarefas, anexos, visão de calendário, carg
 
 **No ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (subdomínio provisório do WhatsRedirect, a pedido do dono, até ele ter domínio próprio; registro A `rotina` → `217.196.60.39`, passando pela Cloudflare). Também responde no endereço provisório do Easypanel `rotina-app.wgt1ud.easypanel.host`. Easypanel: projeto `rotina`, serviço App `app`, origem GitHub `mjads-automacoes/app_rotina` ramo `claude/new-session-10ewul`, build Dockerfile, volume `dados` em `/data`, variáveis `ROTINA_SENHA_MIN=8`, `ROTINA_COOKIE_SECURE=1`, `ROTINA_TIMEZONE=America/Fortaleza`, porta 80. Banco começou vazio (sem seed): o dono cria o administrador no Primeiro acesso. O dono fez tudo no painel guiado por prints: a sessão na nuvem **não alcança a VPS** (IP bloqueado; o painel fica na porta 3000, que o proxy não atravessa). Atualizar a VPS = enviar ao ramo e clicar Implantar (ou ligar um webhook do GitHub para o Gatilho de Implantação do serviço, que é secreto). Ele colou o login e a senha do Easypanel no chat e foi orientado a trocar a senha. **Nunca grave credenciais em arquivo.**
 
-**Dados fictícios online (pedido em 13/11/2026, opção B):** o dono quis os dados de teste na versão online para treinar. Feito pela variável `ROTINA_DEMO` no Easypanel (Ambiente): `carregar` cria os 10 clientes fictícios e a semana da rotina ligados ao primeiro administrador ativo (sem a Ana, sem senhas `1`), uma vez só; `apagar` remove só o que a carga criou (clientes fictícios, todas as tarefas deles, inclusive as que a rotina gerar depois, as tarefas criadas na carga e a automação de exemplo) e mantém o que for real. Roda na partida do container (precisa Implantar). O registro do que é fictício fica em `meta.demo`. Testado em `tests/demo_test.php` e no Docker.
+**Dados fictícios online (pedido em 13/11/2026, opção B):** o dono quis os dados de teste na versão online para treinar. Feito pela variável `ROTINA_DEMO` no Easypanel (Ambiente): `carregar` cria os 19 clientes fictícios (pelo menos 6 por dia útil, pedido do dono) e a semana da rotina ligados ao primeiro administrador ativo (sem a Ana, sem senhas `1`), uma vez só; `apagar` remove só o que a carga criou (clientes fictícios, todas as tarefas deles, inclusive as que a rotina gerar depois, as tarefas criadas na carga e a automação de exemplo) e mantém o que for real. Roda na partida do container (precisa Implantar). O registro do que é fictício fica em `meta.demo`. Testado em `tests/demo_test.php` e no Docker.
 
 ## 12. Fora deste projeto (não tratar aqui)
 
@@ -323,7 +323,7 @@ O dono tem pendências no WhatsRedirect (outra pasta, outro repositório): um er
 
 1. Ler este arquivo e o `README.md`.
 2. Conferir o ambiente: `php -v`, `php -m | grep -i sqlite`, `node -v`.
-3. Rodar `php tests/run.php`. Tem de dar **81 de 81**.
+3. Rodar `php tests/run.php`. Tem de dar **82 de 82**.
 4. Rodar o teste de navegador (com `EDGE_PATH` apontando para um Chromium). Se não houver navegador no ambiente, diga isso ao dono em vez de pular em silêncio.
 5. Subir o preview (seção 4) e entrar com `admin` / `1`.
 6. Perguntar ao dono o que ele quer mudar. Se ele não trouxer nada, apresentar as 4 perguntas da seção 11.

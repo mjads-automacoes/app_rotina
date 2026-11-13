@@ -47,7 +47,7 @@ Com os dados de exemplo, entre com `admin` / `1` (ou `ana` / `1`). Sem eles, a t
 ## Testes
 
 ```powershell
-php tests/run.php          # 81 testes: banco, login, clientes, tarefas, automações, rotina, importação, dados de exemplo e camada web
+php tests/run.php          # 82 testes: banco, login, clientes, tarefas, automações, rotina, importação, dados de exemplo e camada web
 node tests/browser_test.js # ponta a ponta no Edge (todas as telas, os 2 temas e o celular); SHOT=pasta salva prints
 ```
 

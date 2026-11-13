@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Dados FICTICIOS de demonstracao: clientes, a semana da rotina, tarefas gerais, notas e uma automacao.
+ * Dados FICTICIOS de demonstracao: 19 clientes (pelo menos 6 por dia util na rotina do dono), a semana da rotina, tarefas gerais, notas e uma automacao.
  * Usado pelo preview local (scripts/seed-demo.php) e, a pedido do dono, na versao online (scripts/demo.php).
  * Tudo o que e criado fica anotado em meta.demo, para que apagar() remova so isso e nada do que for real.
  */
@@ -41,9 +41,18 @@ final class Demo
             [$dono, 'LAVANDERIA PARAISO', 'Lavanderia Paraíso', 'Otimizar públicos e criativos', ['segunda', 'quarta'], 'tarde', 'ativo', ['google'], 'R$ 1.200/mês', 'Paula', '(11) 97777-2222', ''],
             [$dono, 'AUTO CENTER PRAIA GRANDE', 'Auto Center PG', 'Relatório e ajustes de lance', ['terca', 'sexta'], 'manha', 'ativo', ['google', 'meta'], 'R$ 4.500/mês', 'Marcos', '(13) 96666-3333', 'Reunião mensal toda primeira sexta.'],
             [$dono, 'CLÍNICA SORRISO PLENO', 'Sorriso Pleno', 'Analisar leads da semana', ['terca', 'sexta'], 'tarde', 'ativo', ['meta', 'tiktok'], 'R$ 2.500/mês', 'Dra. Helena', '(11) 95555-4444', ''],
-            [$dono, 'PET SHOP AMIGO FIEL', 'Amigo Fiel', 'Fechamento: resultados do dia', ['quarta', 'sexta'], 'fechamento', 'ativo', ['meta'], 'R$ 900/mês', 'Rafa', '(11) 94444-5555', ''],
+            [$dono, 'PET SHOP AMIGO FIEL', 'Amigo Fiel', 'Conferir campanhas de banho e tosa', ['quarta', 'sexta'], 'tarde', 'ativo', ['meta'], 'R$ 900/mês', 'Rafa', '(11) 94444-5555', ''],
             [$dono, 'STUDIO BELLA FORMA', 'Bella Forma', 'Cliente sem dia marcado ainda', [], 'manha', 'ativo', ['meta'], '', 'Renata', '', ''],
             [$dono, 'IMOBILIÁRIA HORIZONTE', 'Horizonte Imóveis', 'Em onboarding (fica fora da rotina)', ['segunda'], 'manha', 'novo', ['google'], 'R$ 6.000/mês', 'Jorge', '(11) 93333-6666', 'Aguardando acesso às contas.'],
+            [$dono, 'ÓTICA VISÃO CLARA', 'Visão Clara', 'Campanha de óculos de grau', ['segunda', 'terca'], 'manha', 'ativo', ['google'], 'R$ 1.600/mês', 'Sérgio', '(11) 90000-1001', ''],
+            [$dono, 'FARMÁCIA BEM ESTAR', 'Bem Estar', 'Ofertas da semana no Instagram', ['segunda', 'quarta'], 'tarde', 'ativo', ['meta'], 'R$ 2.200/mês', 'Cláudia', '(11) 90000-1002', ''],
+            [$dono, 'ESCOLA DE IDIOMAS FALA FÁCIL', 'Fala Fácil', 'Captação de alunos para o semestre', ['terca', 'quinta'], 'manha', 'ativo', ['google', 'meta'], 'R$ 3.200/mês', 'Tiago', '(11) 90000-1003', ''],
+            [$dono, 'CONSTRUTORA ALICERCE', 'Alicerce', 'Leads de lançamento imobiliário', ['terca', 'sexta'], 'tarde', 'ativo', ['google'], 'R$ 8.000/mês', 'Fernanda', '(11) 90000-1004', 'Relatório quinzenal.'],
+            [$dono, 'BARBEARIA DOM BIGODE', 'Dom Bigode', 'Agendamentos pelo WhatsApp', ['quarta', 'quinta'], 'manha', 'ativo', ['meta'], 'R$ 700/mês', 'Caio', '(11) 90000-1005', ''],
+            [$dono, 'DOCERIA MEL & CIA', 'Mel & Cia', 'Encomendas de fim de semana', ['quarta', 'sexta'], 'tarde', 'ativo', ['meta'], 'R$ 800/mês', 'Bruna', '(11) 90000-1006', ''],
+            [$dono, 'ADVOCACIA SOUZA LIMA', 'Souza Lima', 'Pesquisa: palavras-chave e lances', ['quinta', 'sexta'], 'manha', 'ativo', ['google'], 'R$ 2.800/mês', 'Dr. André', '(11) 90000-1007', ''],
+            [$dono, 'PADARIA PÃO DOURADO', 'Pão Dourado', 'Promoções do café da manhã', ['segunda', 'quarta'], 'manha', 'ativo', ['meta'], 'R$ 600/mês', 'Seu Zé', '(11) 90000-1008', ''],
+            [$dono, 'HOTEL MIRANTE DO MAR', 'Mirante do Mar', 'Reservas para a alta temporada', ['terca', 'quinta'], 'tarde', 'ativo', ['google', 'meta'], 'R$ 5.000/mês', 'Lúcia', '(13) 90000-1009', ''],
             [$outro, 'ACADEMIA CORPO E MENTE', 'Corpo e Mente', 'Revisar campanhas de matrícula', ['segunda', 'quarta'], 'manha', 'ativo', ['meta'], 'R$ 2.000/mês', 'Léo', '(11) 92222-7777', ''],
             [$outro, 'RESTAURANTE SABOR DA SERRA', 'Sabor da Serra', 'Delivery: ajustar horários', ['terca', 'quinta'], 'tarde', 'ativo', ['google', 'meta'], 'R$ 1.500/mês', 'Marta', '(11) 91111-8888', ''],
         ];
