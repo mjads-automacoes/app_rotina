@@ -14,6 +14,7 @@ COPY src /var/www/html/src
 COPY views /var/www/html/views
 COPY public /var/www/html/public
 COPY scripts/tick.php /var/www/html/scripts/tick.php
+COPY scripts/demo.php /var/www/html/scripts/demo.php
 COPY scripts/docker-entrypoint.sh /usr/local/bin/rotina-entrypoint
 RUN chmod +x /usr/local/bin/rotina-entrypoint
 

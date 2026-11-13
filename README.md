@@ -47,7 +47,7 @@ Com os dados de exemplo, entre com `admin` / `1` (ou `ana` / `1`). Sem eles, a t
 ## Testes
 
 ```powershell
-php tests/run.php          # 78 testes: banco, login, clientes, tarefas, automações, rotina, importação e camada web
+php tests/run.php          # 81 testes: banco, login, clientes, tarefas, automações, rotina, importação, dados de exemplo e camada web
 node tests/browser_test.js # ponta a ponta no Edge (todas as telas, os 2 temas e o celular); SHOT=pasta salva prints
 ```
 
@@ -60,6 +60,7 @@ node tests/browser_test.js # ponta a ponta no Edge (todas as telas, os 2 temas e
 | `ROTINA_TIMEZONE` | `America/Fortaleza` | Fuso (define "hoje", o turno e a hora das automações) |
 | `ROTINA_COOKIE_SECURE` | `0` | Use `1` em produção com HTTPS |
 | `ROTINA_SENHA_MIN` | `1` | Tamanho mínimo da senha. **Use `8` em produção** |
+| `ROTINA_DEMO` | (vazio) | `carregar` põe dados fictícios ligados ao primeiro administrador (uma vez só); `apagar` remove só eles. Roda na partida do container |
 | `ROTINA_SECRET` | (gerada em `data/chave.key`) | Chave que criptografa o token do ClickUp |
 
 ## Publicar na VPS (projeto separado)

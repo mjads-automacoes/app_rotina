@@ -7,6 +7,11 @@ set -e
 mkdir -p "${ROTINA_DATA_DIR:-/data}"
 chown -R www-data:www-data "${ROTINA_DATA_DIR:-/data}"
 
+# Dados ficticios de demonstracao, a pedido do dono: ROTINA_DEMO=carregar ou ROTINA_DEMO=apagar (Easypanel > Ambiente).
+case "${ROTINA_DEMO:-}" in
+    carregar|apagar) su -s /bin/sh www-data -c "php /var/www/html/scripts/demo.php ${ROTINA_DEMO}" || true ;;
+esac
+
 (
     while true; do
         sleep 60
