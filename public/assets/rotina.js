@@ -120,7 +120,7 @@
     const feitas = TURNOS.reduce((s, [t]) => s + clientesDo(t, d).filter((c) => c.status_tipo === "fechado").length + checklistDo(t, d).filter((c) => c.status_tipo === "fechado").length, 0);
     const total = TURNOS.reduce((s, [t]) => s + clientesDo(t, d).length + checklistDo(t, d).length, 0);
     const nome = { segunda: "Segunda-feira", terca: "Terça-feira", quarta: "Quarta-feira", quinta: "Quinta-feira", sexta: "Sexta-feira" }[d.dia] || "Hoje";
-    ui.dias.replaceChildren(el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }), total ? el("small", { text: feitas + "/" + total + " feitos" }) : null);
+    ui.dias.replaceChildren(...[el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }), total ? el("small", { text: feitas + "/" + total + " feitos" }) : null].filter(Boolean));
   }
 
   function checklist() {
@@ -154,7 +154,7 @@
       return;
     }
     const tipo = cliente.status_tipo;
-    ui.foco.replaceChildren(
+    ui.foco.replaceChildren(...[
       el("span", { class: "rotina-selo" + (tipo === "fechado" ? " is-ok" : ""), text: tipo === "fechado" ? "CONCLUÍDO" : "EM FOCO" }),
       el("div", { class: "rotina-foco-linha" }, [el("h2", { class: "rotina-foco-nome", text: cliente.cliente_nome || cliente.titulo }), el("span", { class: "pilula is-" + tipo, text: STATUS[tipo] || cliente.status_nome })]),
       cliente.cliente_descricao ? el("p", { class: "rotina-foco-descricao", text: cliente.cliente_descricao }) : null,
@@ -172,7 +172,7 @@
         tipo === "andamento" ? el("button", { class: "btn btn-primario", type: "button", "data-acao": "concluir", text: "Concluir" }) : null,
         tipo === "fechado" ? el("button", { class: "btn btn-contorno", type: "button", "data-acao": "reabrir", text: "Reabrir" }) : null,
       ]),
-    );
+    ].filter(Boolean));
   }
 
   function clientes() {
