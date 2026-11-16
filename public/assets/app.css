@@ -468,3 +468,25 @@ body.embutido .grade-form .acoes { position: sticky; bottom: 0; z-index: 2; marg
 .notificacao.is-saindo { opacity: 0; transform: translateX(16px); }
 @keyframes notificacao-entra { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .notificacao { animation: none; transition: none; } }
+
+/* Texto formatado (observacoes e notas vindas do ClickUp) */
+.texto-rico { line-height: 1.55; overflow-wrap: anywhere; }
+.texto-rico > :first-child { margin-top: 0; }
+.texto-rico > :last-child { margin-bottom: 0; }
+.texto-rico p { margin: 0 0 10px; }
+.texto-rico h3 { font-size: 1.35rem; margin: 18px 0 8px; }
+.texto-rico h4 { font-size: 1.1rem; margin: 16px 0 6px; }
+.texto-rico h5, .texto-rico h6, .texto-rico h7 { font-size: 0.98rem; margin: 14px 0 6px; }
+.texto-rico ul, .texto-rico ol { margin: 0 0 10px; padding-left: 22px; }
+.texto-rico li { margin: 3px 0; }
+.texto-rico hr { border: 0; border-top: 1px solid var(--borda); margin: 14px 0; }
+.texto-rico blockquote { margin: 0 0 10px; padding: 4px 12px; border-left: 3px solid var(--borda-forte); color: var(--muted); }
+.texto-rico code { padding: 1px 5px; border-radius: 5px; background: var(--campo); font-size: 0.88em; }
+.texto-rico a { color: var(--acento-texto); }
+.obs-ver { display: grid; gap: 10px; justify-items: start; padding: 14px 16px; border: 1px solid var(--borda); border-radius: 12px; background: var(--campo); }
+.obs-ver[hidden] { display: none; }
+.recolhivel { width: 100%; }
+.recolhivel.is-recolhido { max-height: 260px; overflow: hidden; -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent); mask-image: linear-gradient(180deg, #000 70%, transparent); }
+.btn-expandir { justify-self: center; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--borda-forte); background: var(--panel); color: var(--texto); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.btn-obs-editar { padding: 6px 12px; font-size: 0.85rem; }
+.nota .texto-rico { margin-top: 4px; }

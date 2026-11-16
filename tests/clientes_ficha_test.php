@@ -23,7 +23,7 @@ t('ficha completa: empresa, contato, plataformas, orcamento e observacoes', func
     ok(str_contains($cli['observacoes'], 'WhatsApp'));
     lanca(fn () => $c->criar($ana, ['nome' => 'X', 'contato_email' => 'invalido']), 'e-mail');
     lanca(fn () => $c->criar($ana, ['nome' => 'X', 'plataformas' => ['orkut']]), 'plataforma');
-    lanca(fn () => $c->criar($ana, ['nome' => 'X', 'observacoes' => str_repeat('a', 2001)]), 'observações');
+    lanca(fn () => $c->criar($ana, ['nome' => 'X', 'observacoes' => str_repeat('a', 20001)]), 'observações');
 });
 
 t('notas do cliente: adicionar e ler na ordem, so do dono', function (): void {
@@ -48,4 +48,24 @@ t('responsavel do cliente: admin troca para alguem da equipe, gestor nao troca',
     eq((int) $beto['id'], $n->clientes->buscar($admin, $id)['gestor_id'], 'admin reatribui');
     eq('X', $n->clientes->buscar($beto, $id)['nome'], 'o novo responsavel passa a ver o cliente');
     lanca(fn () => $n->clientes->atualizar($admin, $id, ['gestor_id' => 9999]), 'responsável válido');
+});
+
+t('texto_rico: formata o markdown do ClickUp e nunca deixa HTML de fora passar', function (): void {
+    $h = texto_rico("# ONBOARDING - GABRIEL\n*PROCESSO DE INTEGRAÇÃO*\n\n## 1 - QUANDO?\n**Não informado.** <script>alert(1)</script>\n- um [site](https://x.com/a_b) e `c_d`\n- dois\n1. primeiro\n---\n> nota");
+    ok(str_contains($h, '<h3>ONBOARDING - GABRIEL</h3>'), 'titulo');
+    ok(str_contains($h, '<em>PROCESSO DE INTEGRAÇÃO</em>'), 'italico');
+    ok(str_contains($h, '<h4>1 - QUANDO?</h4>'), 'subtitulo');
+    ok(str_contains($h, '<strong>Não informado.</strong>'), 'negrito');
+    ok(str_contains($h, '&lt;script&gt;alert(1)&lt;/script&gt;') && !str_contains($h, '<script'), 'HTML escapado');
+    ok(str_contains($h, '<ul><li>um <a href="https://x.com/a_b" target="_blank" rel="noopener noreferrer">site</a> e <code>c_d</code></li><li>dois</li></ul>'), 'lista, link intacto e codigo');
+    ok(str_contains($h, '<ol><li>primeiro</li></ol><hr><blockquote>nota</blockquote>'), 'numerada, linha e citacao');
+    ok(!str_contains(texto_rico('[x](javascript:alert(1))'), 'href'), 'link so http(s)');
+    ok(!str_contains(texto_rico('[x](https://a.com" onmouseover="b)'), 'onmouseover="'), 'aspas nao quebram o atributo');
+});
+
+t('observacoes aceitam a descricao inteira do ClickUp (ate 20000)', function (): void {
+    [$n, , $ana] = nucleo_teste();
+    $id = $n->clientes->criar($ana, ['nome' => 'Longo', 'observacoes' => str_repeat('a', 20000)]);
+    eq(20000, mb_strlen($n->clientes->buscar($ana, $id)['observacoes']));
+    lanca(fn () => $n->clientes->criar($ana, ['nome' => 'X', 'observacoes' => str_repeat('a', 20001)]), 'observações');
 });

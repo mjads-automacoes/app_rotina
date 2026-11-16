@@ -244,8 +244,14 @@ final class App
                 }
 
                 if ($acao === 'notas') {
-                    $this->n->clientes->notaAdicionar($u, $id, (string) ($r->post['texto'] ?? ''));
-                    $this->flash($r, 'ok', 'Nota adicionada.');
+                    // cliente ligado ao ClickUp: a nota tambem vira comentario da tarefa la
+                    $envio = $this->n->importacao->enviarNota($u, $id, (string) ($r->post['texto'] ?? ''));
+
+                    if ($envio['erro'] !== null) {
+                        $this->flash($r, 'erro', 'Nota salva aqui, mas não foi enviada ao ClickUp: ' . $envio['erro']);
+                    } else {
+                        $this->flash($r, 'ok', $envio['clickup'] ? 'Nota adicionada e enviada ao ClickUp.' : 'Nota adicionada.');
+                    }
                 } else {
                     $this->n->clientes->atualizar($u, $id, $this->dadosCliente($r->post));
                     $this->flash($r, 'ok', 'Cliente atualizado.');
@@ -255,6 +261,7 @@ final class App
             }
 
             $cliente = $this->n->clientes->buscar($u, $id);
+            $this->n->importacao->sincronizarSeNecessario($cliente); // comentarios novos do ClickUp viram notas
 
             return $this->tela($r, $u, 'cliente', [
                 'cliente' => $cliente,

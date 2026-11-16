@@ -59,7 +59,14 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       </label>
 
       <h3 class="form-secao largo">Observações</h3>
-      <label class="largo"><span class="sr-only">Observações</span><textarea name="observacoes" rows="4" maxlength="2000"><?= e((string) $c['observacoes']) ?></textarea></label>
+      <?php $temObs = trim((string) $c['observacoes']) !== ''; ?>
+      <?php if ($temObs): ?>
+        <div class="largo obs-ver" data-obs-ver>
+          <div class="texto-rico recolhivel" data-recolher><?= texto_rico((string) $c['observacoes']) ?></div>
+          <button class="btn btn-contorno btn-obs-editar" type="button" data-obs-editar>Editar observações</button>
+        </div>
+      <?php endif; ?>
+      <label class="largo" data-obs-campo <?= $temObs ? 'hidden' : '' ?>><span class="sr-only">Observações</span><textarea name="observacoes" rows="<?= $temObs ? 14 : 4 ?>" maxlength="<?= Clientes::OBSERVACOES_MAX ?>" placeholder="Use # para título, **negrito**, *itálico* e - para listas."><?= e((string) $c['observacoes']) ?></textarea></label>
       <div class="acoes">
         <button class="btn btn-primario" type="submit">Salvar</button>
         <button class="btn btn-perigo" type="submit" formaction="/clientes/<?= (int) $c['id'] ?>/excluir" data-confirmar="Excluir este cliente? As tarefas dele ficam, sem cliente.">Excluir</button>
@@ -101,13 +108,13 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <h2>Notas</h2>
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/notas" class="nota-form">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-        <textarea name="texto" rows="2" maxlength="2000" placeholder="Anote algo sobre o cliente…" required></textarea>
+        <textarea name="texto" rows="2" maxlength="<?= Clientes::NOTA_MAX ?>" placeholder="<?= empty($c['clickup_id']) ? 'Anote algo sobre o cliente…' : 'Anote algo sobre o cliente (vai também para os comentários do ClickUp)…' ?>" required></textarea>
         <button class="btn btn-primario" type="submit">Adicionar</button>
       </form>
       <?php foreach ($notas as $nota): ?>
         <article class="nota">
           <header><strong><?= e((string) $nota['autor']) ?></strong> <span class="muted"><?= e(date('d/m/Y H:i', (int) strtotime((string) $nota['criado_em']))) ?><?= $nota['origem'] === 'clickup' ? ' · do ClickUp' : '' ?></span></header>
-          <p><?= nl2br(e((string) $nota['texto'])) ?></p>
+          <div class="texto-rico"><?= texto_rico((string) $nota['texto']) ?></div>
         </article>
       <?php endforeach; ?>
     </section>

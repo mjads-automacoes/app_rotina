@@ -17,7 +17,7 @@ Não depende do WhatsRedirect (sem código, banco, login nem domínio em comum).
 | **Clientes** | Cards + ficha completa (empresa, contato, plataformas, orçamento, observações, dias/turno da rotina), notas e as tarefas do cliente. |
 | **Automações** | "Quando X, faça Y" (veja abaixo). Liga/desliga, executar agora, histórico de execuções e construtor visual. |
 | **Histórico** | Tudo o que foi concluído, com responsável e nota. |
-| **Importar** | Traz clientes e comentários de uma lista do ClickUp (somente leitura). |
+| **Importar** | Traz clientes e comentários de uma lista do ClickUp; as notas da ficha viram comentários lá. |
 | **Equipe / Conta** | Admin cria gestores, ativa/desativa e redefine senha; cada um troca a própria senha. |
 
 Tema **escuro** e **claro** (botão no menu; segue o sistema na primeira visita e lembra a escolha). Funciona no celular.
@@ -47,7 +47,7 @@ Com os dados de exemplo, entre com `admin` / `1` (ou `ana` / `1`). Sem eles, a t
 ## Testes
 
 ```powershell
-php tests/run.php          # 83 testes: banco, login, clientes, tarefas, automações, rotina, importação, dados de exemplo e camada web
+php tests/run.php          # 88 testes: banco, login, clientes, tarefas, automações, rotina, importação, dados de exemplo e camada web
 node tests/browser_test.js # ponta a ponta no Edge (todas as telas, os 2 temas e o celular); SHOT=pasta salva prints
 ```
 
@@ -76,7 +76,7 @@ Crie um **projeto novo** no Easypanel (por exemplo `rotina`), sem reaproveitar `
 
 ## Importar do ClickUp
 
-Somente leitura (só `GET`). Em **Importar**: o administrador cola o API Token (fica criptografado e nunca é exibido), escolhe a lista de clientes e importa. Cada tarefa vira um cliente (status "ativo" entra na rotina, "novo" fica de fora; o dia vem da etiqueta ou do vencimento) e os comentários viram notas. Importar de novo atualiza sem duplicar.
+Lê clientes e comentários (`GET`); a única escrita é publicar como comentário a nota enviada na ficha. A descrição da tarefa vira as Observações, com a formatação. Em **Importar**: o administrador cola o API Token (fica criptografado e nunca é exibido), escolhe a lista de clientes e importa. Cada tarefa vira um cliente (status "ativo" entra na rotina, "novo" fica de fora; o dia vem da etiqueta ou do vencimento) e os comentários viram notas. Importar de novo atualiza sem duplicar.
 
 ## Próximas ideias
 

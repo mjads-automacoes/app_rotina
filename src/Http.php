@@ -29,6 +29,108 @@ function asset(string $arquivo): string
     return '/assets/' . $arquivo . ($marcas[$arquivo] !== '' ? '?v=' . $marcas[$arquivo] : '');
 }
 
+/**
+ * Texto com formatacao simples (o markdown da descricao do ClickUp) em HTML seguro.
+ * Tudo e escapado ANTES de formatar: so saem as tags criadas aqui. Links so http(s).
+ * Entende: # titulos, **negrito**, *italico* / _italico_, ~~riscado~~, `codigo`, listas (-, *, 1.), > citacao, --- e [texto](url).
+ */
+function texto_rico(string $texto): string
+{
+    $linhas = preg_split('/\R/u', trim($texto)) ?: [];
+    $html = '';
+    $lista = '';
+    $paragrafo = [];
+
+    $fecharParagrafo = static function () use (&$paragrafo, &$html): void {
+        if ($paragrafo !== []) {
+            $html .= '<p>' . implode('<br>', $paragrafo) . '</p>';
+            $paragrafo = [];
+        }
+    };
+    $fecharLista = static function () use (&$lista, &$html): void {
+        if ($lista !== '') {
+            $html .= '</' . $lista . '>';
+            $lista = '';
+        }
+    };
+
+    foreach ($linhas as $linha) {
+        $limpa = trim($linha);
+
+        if ($limpa === '') {
+            $fecharParagrafo();
+            $fecharLista();
+            continue;
+        }
+
+        if (preg_match('/^(#{1,6})\s+(.+)$/u', $limpa, $m)) {
+            $fecharParagrafo();
+            $fecharLista();
+            $nivel = min(6, strlen($m[1]) + 2); // # vira h3: a ficha ja tem h1 e h2
+            $html .= '<h' . $nivel . '>' . texto_rico_linha($m[2]) . '</h' . $nivel . '>';
+            continue;
+        }
+
+        if (preg_match('/^(-{3,}|\*{3,}|_{3,})$/', $limpa)) {
+            $fecharParagrafo();
+            $fecharLista();
+            $html .= '<hr>';
+            continue;
+        }
+
+        if (preg_match('/^(?:[-*+]\s+(?:\[[ xX]\]\s*)?|(\d+)[.)]\s+)(.*)$/u', $limpa, $m)) {
+            $fecharParagrafo();
+            $tipo = ($m[1] ?? '') !== '' ? 'ol' : 'ul';
+
+            if ($lista !== $tipo) {
+                $fecharLista();
+                $html .= '<' . $tipo . '>';
+                $lista = $tipo;
+            }
+
+            $html .= '<li>' . texto_rico_linha($m[2]) . '</li>';
+            continue;
+        }
+
+        if (preg_match('/^>\s?(.*)$/u', $limpa, $m)) {
+            $fecharParagrafo();
+            $fecharLista();
+            $html .= '<blockquote>' . texto_rico_linha($m[1]) . '</blockquote>';
+            continue;
+        }
+
+        $fecharLista();
+        $paragrafo[] = texto_rico_linha($limpa);
+    }
+
+    $fecharParagrafo();
+    $fecharLista();
+
+    return $html;
+}
+
+/** Formatacao dentro de uma linha. Escapa primeiro; depois troca as marcas por tags. */
+function texto_rico_linha(string $linha): string
+{
+    $s = e($linha);
+    $guardados = [];
+    $guardar = static function (string $html) use (&$guardados): string {
+        $guardados[] = $html;
+
+        return "\x00" . (count($guardados) - 1) . "\x00";
+    };
+    // links e codigo saem do caminho antes do negrito/italico, para um "_" no endereco nao virar italico
+    $s = (string) preg_replace_callback('/\[([^\]]+)\]\((https?:\/\/[^\s)"]+)\)/u', static fn (array $m): string => $guardar('<a href="' . $m[2] . '" target="_blank" rel="noopener noreferrer">' . $m[1] . '</a>'), $s);
+    $s = (string) preg_replace_callback('/`([^`]+)`/u', static fn (array $m): string => $guardar('<code>' . $m[1] . '</code>'), $s);
+    $s = (string) preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $s);
+    $s = (string) preg_replace('/__(.+?)__/u', '<strong>$1</strong>', $s);
+    $s = (string) preg_replace('/~~(.+?)~~/u', '<s>$1</s>', $s);
+    $s = (string) preg_replace('/(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])/u', '<em>$1</em>', $s);
+    $s = (string) preg_replace('/(?<![\w])_(?!\s)(.+?)(?<!\s)_(?![\w])/u', '<em>$1</em>', $s);
+
+    return (string) preg_replace_callback('/\x00(\d+)\x00/', static fn (array $m): string => $guardados[(int) $m[1]], $s);
+}
+
 /** Icones de traco (24x24), herdam a cor do texto. */
 function icone(string $nome): string
 {

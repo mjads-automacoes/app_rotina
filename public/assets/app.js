@@ -18,6 +18,29 @@
     if (botao && !window.confirm(botao.dataset.confirmar)) event.preventDefault();
   });
 
+  // ---- texto longo (observacoes do ClickUp): recolhido, com Expandir / Recolher
+  document.querySelectorAll("[data-recolher]").forEach((bloco) => {
+    if (bloco.scrollHeight <= 260) return;
+    bloco.classList.add("is-recolhido");
+    const botao = el("button", { class: "btn-expandir", type: "button", text: "Expandir" });
+    botao.addEventListener("click", () => {
+      const recolhido = bloco.classList.toggle("is-recolhido");
+      botao.textContent = recolhido ? "Expandir" : "Recolher";
+    });
+    bloco.after(botao);
+  });
+
+  // ---- observacoes: mostra o texto formatado; "Editar" troca pelo campo de texto
+  document.addEventListener("click", (event) => {
+    const editar = event.target.closest("[data-obs-editar]");
+    if (!editar) return;
+    const form = editar.closest("form");
+    form.querySelector("[data-obs-ver]").hidden = true;
+    const campo = form.querySelector("[data-obs-campo]");
+    campo.hidden = false;
+    campo.querySelector("textarea").focus();
+  });
+
   // ---- cores vindas dos dados (CSP: sem style inline no HTML, so via script)
   document.querySelectorAll("[data-cor]").forEach((n) => { n.style.background = n.dataset.cor; });
 

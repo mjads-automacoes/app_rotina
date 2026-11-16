@@ -5,6 +5,10 @@ declare(strict_types=1);
 final class Clientes
 {
     public const PLATAFORMAS = ['google', 'meta', 'tiktok', 'linkedin', 'outros'];
+    /** Observacoes guardam a descricao inteira do ClickUp (documento de onboarding), por isso o limite e alto. */
+    public const OBSERVACOES_MAX = 20000;
+    /** Notas espelham os comentarios do ClickUp, que podem ser longos (planos de acao). */
+    public const NOTA_MAX = 20000;
 
     public function __construct(private PDO $pdo)
     {
@@ -122,8 +126,8 @@ final class Clientes
         $this->buscar($actor, $id);
         $texto = trim($texto);
 
-        if ($texto === '' || mb_strlen($texto) > 2000) {
-            throw new InvalidArgumentException('Escreva a nota (até 2000 caracteres).');
+        if ($texto === '' || mb_strlen($texto) > self::NOTA_MAX) {
+            throw new InvalidArgumentException('Escreva a nota (até ' . self::NOTA_MAX . ' caracteres).');
         }
 
         $this->pdo->prepare("INSERT INTO cliente_notas (cliente_id, autor, texto, origem, criado_em) VALUES (?, ?, ?, 'manual', ?)")->execute([$id, (string) ($actor['nome'] ?? ''), $texto, date(DATE_ATOM)]);
@@ -133,7 +137,7 @@ final class Clientes
     public function notaImportada(int $clienteId, string $autor, string $texto, string $origem, string $origemId, string $criadoEm): bool
     {
         $st = $this->pdo->prepare('INSERT OR IGNORE INTO cliente_notas (cliente_id, autor, texto, origem, origem_id, criado_em) VALUES (?, ?, ?, ?, ?, ?)');
-        $st->execute([$clienteId, mb_substr($autor, 0, 120), mb_substr($texto, 0, 2000), $origem, $origemId, $criadoEm]);
+        $st->execute([$clienteId, mb_substr($autor, 0, 120), mb_substr($texto, 0, self::NOTA_MAX), $origem, $origemId, $criadoEm]);
 
         return $st->rowCount() === 1;
     }
@@ -207,8 +211,8 @@ final class Clientes
 
         $observacoes = trim((string) ($d['observacoes'] ?? ''));
 
-        if (mb_strlen($observacoes) > 2000 || mb_strlen($link) > 500) {
-            throw new InvalidArgumentException('Texto muito longo nas observações ou no link (observações até 2000 caracteres).');
+        if (mb_strlen($observacoes) > self::OBSERVACOES_MAX || mb_strlen($link) > 500) {
+            throw new InvalidArgumentException('Texto muito longo nas observações ou no link (observações até ' . self::OBSERVACOES_MAX . ' caracteres).');
         }
 
         return ['nome' => $nome, 'link' => $link, 'dias' => $dias, 'turno' => $turno, 'status' => $status, 'contato_email' => $email, 'plataformas' => $plataformas, 'observacoes' => $observacoes] + $curtos;

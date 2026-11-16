@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente e na nuvem, com 83 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
+- **Estado:** funciona localmente e na nuvem, com 88 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -76,7 +76,7 @@ A partida do container é `scripts/docker-entrypoint.sh`: acerta o dono do volum
 ## 5. Testes
 
 ```bash
-php tests/run.php            # 83 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
+php tests/run.php            # 88 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
 node tests/browser_test.js   # ponta a ponta num navegador sem janela; SHOT=pasta salva os prints
 ```
 
@@ -115,7 +115,7 @@ src/
   Tarefas.php      tarefas, etiquetas, checklist, comentários, atividade
   Automacoes.php   gatilhos, condições, ações, tick
   Rotina.php       rotina do dia (visão sobre as tarefas) e histórico
-  Importacao.php   ClickUp (somente leitura), token criptografado
+  Importacao.php   ClickUp: importa clientes, sincroniza comentários <-> notas; token criptografado
 views/             layout.php + uma view por tela (PHP puro)
 scripts/
   seed-demo.php    dados de exemplo (só em banco vazio): cria admin/1 e ana/1 e chama Demo::carregar
@@ -251,12 +251,14 @@ Tarefas concluídas, mais recentes primeiro, com responsável e a última nota.
 
 ### Importar do ClickUp
 
-Somente leitura (só `GET`, e só para `api.clickup.com`). O admin cola o API Token, que fica criptografado com AES-256-GCM (chave em `ROTINA_SECRET` ou no arquivo `chave.key` da pasta de dados) e nunca volta para a tela. Cada tarefa da lista escolhida vira um cliente; os comentários viram notas; importar de novo atualiza sem duplicar. Regras do mapeamento:
+Só fala com `api.clickup.com`. Lê (`GET`) clientes e comentários; a **única escrita** é publicar como comentário da tarefa a nota enviada na ficha (pedido do dono em 16/11/2026: "tudo que eu preencher e mandar em Notas vai para os comentários do ClickUp, e puxa o que já estiver lá"). O admin cola o API Token, que fica criptografado com AES-256-GCM (chave em `ROTINA_SECRET` ou no arquivo `chave.key` da pasta de dados) e nunca volta para a tela. Cada tarefa da lista escolhida vira um cliente; os comentários viram notas; importar de novo atualiza sem duplicar. Regras do mapeamento:
 
 - Situação: status do ClickUp com a palavra "ativo(s)" vira `ativo`; com "novo/nova" vira `novo`; o resto vira `pausado`. Na estrutura real do dono o status é "CLIENTES ATIVOS".
 - Dia: etiqueta que começa com o nome do dia; se não houver, o dia da semana do vencimento.
 - Turno: etiqueta `13h` ou `tarde` vira tarde; `17h` ou `fechamento` vira fechamento; senão manhã.
-- Campos personalizados e descrição vão para Observações; o resto fica em `clickup_dados`.
+- **Observações = descrição da tarefa** (pedido do dono em 16/11/2026), pedida com `include_markdown_description=true` para vir com a formatação, inteira (até 20.000 caracteres, `Clientes::OBSERVACOES_MAX`). Na ficha ela aparece formatada por `texto_rico()` (em `Http.php`: escapa tudo antes e só cria as próprias tags; links só http/https), recolhida com Expandir, e o botão "Editar observações" mostra o campo de texto. Os campos personalizados **não** vão mais para as Observações: ficam no bloco "Dados do ClickUp" (`clickup_dados`).
+- **Notas <-> comentários:** nota enviada na ficha de um cliente com `clickup_id` (e token salvo) vira comentário da tarefa (`POST /task/{id}/comment`) e fica salva aqui com `origem = clickup` e o id do comentário, para não duplicar ao puxar. Se o ClickUp falhar, a nota fica só aqui e a notificação avisa. Ao abrir a ficha, os comentários novos são puxados (no máximo 1 vez por minuto por cliente, `meta.clickup_sinc_{id}`; erro nunca quebra a página), convertidos das partes ricas do ClickUp para markdown (título, negrito, itálico, listas, links). Notas aceitam até 20.000 caracteres (`Clientes::NOTA_MAX`). O comentário sai no ClickUp com o nome do dono do token, sem assinatura de quem escreveu.
+- `descricao` do cliente (subtítulo do foco na Rotina) continua sendo os primeiros 500 caracteres da descrição: com documentos de onboarding isso pode ficar grande no foco (perguntado ao dono em 16/11/2026).
 
 **Só foi validado com um transporte simulado nos testes. Nunca rodou contra o ClickUp de verdade.**
 
@@ -327,7 +329,7 @@ O dono tem pendências no WhatsRedirect (outra pasta, outro repositório): um er
 
 1. Ler este arquivo e o `README.md`.
 2. Conferir o ambiente: `php -v`, `php -m | grep -i sqlite`, `node -v`.
-3. Rodar `php tests/run.php`. Tem de dar **83 de 83**.
+3. Rodar `php tests/run.php`. Tem de dar **88 de 88**.
 4. Rodar o teste de navegador (com `EDGE_PATH` apontando para um Chromium). Se não houver navegador no ambiente, diga isso ao dono em vez de pular em silêncio.
 5. Subir o preview (seção 4) e entrar com `admin` / `1`.
 6. Perguntar ao dono o que ele quer mudar. Se ele não trouxer nada, apresentar as 4 perguntas da seção 11.
