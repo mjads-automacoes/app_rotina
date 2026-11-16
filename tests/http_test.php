@@ -354,3 +354,31 @@ t('ficha: campo "Subtitulo na Rotina" salva e aparece na rotina', function (): v
     req($app, $beto, 'POST', "/clientes/{$id}/notas", ['csrf' => $csrf, 'texto' => 'oi']);
     eq('Revisar leads da semana', $pdo->query('SELECT descricao FROM clientes')->fetchColumn());
 });
+
+t('ficha salva sozinha pela API e exclui pela lixeira, so nos proprios clientes', function (): void {
+    [$app, $pdo, , $ana, $beto] = cenario_http();
+    $csrf = (string) $beto->d['csrf'];
+    req($app, $beto, 'POST', '/clientes', ['csrf' => $csrf, 'nome' => 'Do Beto', 'dias_enviado' => '1', 'dias' => ['segunda']]);
+    $id = (int) $pdo->query('SELECT id FROM clientes')->fetchColumn();
+    $h = ['X-CSRF-Token' => $csrf];
+
+    $r = req($app, $beto, 'POST', "/api/clientes/{$id}", ['nome' => 'Do Beto LTDA', 'contato_nome' => 'Beto', 'dias_enviado' => '1', 'plataformas_enviado' => '1', 'plataformas' => ['meta'], 'turno' => 'tarde'], [], $h);
+    eq(200, $r->status, $r->body);
+    eq('Do Beto LTDA', json_decode($r->body, true)['cliente']['nome']);
+    $c = $pdo->query('SELECT nome, contato_nome, dias, plataformas, turno FROM clientes')->fetch();
+    eq(['Do Beto LTDA', 'Beto', '', 'meta', 'tarde'], [$c['nome'], $c['contato_nome'], $c['dias'], $c['plataformas'], $c['turno']], 'dias desmarcados e plataforma salvos');
+
+    eq(422, req($app, $beto, 'POST', "/api/clientes/{$id}", ['nome' => ''], [], $h)->status, 'nome vazio nao salva');
+    eq('Do Beto LTDA', $pdo->query('SELECT nome FROM clientes')->fetchColumn());
+    ok(req($app, $beto, 'POST', "/api/clientes/{$id}", ['nome' => 'Sem token'])->status >= 400, 'exige CSRF');
+    eq(404, req($app, $ana, 'POST', "/api/clientes/{$id}", ['nome' => 'Invasao'], [], ['X-CSRF-Token' => (string) $ana->d['csrf']])->status, 'outro gestor nao salva');
+    eq(404, req($app, $ana, 'POST', "/api/clientes/{$id}/excluir", [], [], ['X-CSRF-Token' => (string) $ana->d['csrf']])->status, 'outro gestor nao exclui');
+
+    $ficha = req($app, $beto, 'GET', "/clientes/{$id}")->body;
+    ok(!str_contains($ficha, '>Salvar<'), 'sem botao Salvar');
+    ok(str_contains($ficha, 'data-autosalvar="/api/clientes/' . $id . '"'), 'formulario salva sozinho');
+    ok(str_contains($ficha, 'aria-label="Excluir cliente"'), 'lixeira ao lado do nome');
+
+    eq(200, req($app, $beto, 'POST', "/api/clientes/{$id}/excluir", [], [], $h)->status);
+    eq(0, (int) $pdo->query('SELECT COUNT(*) FROM clientes')->fetchColumn());
+});

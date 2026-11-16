@@ -437,6 +437,22 @@ final class App
             return $ok();
         }
 
+        // ---- ficha do cliente: salva sozinha a cada mudanca; excluir pela lixeira do topo
+        if ($post && preg_match('#^/api/clientes/(\d+)(?:/(excluir))?$#', $caminho, $m)) {
+            $id = (int) $m[1];
+
+            if (($m[2] ?? '') === 'excluir') {
+                $n->clientes->excluir($u, $id);
+
+                return $ok();
+            }
+
+            $n->clientes->atualizar($u, $id, $this->dadosCliente($p));
+            $c = $n->clientes->buscar($u, $id);
+
+            return $ok(['cliente' => ['id' => $c['id'], 'nome' => $c['nome']]]);
+        }
+
         // ---- tarefas
         if ($caminho === '/api/tarefas' && $get) {
             $f = array_intersect_key($r->query, array_flip(['lista_id', 'status_id', 'cliente_id', 'responsavel_id', 'prioridade', 'etiqueta', 'busca', 'de', 'ate', 'abertas', 'concluidas']));

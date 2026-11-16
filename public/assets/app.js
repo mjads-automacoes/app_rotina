@@ -18,6 +18,68 @@
     if (botao && !window.confirm(botao.dataset.confirmar)) event.preventDefault();
   });
 
+  // ---- ficha do cliente: salva sozinha a cada mudanca (sem botao Salvar)
+  document.querySelectorAll("form[data-autosalvar]").forEach((form) => {
+    const status = document.querySelector("[data-salvo-status]");
+    const mostrar = (texto, classe) => { if (status) { status.textContent = texto; status.className = "salvo-status " + classe; } };
+    let espera = null;
+    let salvando = false;
+    let deNovo = false;
+    let sujo = false;
+
+    // campos do formulario -> objeto (dias[] e plataformas[] viram listas)
+    const dados = () => {
+      const d = {};
+      new FormData(form).forEach((valor, nome) => {
+        if (nome === "csrf") return;
+        if (nome.endsWith("[]")) (d[nome.slice(0, -2)] = d[nome.slice(0, -2)] || []).push(valor);
+        else d[nome] = valor;
+      });
+      return d;
+    };
+
+    const salvar = async () => {
+      clearTimeout(espera);
+      if (!sujo) return;
+      if (salvando) { deNovo = true; return; }
+      salvando = true;
+      sujo = false;
+      mostrar("Salvando…", "is-salvando");
+      try {
+        const r = await chamar("POST", form.dataset.autosalvar, dados());
+        mostrar("✓ Salvo", "is-salvo");
+        const nome = r.cliente && r.cliente.nome;
+        if (nome) {
+          document.querySelectorAll("[data-cliente-nome]").forEach((n) => { n.textContent = nome; });
+          try { const t = window.parent !== window && window.parent.document.querySelector(".janela-topo [data-janela-nome]"); if (t) t.textContent = nome; } catch (e) { /* outra origem */ }
+        }
+      } catch (e) {
+        sujo = true;
+        mostrar("Não salvo", "is-erro");
+        toast("Não foi possível salvar: " + e.message, true);
+      } finally {
+        salvando = false;
+        if (deNovo) { deNovo = false; salvar(); }
+      }
+    };
+
+    // digitando: espera uma pausa curta; escolha (menu, caixa de marcar) ou saiu do campo: salva na hora
+    form.addEventListener("input", (ev) => {
+      sujo = true;
+      mostrar("Editando…", "is-salvando");
+      clearTimeout(espera);
+      const imediato = ev.target.matches("select, input[type=checkbox], input[type=radio]");
+      espera = setTimeout(salvar, imediato ? 0 : 700);
+    });
+    form.addEventListener("change", () => { if (sujo) salvar(); });
+    form.addEventListener("submit", (ev) => { ev.preventDefault(); sujo = true; salvar(); });
+    // fechando a janela ou saindo da pagina com algo pendente: envia mesmo assim
+    window.addEventListener("pagehide", () => {
+      if (!sujo) return;
+      fetch(form.dataset.autosalvar, { method: "POST", keepalive: true, credentials: "same-origin", headers: { Accept: "application/json", "Content-Type": "application/json", "X-CSRF-Token": csrf }, body: JSON.stringify(dados()) });
+    });
+  });
+
   // ---- texto longo (observacoes do ClickUp): recolhido, com Expandir / Recolher
   document.querySelectorAll("[data-recolher]").forEach((bloco) => {
     if (bloco.scrollHeight <= 260) return;

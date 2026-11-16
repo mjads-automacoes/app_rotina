@@ -88,12 +88,13 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');
     await sleep(900);
     await shot('1b-ficha-janela.png');
+    assert.equal(await ev("!!document.querySelector('.janela-topo .janela-titulo .btn-lixeira') && !document.querySelector('.janela-quadro').contentDocument.querySelector('.form-lixeira').offsetParent"), true, 'lixeira no topo da janela, ao lado do nome (e nao repetida dentro)');
     // aviso salvo dentro da janela aparece na tela principal, no canto superior direito
     await ev("(() => { const d = document.querySelector('.janela-quadro').contentDocument; const t = d.querySelector('.nota-form textarea'); t.value = 'Nota pela janela'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("[...document.querySelectorAll('#notificacoes .notificacao')].some(n => n.textContent.includes('Nota adicionada'))"), 'notificacao da janela aparece na tela principal');
     assert.equal(await ev("(() => { const r = document.querySelector('#notificacoes .notificacao').getBoundingClientRect(); return r.top < 40 && innerWidth - r.right < 40; })()"), true, 'notificacao no canto superior direito');
     await shot('1c-notificacao.png');
-    await ev("document.querySelector('.janela-topo button').click()");
+    await ev("document.querySelector('.janela-topo [data-janela-fechar]').click()");
     assert.equal(await ev("document.querySelector('.janela-fundo') === null"), true, 'janela fecha');
     await clicar('[data-acao="iniciar"]');
     assert.ok(await esperar("!!document.querySelector('[data-acao=\"concluir\"]') && !document.querySelector('[data-acao=\"iniciar\"]')"), 'Iniciar vira Concluir');
@@ -177,6 +178,13 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await shot('9b-dias-menu-aberto.png');
     await ev("document.querySelector('h1').click()");
     assert.ok(await esperar("!document.querySelector('[data-multi]').open"), 'menu de dias fecha ao clicar fora');
+    // salva sozinha: sem botao Salvar; muda um campo, espera o 'Salvo', recarrega e o valor continua
+    assert.equal(await ev("[...document.querySelectorAll('form[data-autosalvar] button')].some(b => b.textContent.trim() === 'Salvar')"), false, 'sem botao Salvar');
+    await ev("(() => { const i = document.querySelector('form[data-autosalvar] [name=contato_nome]'); i.value = 'Contato salvo sozinho'; i.dispatchEvent(new Event('input', { bubbles: true })); })()");
+    assert.ok(await esperar("document.querySelector('[data-salvo-status]').textContent.includes('Salvo')"), 'aparece Salvo');
+    await ir(await ev('location.pathname'));
+    assert.ok(await esperar("document.readyState === 'complete' && document.querySelector('[name=contato_nome]').value === 'Contato salvo sozinho'"), 'valor continua depois de recarregar');
+    assert.equal(await ev("!!document.querySelector('.cliente-nome-linha .btn-lixeira')"), true, 'lixeira ao lado do nome');
     await tema('claro');
     await shot('10-cliente-ficha-claro.png');
     await tema('escuro');

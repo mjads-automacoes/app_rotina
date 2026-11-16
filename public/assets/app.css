@@ -490,3 +490,19 @@ body.embutido .grade-form .acoes { position: sticky; bottom: 0; z-index: 2; marg
 .btn-expandir { justify-self: center; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--borda-forte); background: var(--panel); color: var(--texto); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
 .btn-obs-editar { padding: 6px 12px; font-size: 0.85rem; }
 .nota .texto-rico { margin-top: 4px; }
+
+/* Ficha: lixeira ao lado do nome e salvamento automatico */
+.cliente-nome-linha { display: flex; align-items: center; gap: 10px; }
+.form-lixeira { margin: 0; }
+.btn-lixeira { min-width: 34px; height: 34px; padding: 0 8px; color: var(--muted); }
+.btn-lixeira .ic { width: 17px; height: 17px; }
+.btn-lixeira:hover { color: var(--vermelho); border-color: rgba(240, 84, 90, 0.5); }
+body.embutido .form-lixeira { display: none; }
+.janela-titulo { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.janela-titulo strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cartao-topo-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cartao-topo-linha h2 { margin: 0; }
+.salvo-status { font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+.salvo-status.is-salvo { color: var(--verde); }
+.salvo-status.is-salvando { color: var(--muted); }
+.salvo-status.is-erro { color: var(--vermelho); }

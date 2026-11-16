@@ -47,13 +47,29 @@
   function abrirFicha(c) {
     const fechar = () => { fundo.remove(); document.removeEventListener("keydown", tecla); carregar(true); };
     const tecla = (ev) => { if (ev.key === "Escape") fechar(); };
+    // lixeira ao lado do nome: exclui o cliente (as tarefas dele ficam, sem cliente) e fecha a janela
+    const lixeira = el("button", { class: "btn btn-icone btn-lixeira", type: "button", "aria-label": "Excluir cliente", title: "Excluir cliente" });
+    lixeira.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+    lixeira.addEventListener("click", async () => {
+      const nome = fundo.querySelector("[data-janela-nome]").textContent;
+      if (!window.confirm("Excluir o cliente " + nome + "? As tarefas dele ficam, sem cliente.")) return;
+      try {
+        await chamar("POST", "/api/clientes/" + c.cliente_id + "/excluir", {});
+        toast("Cliente excluído.");
+        state.foco = null;
+        fechar();
+      } catch (e) { toast(e.message, true); }
+    });
     const fundo = el("div", { class: "janela-fundo" }, [
       el("div", { class: "janela", role: "dialog", "aria-modal": "true", "aria-label": "Ficha do cliente" }, [
-        el("div", { class: "janela-topo" }, [el("strong", { text: c.cliente_nome || c.titulo }), el("button", { class: "btn btn-icone", type: "button", "aria-label": "Fechar", text: "✕" })]),
+        el("div", { class: "janela-topo" }, [
+          el("div", { class: "janela-titulo" }, [el("strong", { "data-janela-nome": "", text: c.cliente_nome || c.titulo }), lixeira]),
+          el("button", { class: "btn btn-icone", type: "button", "data-janela-fechar": "", "aria-label": "Fechar", text: "✕" }),
+        ]),
         el("iframe", { class: "janela-quadro", src: "/clientes/" + c.cliente_id, title: "Ficha do cliente" }),
       ]),
     ]);
-    fundo.querySelector("button").addEventListener("click", fechar);
+    fundo.querySelector("[data-janela-fechar]").addEventListener("click", fechar);
     fundo.addEventListener("mousedown", (ev) => { if (ev.target === fundo) fechar(); });
     document.addEventListener("keydown", tecla);
     document.body.append(fundo);

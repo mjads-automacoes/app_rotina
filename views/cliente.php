@@ -13,7 +13,13 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
     <span class="avatar avatar-lg"><?= e(mb_strtoupper(mb_substr((string) $c['nome'], 0, 2))) ?></span>
     <div>
       <p class="muted migalha"><a href="/clientes">Clientes</a> / ficha</p>
-      <h1><?= e((string) $c['nome']) ?></h1>
+      <div class="cliente-nome-linha">
+        <h1 data-cliente-nome><?= e((string) $c['nome']) ?></h1>
+        <form method="post" action="/clientes/<?= (int) $c['id'] ?>/excluir" class="form-lixeira">
+          <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+          <button class="btn btn-icone btn-lixeira" type="submit" data-confirmar="Excluir o cliente <?= e((string) $c['nome']) ?>? As tarefas dele ficam, sem cliente." aria-label="Excluir cliente" title="Excluir cliente"><?= icone('lixeira') ?></button>
+        </form>
+      </div>
       <p class="muted"><?= $c['contato_nome'] !== '' ? e((string) $c['contato_nome']) . ' · ' : '' ?><span class="selo selo-<?= e((string) $c['status']) ?>"><?= e(ucfirst((string) $c['status'])) ?></span> · responsável: <?= e($gestor) ?></p>
     </div>
   </div>
@@ -23,8 +29,11 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
 
 <div class="ficha-grade">
   <section class="cartao">
-    <h2>Dados do cliente</h2>
-    <form method="post" action="/clientes/<?= (int) $c['id'] ?>" class="grade-form">
+    <div class="cartao-topo-linha">
+      <h2>Dados do cliente</h2>
+      <span class="salvo-status muted" data-salvo-status aria-live="polite">Salva sozinha</span>
+    </div>
+    <form method="post" action="/clientes/<?= (int) $c['id'] ?>" class="grade-form" data-autosalvar="/api/clientes/<?= (int) $c['id'] ?>">
       <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
 
       <h3 class="form-secao largo">Empresa e contato</h3>
@@ -70,10 +79,6 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         </div>
       <?php endif; ?>
       <label class="largo" data-obs-campo <?= $temObs ? 'hidden' : '' ?>><span class="sr-only">Observações</span><textarea name="observacoes" rows="<?= $temObs ? 14 : 4 ?>" maxlength="<?= Clientes::OBSERVACOES_MAX ?>" placeholder="Use # para título, **negrito**, *itálico* e - para listas."><?= e((string) $c['observacoes']) ?></textarea></label>
-      <div class="acoes">
-        <button class="btn btn-primario" type="submit">Salvar</button>
-        <button class="btn btn-perigo" type="submit" formaction="/clientes/<?= (int) $c['id'] ?>/excluir" data-confirmar="Excluir este cliente? As tarefas dele ficam, sem cliente.">Excluir</button>
-      </div>
     </form>
   </section>
 
