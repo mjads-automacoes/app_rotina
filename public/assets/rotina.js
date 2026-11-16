@@ -70,7 +70,7 @@
       if (primeira) escolherInicio();
       renderizar();
     } catch (e) {
-      if (!silencioso) { ui.erro.textContent = e.message; ui.erro.hidden = false; }
+      if (!silencioso) toast(e.message, true);
     }
   }
 

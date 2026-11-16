@@ -19,5 +19,4 @@
 
   <div class="gaveta-fundo" id="gavetaFundo" hidden></div>
   <aside class="gaveta gaveta-larga" id="gaveta" hidden aria-label="Editar automação"></aside>
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </section>

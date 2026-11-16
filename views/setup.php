@@ -2,7 +2,7 @@
 <form class="cartao form-centro" method="post" action="/setup">
   <h1>Primeiro acesso</h1>
   <p class="muted">Crie a conta do administrador. Depois você cadastra os gestores em Equipe.</p>
-  <?php if ($erro !== ''): ?><div class="aviso aviso-erro" role="alert"><?= e($erro) ?></div><?php endif; ?>
+  <?php if ($erro !== ''): ?><div class="aviso aviso-erro" data-notificacao="erro" role="alert"><?= e($erro) ?></div><?php endif; ?>
   <input type="hidden" name="csrf" value="<?= e((string) $r->sessao->d['csrf']) ?>">
   <label>Nome
     <input type="text" name="nome" value="<?= e((string) ($valores['nome'] ?? '')) ?>" maxlength="120" required autofocus>

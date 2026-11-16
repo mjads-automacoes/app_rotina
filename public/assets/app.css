@@ -149,8 +149,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, .btn:focus-vi
 .barra { height: 8px; border-radius: 999px; background: var(--panel-2); overflow: hidden; }
 .barra i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--gradiente); transition: width 0.35s ease; }
 .progresso { display: grid; gap: 6px; min-width: 230px; font-size: 0.9rem; font-weight: 600; }
-.toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; max-width: min(92vw, 460px); padding: 12px 18px; border-radius: 12px; background: var(--panel); border: 1px solid rgba(34, 197, 94, 0.5); box-shadow: var(--sombra); }
-.toast.is-erro { border-color: rgba(240, 84, 90, 0.6); }
 
 /* ============ Formularios, clientes, tabelas ============ */
 .novo-cliente { margin: 0 0 18px; }
@@ -444,3 +442,29 @@ body.embutido .conteudo { margin: 0; padding: 20px; max-width: none; }
 .tarefa-excluir { margin: 0; }
 .btn-excluir-tarefa { min-width: 30px; height: 30px; padding: 0 8px; font-size: 12px; }
 .btn-excluir-tarefa:hover { color: var(--vermelho); border-color: rgba(240, 84, 90, 0.5); }
+
+/* Ficha aberta em janela (modo embutido): duas colunas, topo enxuto e Salvar sempre a vista */
+body.embutido .conteudo { padding: 16px 18px 0; }
+body.embutido .pagina-topo { margin-bottom: 14px; }
+body.embutido .migalha, body.embutido .cliente-titulo h1 { display: none; }
+body.embutido .cliente-titulo { gap: 12px; }
+body.embutido .avatar-lg { width: 40px; height: 40px; font-size: 0.95rem; }
+body.embutido .ficha-grade { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; }
+body.embutido .cartao { padding: 16px 18px; }
+body.embutido .grade-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+body.embutido .grade-form .acoes { position: sticky; bottom: 0; z-index: 2; margin: 4px -18px -16px; padding: 12px 18px; background: var(--panel); border-top: 1px solid var(--borda); border-radius: 0 0 16px 16px; }
+@media (max-width: 860px) { body.embutido .ficha-grade { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { body.embutido .grade-form { grid-template-columns: minmax(0, 1fr); } }
+.grade-form .acoes .btn-perigo { margin-left: auto; }
+.nota-form .btn { justify-self: end; }
+.tarefa-texto { display: grid; gap: 2px; }
+.tarefa-texto small { font-size: 0.8rem; }
+
+/* Notificacoes: canto superior direito, somem em 5 segundos ou com um clique (app.js: toast) */
+[data-notificacao] { display: none; }
+.notificacoes { position: fixed; top: 16px; right: 16px; z-index: 120; display: grid; gap: 8px; width: min(380px, calc(100vw - 32px)); pointer-events: none; }
+.notificacao { pointer-events: auto; cursor: pointer; padding: 12px 16px 12px 14px; border-radius: 12px; border: 1px solid var(--borda-forte); border-left: 4px solid var(--verde); background: var(--panel); color: var(--texto); font-weight: 600; font-size: 0.92rem; box-shadow: var(--sombra); animation: notificacao-entra 0.2s ease-out; transition: opacity 0.25s, transform 0.25s; }
+.notificacao.is-erro { border-left-color: var(--vermelho); }
+.notificacao.is-saindo { opacity: 0; transform: translateX(16px); }
+@keyframes notificacao-entra { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .notificacao { animation: none; transition: none; } }

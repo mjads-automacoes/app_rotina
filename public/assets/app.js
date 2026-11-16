@@ -74,15 +74,37 @@
     return n;
   }
 
+  // Notificacoes: todas no canto superior direito, somem em 5 segundos (ou com um clique).
+  // Na ficha aberta em janela (iframe), aparecem na tela principal.
   function toast(msg, erro) {
-    const t = document.getElementById("toast");
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.toggle("is-erro", !!erro);
-    t.hidden = false;
-    clearTimeout(toast.t);
-    toast.t = setTimeout(() => { t.hidden = true; }, 3500);
+    if (!msg) return;
+    try {
+      if (document.body.classList.contains("embutido") && window.parent !== window && window.parent.Rotina) {
+        window.parent.Rotina.toast(msg, erro);
+        return;
+      }
+    } catch (e) { /* janela de outra origem: mostra aqui mesmo */ }
+    let caixa = document.getElementById("notificacoes");
+    if (!caixa) {
+      caixa = el("div", { id: "notificacoes", class: "notificacoes", "aria-live": "polite" });
+      document.body.appendChild(caixa);
+    }
+    const n = el("div", { class: "notificacao" + (erro ? " is-erro" : ""), role: erro ? "alert" : "status", text: msg });
+    const fechar = () => {
+      if (n.classList.contains("is-saindo")) return;
+      n.classList.add("is-saindo");
+      setTimeout(() => n.remove(), 250);
+    };
+    n.addEventListener("click", fechar);
+    caixa.appendChild(n);
+    setTimeout(fechar, 5000);
   }
+
+  // avisos vindos do servidor (salvou, excluiu, erro de login...) viram notificacao
+  document.querySelectorAll("[data-notificacao]").forEach((aviso) => {
+    toast(aviso.textContent.trim(), aviso.dataset.notificacao === "erro");
+    aviso.remove();
+  });
 
   // JSON em ambos os sentidos; devolve o corpo ou lanca Error com a mensagem do servidor
   async function chamar(metodo, url, corpo) {

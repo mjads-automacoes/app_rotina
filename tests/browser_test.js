@@ -88,6 +88,11 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');
     await sleep(900);
     await shot('1b-ficha-janela.png');
+    // aviso salvo dentro da janela aparece na tela principal, no canto superior direito
+    await ev("(() => { const d = document.querySelector('.janela-quadro').contentDocument; const t = d.querySelector('.nota-form textarea'); t.value = 'Nota pela janela'; t.form.requestSubmit(); })()");
+    assert.ok(await esperar("[...document.querySelectorAll('#notificacoes .notificacao')].some(n => n.textContent.includes('Nota adicionada'))"), 'notificacao da janela aparece na tela principal');
+    assert.equal(await ev("(() => { const r = document.querySelector('#notificacoes .notificacao').getBoundingClientRect(); return r.top < 40 && innerWidth - r.right < 40; })()"), true, 'notificacao no canto superior direito');
+    await shot('1c-notificacao.png');
     await ev("document.querySelector('.janela-topo button').click()");
     assert.equal(await ev("document.querySelector('.janela-fundo') === null"), true, 'janela fecha');
     await clicar('[data-acao="iniciar"]');
@@ -159,6 +164,10 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await ev("window.confirm = () => true; [...document.querySelectorAll('.lista-simples li')].find(li => li.textContent.includes('Tarefa criada na ficha')).querySelector('.btn-excluir-tarefa').click()");
     await sleep(400);
     assert.ok(await esperar("document.readyState === 'complete' && !document.body.textContent.includes('Tarefa criada na ficha') && document.body.textContent.includes('Tarefa excluída')"), 'tarefa excluida na ficha');
+    assert.ok(await esperar("!!document.querySelector('#notificacoes .notificacao')"), 'aviso do servidor vira notificacao');
+    assert.equal(await ev("document.querySelector('.conteudo .aviso') === null"), true, 'sem faixa de aviso parada no topo');
+    await sleep(5600);
+    assert.equal(await ev("document.querySelectorAll('#notificacoes .notificacao').length"), 0, 'notificacao some em 5 segundos');
     await shot('9-cliente-ficha-escuro.png');
     // menu de selecao dos dias: abre, marca, atualiza o rotulo e fecha ao clicar fora
     await ev("document.querySelector('[data-multi] summary').click()");

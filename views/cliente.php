@@ -83,8 +83,10 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
           <?php foreach (array_slice($tarefas, 0, 12) as $t): ?>
             <li>
               <span class="ponto" data-cor="<?= e((string) $t['status_cor']) ?>"></span>
-              <span class="grow"><?= e((string) $t['titulo']) ?></span>
-              <span class="muted"><?= e((string) $t['status_nome']) ?><?= $t['prazo'] ? ' · ' . e(date('d/m', (int) strtotime((string) $t['prazo']))) : '' ?></span>
+              <span class="grow tarefa-texto">
+                <span><?= e((string) $t['titulo']) ?></span>
+                <small class="muted"><?= e((string) $t['status_nome']) ?><?= $t['prazo'] ? ' · ' . e(date('d/m', (int) strtotime((string) $t['prazo']))) : '' ?></small>
+              </span>
               <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas/<?= (int) $t['id'] ?>/excluir" class="tarefa-excluir">
                 <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
                 <button class="btn btn-icone btn-excluir-tarefa" type="submit" data-confirmar="Excluir a tarefa &quot;<?= e((string) $t['titulo']) ?>&quot;?" aria-label="Excluir tarefa" title="Excluir tarefa">✕</button>

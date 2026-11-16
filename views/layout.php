@@ -69,7 +69,7 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
       <div class="marca marca-centro"><span class="marca-logo"><?= e(mb_strtoupper(mb_substr($app, 0, 1))) ?></span><span><?= e($app) ?></span></div>
       <div class="login-tema"><button class="btn btn-icone" type="button" data-theme-toggle aria-label="Trocar tema"><span class="so-escuro"><?= icone('sol') ?></span><span class="so-claro"><?= icone('lua') ?></span></button></div>
     <?php endif; ?>
-    <?php if ($flash): ?><div class="aviso aviso-<?= $flash['tipo'] === 'ok' ? 'ok' : 'erro' ?>" role="status"><?= e((string) $flash['msg']) ?></div><?php endif; ?>
+    <?php if ($flash): ?><div class="aviso aviso-<?= $flash['tipo'] === 'ok' ? 'ok' : 'erro' ?>" data-notificacao="<?= $flash['tipo'] === 'ok' ? 'ok' : 'erro' ?>" role="status"><?= e((string) $flash['msg']) ?></div><?php endif; ?>
     <?= $conteudo ?>
   </main>
   <script src="<?= e(asset('app.js')) ?>"></script>

@@ -64,5 +64,4 @@
   <aside class="gaveta" id="gaveta" hidden aria-label="Detalhes da tarefa"></aside>
 </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </section>

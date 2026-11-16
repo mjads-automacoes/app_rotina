@@ -10,7 +10,7 @@ $admin = $usuario['papel'] === 'admin';
   </div>
 </header>
 
-<?php if ($erro !== ''): ?><div class="aviso aviso-erro" role="alert"><?= e($erro) ?></div><?php endif; ?>
+<?php if ($erro !== ''): ?><div class="aviso aviso-erro" data-notificacao="erro" role="alert"><?= e($erro) ?></div><?php endif; ?>
 
 <div class="ficha-grade">
   <section class="cartao">
