@@ -137,6 +137,7 @@ Total: cerca de 6.600 linhas.
 - **CSP:** `default-src 'self'; img-src 'self' data:; form-action 'self'; frame-ancestors 'self'; base-uri 'self'`. Não existe script nem estilo inline. Cor que vem de dado entra por `data-cor` (o `app.js` aplica) ou pelo atributo `cor` do `el()`.
 - **`el(tag, attrs, filhos)`** em `window.Rotina`: `text` vira `textContent`; atributo desconhecido vira `setAttribute`. **Não aceita `onclick`**: crie o elemento e use `addEventListener`. Os outros utilitários são `toast`, `chamar`, `dataBR`, `iniciais`.
 - **Banco:** mudança de estrutura é uma nova função `vN` em `Db.php`, com `VERSAO` incrementada. Nunca edite `v1` ou `v2`.
+- **Arquivos da tela:** no `layout.php` use sempre `asset('arquivo.js')` (em `Http.php`), que acrescenta `?v=` com a marca do conteúdo. A Cloudflare na frente do domínio guarda `/assets/*` por até 4 horas; sem a marca, cada mudança apareceria com CSS/JS velho.
 - **API:** responde sempre `{ok: true, ...}` ou `{ok: false, message}`.
 - **Modo embutido:** quando a página é pedida de dentro de um iframe (`Sec-Fetch-Dest: iframe`), o layout recebe `embutido = true`, o `body` ganha só a classe `embutido` e some o menu. É assim que a ficha abre em pop-up. Não use a classe `sem-menu` nesse caso (ela aplica a largura da tela de login).
 
