@@ -375,7 +375,6 @@ final class Importacao
 
         return [
             'nome' => mb_substr(trim((string) $t['name']), 0, 120),
-            'descricao' => mb_substr(trim((string) ($t['description'] ?? '')), 0, 500),
             'observacoes' => mb_substr($obs, 0, Clientes::OBSERVACOES_MAX),
             'dias' => array_values(array_unique($dias)),
             'turno' => $turno,

@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente e na nuvem, com 88 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
+- **Estado:** funciona localmente e na nuvem, com 89 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -76,7 +76,7 @@ A partida do container é `scripts/docker-entrypoint.sh`: acerta o dono do volum
 ## 5. Testes
 
 ```bash
-php tests/run.php            # 88 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
+php tests/run.php            # 89 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
 node tests/browser_test.js   # ponta a ponta num navegador sem janela; SHOT=pasta salva os prints
 ```
 
@@ -258,7 +258,7 @@ Só fala com `api.clickup.com`. Lê (`GET`) clientes e comentários; a **única 
 - Turno: etiqueta `13h` ou `tarde` vira tarde; `17h` ou `fechamento` vira fechamento; senão manhã.
 - **Observações = descrição da tarefa** (pedido do dono em 16/11/2026), pedida com `include_markdown_description=true` para vir com a formatação, inteira (até 20.000 caracteres, `Clientes::OBSERVACOES_MAX`). Na ficha ela aparece formatada por `texto_rico()` (em `Http.php`: escapa tudo antes e só cria as próprias tags; links só http/https), recolhida com Expandir, e o botão "Editar observações" mostra o campo de texto. Os campos personalizados **não** vão mais para as Observações: ficam no bloco "Dados do ClickUp" (`clickup_dados`).
 - **Notas <-> comentários:** nota enviada na ficha de um cliente com `clickup_id` (e token salvo) vira comentário da tarefa (`POST /task/{id}/comment`) e fica salva aqui com `origem = clickup` e o id do comentário, para não duplicar ao puxar. Se o ClickUp falhar, a nota fica só aqui e a notificação avisa. Ao abrir a ficha, os comentários novos são puxados (no máximo 1 vez por minuto por cliente, `meta.clickup_sinc_{id}`; erro nunca quebra a página), convertidos das partes ricas do ClickUp para markdown (título, negrito, itálico, listas, links). Notas aceitam até 20.000 caracteres (`Clientes::NOTA_MAX`). O comentário sai no ClickUp com o nome do dono do token, sem assinatura de quem escreveu.
-- `descricao` do cliente (subtítulo do foco na Rotina) continua sendo os primeiros 500 caracteres da descrição: com documentos de onboarding isso pode ficar grande no foco (perguntado ao dono em 16/11/2026).
+- **Subtítulo na Rotina** (`clientes.descricao`, a linha abaixo do nome no foco da Rotina): desde 16/11/2026 tem campo próprio na ficha, seção Rotina, a pedido do dono. A importação **não** preenche mais esse campo (antes punha o começo da descrição do ClickUp); reimportar não apaga o que foi escrito.
 
 **Só foi validado com um transporte simulado nos testes. Nunca rodou contra o ClickUp de verdade.**
 
@@ -298,7 +298,7 @@ Tema escuro (padrão) e claro, com botão no menu; segue o sistema na primeira v
 - **Tarefas de outros dias somem da Rotina.** O que não foi concluído ontem não aparece hoje (continua no painel Tarefas e fica "atrasada").
 - **Notas enviadas listadas abaixo do campo só existem na memória da página.** Somem ao recarregar. Continuam salvas como comentário da tarefa.
 - **Sobras no código, sem efeito:** em `rotina.js`, os tratadores de `.ir-turno` e `.turno`, as referências a `rotinaProgressoTexto`, `rotinaBarra` e `rotinaBarraWrap`, e a variável `datas` em `escolherInicio`; no `app.css`, estilos de `.abas`, `.aba`, `.turnos`, `.turno`; em `Rotina.php` e na API, a semana inteira ainda é calculada e enviada, embora a tela use só hoje.
-- **Colunas guardadas mas sem campo na tela:** `clientes.empresa` e `clientes.descricao` (a descrição aparece no foco da Rotina e vem do seed ou da importação, mas não dá para editar na ficha).
+- **Coluna guardada mas sem campo na tela:** `clientes.empresa`. (`clientes.descricao` ganhou o campo "Subtítulo na Rotina" em 16/11/2026.)
 - **Plataformas:** o serviço aceita google, meta, tiktok, linkedin e outros; a ficha só mostra Google e Meta. Salvar a ficha de um cliente que tinha outra plataforma apaga essa marcação.
 - **Logo do Meta** é um desenho simples, não a marca oficial.
 - **`data/.gitkeep`** é citado no `.gitignore` mas não existe (sem impacto: a pasta é criada ao abrir o banco).
@@ -329,7 +329,7 @@ O dono tem pendências no WhatsRedirect (outra pasta, outro repositório): um er
 
 1. Ler este arquivo e o `README.md`.
 2. Conferir o ambiente: `php -v`, `php -m | grep -i sqlite`, `node -v`.
-3. Rodar `php tests/run.php`. Tem de dar **88 de 88**.
+3. Rodar `php tests/run.php`. Tem de dar **89 de 89**.
 4. Rodar o teste de navegador (com `EDGE_PATH` apontando para um Chromium). Se não houver navegador no ambiente, diga isso ao dono em vez de pular em silêncio.
 5. Subir o preview (seção 4) e entrar com `admin` / `1`.
 6. Perguntar ao dono o que ele quer mudar. Se ele não trouxer nada, apresentar as 4 perguntas da seção 11.

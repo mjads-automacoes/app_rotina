@@ -91,7 +91,7 @@ t('importa os clientes: status, dia (etiqueta ou vencimento), turno e dados do C
     eq(['quinta'], $por['DB CAMARÕES']['dias'], 'etiqueta de dia tem prioridade');
     eq('tarde', $por['DB CAMARÕES']['turno'], 'etiqueta 13h = tarde');
     eq('novo', $por['CLIENTE NOVO']['status'], 'CLIENTE NOVO nao entra na rotina');
-    eq('Revisar campanhas e registrar ajustes', $por['BILL BORRACHA']['descricao']);
+    eq('', $por['BILL BORRACHA']['descricao'], 'subtitulo da Rotina nao recebe a descricao do ClickUp: e preenchido na ficha');
     ok(str_starts_with($por['BILL BORRACHA']['observacoes'], "# ONBOARDING - BILL\n**Revisar**"), 'observacoes = descricao do ClickUp com a formatacao');
     ok(mb_strlen($por['BILL BORRACHA']['observacoes']) > 3000, 'descricao inteira, sem cortar em 2000');
     ok(!str_contains($por['BILL BORRACHA']['observacoes'], 'Orçamento: 3000'), 'campos ficam em Dados do ClickUp, nao nas observacoes');

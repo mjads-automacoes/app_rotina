@@ -57,6 +57,9 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <label>Situação
         <select name="status"><?php foreach (['ativo' => 'Ativo', 'novo' => 'Novo', 'pausado' => 'Pausado'] as $chave => $rotulo): ?><option value="<?= e($chave) ?>" <?= $c['status'] === $chave ? 'selected' : '' ?>><?= e($rotulo) ?></option><?php endforeach; ?></select>
       </label>
+      <label class="largo">Subtítulo na Rotina
+        <input type="text" name="descricao" value="<?= e((string) $c['descricao']) ?>" maxlength="500" placeholder="Aparece abaixo do nome do cliente na Rotina. Ex.: Revisar campanhas e registrar ajustes">
+      </label>
 
       <h3 class="form-secao largo">Observações</h3>
       <?php $temObs = trim((string) $c['observacoes']) !== ''; ?>
