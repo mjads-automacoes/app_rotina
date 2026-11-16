@@ -302,3 +302,39 @@ t('cabecalhos de seguranca, tema claro/escuro e nome do produto vem da configura
     configurar_admin($app, $s);
     eq(404, req($app, $s, 'GET', '/nao-existe')->status, 'rota inexistente (logado)');
 });
+
+t('ficha: adicionar e excluir tarefa do cliente, so nos proprios clientes', function (): void {
+    [$app, $pdo, , $ana, $beto] = cenario_http();
+    req($app, $beto, 'POST', '/clientes', ['csrf' => (string) $beto->d['csrf'], 'nome' => 'Do Beto']);
+    $id = (int) $pdo->query('SELECT id FROM clientes')->fetchColumn();
+    $csrf = (string) $beto->d['csrf'];
+    $doCliente = static fn (): int => (int) $pdo->query('SELECT COUNT(*) FROM tarefas WHERE cliente_id = ' . $id)->fetchColumn();
+
+    eq(302, req($app, $beto, 'POST', "/clientes/{$id}/tarefas", ['csrf' => $csrf, 'titulo' => 'Revisar criativos', 'prazo' => '2026-11-20'])->status);
+    $t = $pdo->query("SELECT id, cliente_id, lista_id, prazo, titulo FROM tarefas WHERE titulo = 'Revisar criativos'")->fetch();
+    eq([$id, 2, '2026-11-20', 'Revisar criativos'], [(int) $t['cliente_id'], (int) $t['lista_id'], $t['prazo'], $t['titulo']]);
+    $ficha = req($app, $beto, 'GET', "/clientes/{$id}")->body;
+    ok(str_contains($ficha, 'Revisar criativos'), 'aparece na ficha');
+    ok(str_contains($ficha, "/clientes/{$id}/tarefas/{$t['id']}/excluir"), 'com o botao de excluir');
+
+    // sem titulo: aviso, nada criado
+    eq(302, req($app, $beto, 'POST', "/clientes/{$id}/tarefas", ['csrf' => $csrf, 'titulo' => ''])->status);
+    eq(1, $doCliente());
+
+    // outro gestor nao cria nem exclui
+    eq(404, req($app, $ana, 'POST', "/clientes/{$id}/tarefas", ['csrf' => (string) $ana->d['csrf'], 'titulo' => 'Invasao'])->status);
+    eq(404, req($app, $ana, 'POST', "/clientes/{$id}/tarefas/{$t['id']}/excluir", ['csrf' => (string) $ana->d['csrf']])->status);
+    eq(1, $doCliente());
+
+    // tarefa de outro cliente nao e excluida por esta ficha
+    req($app, $beto, 'POST', '/clientes', ['csrf' => $csrf, 'nome' => 'Outro do Beto']);
+    $outro = (int) $pdo->query("SELECT id FROM clientes WHERE nome = 'Outro do Beto'")->fetchColumn();
+    eq(404, req($app, $beto, 'POST', "/clientes/{$outro}/tarefas/{$t['id']}/excluir", ['csrf' => $csrf])->status);
+    eq(1, $doCliente());
+
+    // sem CSRF nao exclui
+    ok(req($app, $beto, 'POST', "/clientes/{$id}/tarefas/{$t['id']}/excluir", [])->status >= 400, 'exige CSRF');
+
+    eq(302, req($app, $beto, 'POST', "/clientes/{$id}/tarefas/{$t['id']}/excluir", ['csrf' => $csrf])->status);
+    eq(0, $doCliente());
+});

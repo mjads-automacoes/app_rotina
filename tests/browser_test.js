@@ -153,6 +153,12 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("location.pathname.startsWith('/clientes/')"), 'ficha do cliente');
     await ev("(() => { const t = document.querySelector('.nota-form textarea'); t.value = 'Nota criada no teste'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("document.body.textContent.includes('Nota criada no teste')"), 'nota salva');
+    // tarefas do cliente: adicionar pela ficha e excluir com confirmacao
+    await ev("(() => { const f = document.querySelector('.tarefa-nova'); f.querySelector('[name=titulo]').value = 'Tarefa criada na ficha'; f.querySelector('[name=prazo]').value = '2026-12-01'; f.requestSubmit(); })()");
+    assert.ok(await esperar("[...document.querySelectorAll('.lista-simples li')].some(li => li.textContent.includes('Tarefa criada na ficha') && li.textContent.includes('01/12'))"), 'tarefa adicionada na ficha');
+    await ev("window.confirm = () => true; [...document.querySelectorAll('.lista-simples li')].find(li => li.textContent.includes('Tarefa criada na ficha')).querySelector('.btn-excluir-tarefa').click()");
+    await sleep(400);
+    assert.ok(await esperar("document.readyState === 'complete' && !document.body.textContent.includes('Tarefa criada na ficha') && document.body.textContent.includes('Tarefa excluída')"), 'tarefa excluida na ficha');
     await shot('9-cliente-ficha-escuro.png');
     // menu de selecao dos dias: abre, marca, atualiza o rotulo e fecha ao clicar fora
     await ev("document.querySelector('[data-multi] summary').click()");

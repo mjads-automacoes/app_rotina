@@ -70,6 +70,12 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
   <div class="coluna">
     <section class="cartao">
       <h2>Tarefas deste cliente</h2>
+      <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas" class="tarefa-nova">
+        <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+        <label class="grow"><span class="sr-only">Nova tarefa</span><input type="text" name="titulo" maxlength="200" placeholder="Nova tarefa para este cliente…" required></label>
+        <label><span class="sr-only">Prazo</span><input type="date" name="prazo" title="Prazo (opcional)"></label>
+        <button class="btn btn-primario" type="submit">Adicionar</button>
+      </form>
       <?php if ($tarefas === []): ?>
         <p class="muted">Nenhuma tarefa ainda.</p>
       <?php else: ?>
@@ -79,6 +85,10 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
               <span class="ponto" data-cor="<?= e((string) $t['status_cor']) ?>"></span>
               <span class="grow"><?= e((string) $t['titulo']) ?></span>
               <span class="muted"><?= e((string) $t['status_nome']) ?><?= $t['prazo'] ? ' · ' . e(date('d/m', (int) strtotime((string) $t['prazo']))) : '' ?></span>
+              <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas/<?= (int) $t['id'] ?>/excluir" class="tarefa-excluir">
+                <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+                <button class="btn btn-icone btn-excluir-tarefa" type="submit" data-confirmar="Excluir a tarefa &quot;<?= e((string) $t['titulo']) ?>&quot;?" aria-label="Excluir tarefa" title="Excluir tarefa">✕</button>
+              </form>
             </li>
           <?php endforeach; ?>
         </ul>

@@ -434,3 +434,13 @@ body.embutido .conteudo { margin: 0; padding: 20px; max-width: none; }
 
 .rotina-grupo { margin-top: 14px; }
 .rotina-subtitulo { margin: 0 0 4px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--acento-texto); }
+
+/* Ficha: adicionar e excluir tarefas do cliente */
+.tarefa-nova { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.tarefa-nova .grow { flex-basis: 100%; }
+.tarefa-nova .grow input { width: 100%; }
+.tarefa-nova label:not(.grow) { flex: 1 1 auto; }
+.tarefa-nova input[type=date] { width: 100%; }
+.tarefa-excluir { margin: 0; }
+.btn-excluir-tarefa { min-width: 30px; height: 30px; padding: 0 8px; font-size: 12px; }
+.btn-excluir-tarefa:hover { color: var(--vermelho); border-color: rgba(240, 84, 90, 0.5); }

@@ -209,11 +209,33 @@ final class App
             return $this->tela($r, $u, 'clientes', ['lista' => $this->n->clientes->listar($u), 'gestores' => $admin ? $this->gestores() : [], 'nomes' => array_column($this->n->auth->listar(), 'nome', 'id')]);
         }
 
-        if (preg_match('#^/clientes/(\d+)(?:/(excluir|notas))?$#', $caminho, $m)) {
+        if (preg_match('#^/clientes/(\d+)(?:/(excluir|notas|tarefas)|/tarefas/(\d+)/(excluir))?$#', $caminho, $m)) {
             $id = (int) $m[1];
-            $acao = $m[2] ?? '';
+            $acao = ($m[4] ?? '') !== '' ? 'tarefa-excluir' : ($m[2] ?? '');
 
             if ($r->metodo === 'POST') {
+                if ($acao === 'tarefas') {
+                    // tarefa avulsa do cliente, criada pela ficha (lista Geral, responsavel = quem criou)
+                    $this->n->clientes->buscar($u, $id);
+                    $this->n->tarefas->criar($u, ['titulo' => (string) ($r->post['titulo'] ?? ''), 'prazo' => (string) ($r->post['prazo'] ?? ''), 'lista_id' => 2, 'cliente_id' => $id]);
+                    $this->flash($r, 'ok', 'Tarefa adicionada.');
+
+                    return Response::redirect('/clientes/' . $id);
+                }
+
+                if ($acao === 'tarefa-excluir') {
+                    $tarefa = $this->n->tarefas->obter($u, (int) $m[3]);
+
+                    if ((int) $tarefa['cliente_id'] !== $id) {
+                        throw new RuntimeException('Tarefa não encontrada neste cliente.');
+                    }
+
+                    $this->n->tarefas->excluir($u, (int) $m[3]);
+                    $this->flash($r, 'ok', 'Tarefa excluída.');
+
+                    return Response::redirect('/clientes/' . $id);
+                }
+
                 if ($acao === 'excluir') {
                     $this->n->clientes->excluir($u, $id);
                     $this->flash($r, 'ok', 'Cliente excluído.');

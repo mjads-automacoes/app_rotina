@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente e na nuvem, com 82 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
+- **Estado:** funciona localmente e na nuvem, com 83 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -76,7 +76,7 @@ A partida do container é `scripts/docker-entrypoint.sh`: acerta o dono do volum
 ## 5. Testes
 
 ```bash
-php tests/run.php            # 82 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
+php tests/run.php            # 83 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
 node tests/browser_test.js   # ponta a ponta num navegador sem janela; SHOT=pasta salva os prints
 ```
 
@@ -178,6 +178,7 @@ A versão 1 tinha `andamento`, `checklist_modelo`, `checklist_marcas` e `registr
 | `GET/POST /clientes` | lista em cartões e criação |
 | `GET/POST /clientes/{id}` | ficha e salvar |
 | `POST /clientes/{id}/notas`, `POST /clientes/{id}/excluir` | nota e exclusão |
+| `POST /clientes/{id}/tarefas`, `POST /clientes/{id}/tarefas/{tid}/excluir` | adicionar e excluir tarefa pela ficha |
 | `GET /automacoes` | tela Automações |
 | `GET /historico` | concluídas, com filtros `de`, `ate`, `cliente_id`, `responsavel_id` |
 | `GET /importar`, `POST /importar/token`, `/importar/remover`, `/importar/executar` | ClickUp |
@@ -227,7 +228,7 @@ Vive dentro da tela Rotina, escondido (`<div id="tarefas" hidden>`). **Hoje não
 ### Clientes e ficha
 
 - Lista em cartões com busca. Formulário "Novo cliente": Nome da Empresa, Nome do Contato, Dias da rotina, Turno e, para o admin, Responsável.
-- Ficha: Nome da Empresa, Nome do Contato, Responsável, Telefone, E-mail, Orçamento para Anúncios, Site do Cliente, Plataformas (cartões **Google Ads** e **Meta Ads** com logo), Dias da rotina (menu de seleção múltipla), Turno, Situação (Ativo, Novo, Pausado) e Observações. Ao lado: tarefas do cliente, notas e, se veio do ClickUp, os dados guardados da importação.
+- Ficha: Nome da Empresa, Nome do Contato, Responsável, Telefone, E-mail, Orçamento para Anúncios, Site do Cliente, Plataformas (cartões **Google Ads** e **Meta Ads** com logo), Dias da rotina (menu de seleção múltipla), Turno, Situação (Ativo, Novo, Pausado) e Observações. Ao lado: tarefas do cliente (com campo para **adicionar** tarefa, com prazo opcional, que entra na lista Geral com o usuário como responsável, e botão **✕ para excluir** cada uma, com confirmação; rotas `POST /clientes/{id}/tarefas` e `POST /clientes/{id}/tarefas/{tid}/excluir`), notas e, se veio do ClickUp, os dados guardados da importação.
 - Só cliente **ativo com dia marcado** entra na rotina automática.
 - Excluir um cliente mantém as tarefas dele, sem cliente.
 - Os botões "Abrir link" e "Ver tarefas" do topo da ficha foram removidos a pedido.
@@ -323,7 +324,7 @@ O dono tem pendências no WhatsRedirect (outra pasta, outro repositório): um er
 
 1. Ler este arquivo e o `README.md`.
 2. Conferir o ambiente: `php -v`, `php -m | grep -i sqlite`, `node -v`.
-3. Rodar `php tests/run.php`. Tem de dar **82 de 82**.
+3. Rodar `php tests/run.php`. Tem de dar **83 de 83**.
 4. Rodar o teste de navegador (com `EDGE_PATH` apontando para um Chromium). Se não houver navegador no ambiente, diga isso ao dono em vez de pular em silêncio.
 5. Subir o preview (seção 4) e entrar com `admin` / `1`.
 6. Perguntar ao dono o que ele quer mudar. Se ele não trouxer nada, apresentar as 4 perguntas da seção 11.
