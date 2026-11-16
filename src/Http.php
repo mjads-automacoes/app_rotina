@@ -12,6 +12,23 @@ function e(?string $texto): string
     return htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/**
+ * Endereco de um arquivo de public/assets com a marca da versao (?v=...). Quando o arquivo muda, o endereco muda,
+ * e o navegador e a Cloudflare buscam o novo em vez de usar a copia guardada (ate 4 horas).
+ */
+function asset(string $arquivo): string
+{
+    static $marcas = [];
+    $arquivo = basename($arquivo);
+
+    if (!isset($marcas[$arquivo])) {
+        $caminho = dirname(__DIR__) . '/public/assets/' . $arquivo;
+        $marcas[$arquivo] = is_file($caminho) ? substr((string) md5_file($caminho), 0, 10) : '';
+    }
+
+    return '/assets/' . $arquivo . ($marcas[$arquivo] !== '' ? '?v=' . $marcas[$arquivo] : '');
+}
+
 /** Icones de traco (24x24), herdam a cor do texto. */
 function icone(string $nome): string
 {

@@ -28,8 +28,8 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
   <meta name="robots" content="noindex">
   <meta name="color-scheme" content="dark light">
   <title><?= e($app) ?></title>
-  <script src="/assets/theme.js"></script>
-  <link rel="stylesheet" href="/assets/app.css">
+  <script src="<?= e(asset('theme.js')) ?>"></script>
+  <link rel="stylesheet" href="<?= e(asset('app.css')) ?>">
 </head>
 <body class="<?= $embutido ? 'embutido' : ($usuario !== null ? 'com-menu' : 'sem-menu') ?>" data-csrf="<?= e((string) $r->sessao->d['csrf']) ?>">
 <?php if ($usuario !== null && !$embutido): ?>
@@ -72,9 +72,9 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
     <?php if ($flash): ?><div class="aviso aviso-<?= $flash['tipo'] === 'ok' ? 'ok' : 'erro' ?>" role="status"><?= e((string) $flash['msg']) ?></div><?php endif; ?>
     <?= $conteudo ?>
   </main>
-  <script src="/assets/app.js"></script>
+  <script src="<?= e(asset('app.js')) ?>"></script>
 <?php foreach ($scriptsDaPagina as $js): ?>
-  <script src="/assets/<?= e($js) ?>"></script>
+  <script src="<?= e(asset($js)) ?>"></script>
 <?php endforeach; ?>
 </body>
 </html>

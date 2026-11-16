@@ -299,6 +299,8 @@ t('cabecalhos de seguranca, tema claro/escuro e nome do produto vem da configura
     ok(str_contains($r->headers['Content-Security-Policy'], "default-src 'self'"));
     ok(str_contains($r->body, e((string) rotina_config('app_name'))), 'o nome vem de rotina_config("app_name")');
     ok(str_contains($r->body, '/assets/theme.js'), 'tema aplicado antes de pintar (sem piscar)');
+    ok((bool) preg_match('#/assets/app\.css\?v=[0-9a-f]{10}"#', $r->body), 'css com marca de versao (Cloudflare e navegador nao usam copia velha)');
+    eq('/assets/app.js?v=' . substr((string) md5_file(dirname(__DIR__) . '/public/assets/app.js'), 0, 10), asset('app.js'), 'a marca muda quando o arquivo muda');
     configurar_admin($app, $s);
     eq(404, req($app, $s, 'GET', '/nao-existe')->status, 'rota inexistente (logado)');
 });
