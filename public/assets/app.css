@@ -519,3 +519,4 @@ body.embutido .form-lixeira { display: none; }
 .rotina-data-sep { color: var(--borda-forte); }
 .rotina-data small { font-size: 0.95rem; font-weight: 500; }
 @media (max-width: 860px) { .rotina-grade { grid-template-columns: minmax(0, 1fr); } }
+.rotina-checklist, .rotina-clientes { align-self: stretch; } /* mesma altura lado a lado (pedido do dono) */
