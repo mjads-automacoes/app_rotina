@@ -12,7 +12,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { enviadas: {}, dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0 };
+  const state = { enviadas: {}, dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, tarefasCliente: {} };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
   const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] } } };
@@ -82,6 +82,7 @@
       if (state.pendentes > 0) return;
       const primeira = state.dados === null;
       state.dados = dados;
+      Object.values(state.tarefasCliente).forEach((x) => { x.velha = true; });
       ui.erro.hidden = true;
       if (primeira) escolherInicio();
       renderizar();
@@ -170,7 +171,7 @@
       return;
     }
     const tipo = cliente.status_tipo;
-    ui.foco.replaceChildren(...[
+    const principal = el("div", { class: "rotina-foco-principal" }, [
       el("span", { class: "rotina-selo" + (tipo === "fechado" ? " is-ok" : ""), text: tipo === "fechado" ? "CONCLUÍDO" : "EM FOCO" }),
       el("div", { class: "rotina-foco-linha" }, [el("h2", { class: "rotina-foco-nome", text: cliente.cliente_nome || cliente.titulo }), el("span", { class: "pilula is-" + tipo, text: STATUS[tipo] || cliente.status_nome })]),
       cliente.cliente_descricao ? el("p", { class: "rotina-foco-descricao", text: cliente.cliente_descricao }) : null,
@@ -189,6 +190,43 @@
         tipo === "fechado" ? el("button", { class: "btn btn-contorno", type: "button", "data-acao": "reabrir", text: "Reabrir" }) : null,
       ]),
     ].filter(Boolean));
+    const lado = el("aside", { class: "rotina-foco-tarefas", "aria-label": "Tarefas do cliente" });
+    ui.foco.replaceChildren(el("div", { class: "rotina-foco-corpo" }, [principal, lado]));
+    tarefasDoCliente(cliente, lado);
+  }
+
+  // lado direito do foco: as tarefas vinculadas ao cliente em foco, com o status de cada uma
+  async function tarefasDoCliente(cliente, lado) {
+    const titulo = () => el("h3", { text: "Tarefas do cliente" });
+    const desenhar = (lista) => {
+      const itens = lista === null ? [el("p", { class: "muted", text: "Carregando…" })]
+        : lista.length === 0 ? [el("p", { class: "muted", text: "Nenhuma tarefa vinculada." })]
+        : [el("ul", { class: "rotina-tarefas-lista" }, lista.map((t) => {
+            // a tarefa em foco usa o status da tela (muda na hora ao iniciar/concluir)
+            const st = t.id === cliente.id ? { tipo: cliente.status_tipo, nome: STATUS[cliente.status_tipo] || cliente.status_nome } : { tipo: t.status_tipo, nome: t.status_nome };
+            return el("li", { class: "rotina-tarefa" + (t.id === cliente.id ? " is-foco" : "") }, [
+              el("span", { class: "rotina-tarefa-texto" }, [
+                el("span", { text: t.titulo }),
+                t.prazo ? el("small", { class: "muted", text: t.prazo.slice(8, 10) + "/" + t.prazo.slice(5, 7) }) : null,
+              ].filter(Boolean)),
+              el("span", { class: "pilula is-" + st.tipo, text: st.nome }),
+            ]);
+          }))];
+      lado.replaceChildren(titulo(), ...itens);
+    };
+    if (!cliente.cliente_id) return desenhar([]);
+    // mostra o que ja tem na hora e busca de novo quando a Rotina recarregou (sem piscar "Carregando…")
+    const id = cliente.cliente_id;
+    const guardada = state.tarefasCliente[id];
+    desenhar(guardada ? guardada.lista : null);
+    if (guardada && !guardada.velha) return;
+    try {
+      state.tarefasCliente[id] = { lista: (await chamar("GET", "/api/tarefas?cliente_id=" + id)).tarefas || [], velha: false };
+    } catch (e) {
+      if (!guardada && lado.isConnected) lado.replaceChildren(titulo(), el("p", { class: "muted", text: "Não foi possível carregar as tarefas." }));
+      return;
+    }
+    if (lado.isConnected) desenhar(state.tarefasCliente[id].lista);
   }
 
   function clientes() {

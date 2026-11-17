@@ -520,3 +520,21 @@ body.embutido .form-lixeira { display: none; }
 .rotina-data small { font-size: 0.95rem; font-weight: 500; }
 @media (max-width: 860px) { .rotina-grade { grid-template-columns: minmax(0, 1fr); } }
 .rotina-checklist, .rotina-clientes { align-self: stretch; } /* mesma altura lado a lado (pedido do dono) */
+
+/* Foco em duas colunas: a direita, separada por uma linha, as tarefas vinculadas ao cliente e o status (pedido do dono) */
+.rotina-foco-corpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; }
+.rotina-foco-principal { min-width: 0; padding-right: 24px; }
+.rotina-foco-tarefas { min-width: 0; padding-left: 24px; border-left: 1px solid var(--borda-forte); }
+.rotina-foco-tarefas h3 { margin: 0 0 8px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.rotina-tarefas-lista { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.rotina-tarefa { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 8px; border-bottom: 1px solid var(--borda); border-radius: 8px; }
+.rotina-tarefa:last-child { border-bottom: 0; }
+.rotina-tarefa.is-foco { background: var(--acento-fundo); }
+.rotina-tarefa-texto { display: grid; gap: 2px; min-width: 0; font-size: 0.93rem; overflow-wrap: anywhere; }
+.rotina-tarefa-texto small { font-size: 0.8rem; }
+.rotina-tarefa .pilula { padding: 3px 10px; font-size: 0.78rem; }
+@media (max-width: 860px) {
+  .rotina-foco-corpo { grid-template-columns: minmax(0, 1fr); }
+  .rotina-foco-principal { padding-right: 0; }
+  .rotina-foco-tarefas { padding: 16px 0 0; margin-top: 16px; border-left: 0; border-top: 1px solid var(--borda-forte); }
+}
