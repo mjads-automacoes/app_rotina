@@ -506,3 +506,16 @@ body.embutido .form-lixeira { display: none; }
 .salvo-status.is-salvo { color: var(--verde); }
 .salvo-status.is-salvando { color: var(--muted); }
 .salvo-status.is-erro { color: var(--vermelho); }
+
+/* Rotina no formato novo (17/11/2026): foco em cima na largura toda; checklist e clientes lado a lado embaixo */
+.rotina-grade { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.rotina-foco { grid-column: 1 / -1; min-height: 0; }
+.rotina-checklist { position: static; }
+.rotina-clientes { grid-column: auto; align-content: start; }
+.rotina-checklist .cartao-topo h3, .rotina-clientes h2 { margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: var(--texto); }
+.rotina-clientes h2 { padding-bottom: 12px; border-bottom: 1px solid var(--borda); }
+.rotina-item { justify-content: flex-start; }
+.rotina-data { align-items: center; }
+.rotina-data-sep { color: var(--borda-forte); }
+.rotina-data small { font-size: 0.95rem; font-weight: 500; }
+@media (max-width: 860px) { .rotina-grade { grid-template-columns: minmax(0, 1fr); } }

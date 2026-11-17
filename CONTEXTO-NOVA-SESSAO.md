@@ -216,10 +216,11 @@ A versão 1 tinha `andamento`, `checklist_modelo`, `checklist_marcas` e `registr
 
 Mostra **só o dia de hoje**. Não há abas de dias, nem filtro de turno, nem barra de progresso.
 
-- **Topo:** título "Rotina"; ao lado, para o admin, o seletor de gestor (vê a rotina de outro); à direita, o botão de atualizar. Abaixo, o dia: "Quinta-feira 12/11 3/9 feitos".
-- **Esquerda, "Check List do Dia":** as tarefas sem cliente do dia, tudo à mostra, separadas em **Manhã** e **Tarde**, com a contagem "N de M". Clicar marca ou desmarca (a caixa fica à direita do texto). A coluna acompanha a rolagem.
-- **Centro, cliente em foco:** selo "EM FOCO", nome, descrição, campo **"Nota da Tarefa"** com botão só de ícone (avião de papel) e os botões. "**Ver Informações**" abre a ficha do cliente em pop-up. "**Iniciar**" aparece primeiro; só depois de clicar nele aparece "**Concluir**"; concluído, aparece "Reabrir". A nota pode ser enviada sem concluir (Enter também envia) e fica listada abaixo do campo com "✓".
-- **Direita, "Clientes do dia":** somente **Manhã** e **Tarde**, sem prefixo de hora. Clicar num cliente coloca ele em foco.
+- **Topo:** título "Rotina"; ao lado, para o admin, o seletor de gestor (vê a rotina de outro); à direita, o botão de atualizar. Abaixo, a barra do dia: "Terça-feira 17/11 | 0 de 14 concluídos".
+- **Formato (17/11/2026, pelo modelo enviado pelo dono):** o **cliente em foco** fica em cima, na largura toda; embaixo, lado a lado e do mesmo tamanho, **"Checklist do dia"** (esquerda) e **"Clientes do dia"** (direita). No celular vira uma coluna só.
+- **"Checklist do dia" (embaixo, à esquerda):** as tarefas sem cliente do dia, tudo à mostra, separadas em **Manhã** e **Tarde**, com a contagem "N de M". Clicar marca ou desmarca; a caixa de marcar fica à **esquerda** do texto.
+- **Cliente em foco (em cima, largura toda):** selo "EM FOCO", nome, descrição, campo **"Nota da tarefa"** com botão só de ícone (avião de papel) e os botões. "**Ver informações**" abre a ficha do cliente em pop-up. "**Iniciar**" aparece primeiro; só depois de clicar nele aparece "**Concluir**"; concluído, aparece "Reabrir". A nota pode ser enviada sem concluir (Enter também envia) e fica listada abaixo do campo com "✓".
+- **"Clientes do dia" (embaixo, à direita):** somente **Manhã** e **Tarde**, sem prefixo de hora. Clicar num cliente coloca ele em foco.
 - **Foco automático:** o primeiro cliente não concluído do dia, manhã antes da tarde. Ao concluir, o próximo entra em foco.
 - **Dia vazio:** mensagem e, se for hoje, o botão "Gerar rotina de hoje".
 - A tela muda na hora e confirma no servidor; se o servidor recusar, desfaz e avisa. Recarrega sozinha a cada 60 segundos.

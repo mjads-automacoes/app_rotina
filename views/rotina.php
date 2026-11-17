@@ -25,8 +25,8 @@
   <div class="aviso aviso-erro" id="rotinaErro" hidden role="alert"></div>
 
   <div class="rotina-grade" id="rotinaGrade">
-    <section class="cartao rotina-checklist" id="rotinaChecklist" aria-label="Checklist do turno"></section>
     <section class="cartao rotina-foco" id="rotinaFoco" aria-live="polite"></section>
+    <section class="cartao rotina-checklist" id="rotinaChecklist" aria-label="Checklist do dia"></section>
     <aside class="cartao rotina-clientes" id="rotinaClientes" aria-label="Clientes do dia"></aside>
   </div>
 </div>

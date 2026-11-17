@@ -136,7 +136,7 @@
     const feitas = TURNOS.reduce((s, [t]) => s + clientesDo(t, d).filter((c) => c.status_tipo === "fechado").length + checklistDo(t, d).filter((c) => c.status_tipo === "fechado").length, 0);
     const total = TURNOS.reduce((s, [t]) => s + clientesDo(t, d).length + checklistDo(t, d).length, 0);
     const nome = { segunda: "Segunda-feira", terca: "Terça-feira", quarta: "Quarta-feira", quinta: "Quinta-feira", sexta: "Sexta-feira" }[d.dia] || "Hoje";
-    ui.dias.replaceChildren(...[el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }), total ? el("small", { text: feitas + "/" + total + " feitos" }) : null].filter(Boolean));
+    ui.dias.replaceChildren(...[el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }), total ? el("span", { class: "rotina-data-sep", text: "|", "aria-hidden": "true" }) : null, total ? el("small", { text: feitas + " de " + total + " concluídos" }) : null].filter(Boolean));
   }
 
   function checklist() {
@@ -147,11 +147,11 @@
       el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).map((i) => {
         const feito = i.status_tipo === "fechado";
         return el("button", { class: "rotina-item" + (feito ? " is-feito" : ""), type: "button", role: "checkbox", "aria-checked": feito ? "true" : "false", "data-item": i.id },
-          [el("span", { class: "rotina-item-texto", text: i.titulo }), el("span", { class: "rotina-check", text: feito ? "✓" : "" })]);
+          [el("span", { class: "rotina-check", text: feito ? "✓" : "" }), el("span", { class: "rotina-item-texto", text: i.titulo })]);
       })),
     ]));
     ui.checklist.replaceChildren(
-      el("div", { class: "cartao-topo" }, [el("h3", { text: "Check List do Dia" }), el("span", { class: "contagem", text: feitas + " de " + todos.length })]),
+      el("div", { class: "cartao-topo" }, [el("h3", { text: "Checklist do dia" }), el("span", { class: "contagem", text: feitas + " de " + todos.length })]),
       ...(grupos.length ? grupos : [el("p", { class: "muted", text: "Sem itens hoje." })]),
     );
   }
@@ -175,7 +175,7 @@
       el("div", { class: "rotina-foco-linha" }, [el("h2", { class: "rotina-foco-nome", text: cliente.cliente_nome || cliente.titulo }), el("span", { class: "pilula is-" + tipo, text: STATUS[tipo] || cliente.status_nome })]),
       cliente.cliente_descricao ? el("p", { class: "rotina-foco-descricao", text: cliente.cliente_descricao }) : null,
       tipo === "fechado" ? null : el("div", { class: "rotina-foco-nota" }, [
-        el("label", { for: "rotinaNota", text: "Nota da Tarefa" }),
+        el("label", { for: "rotinaNota", text: "Nota da tarefa" }),
         el("div", { class: "nota-linha" }, [
           el("input", { type: "text", id: "rotinaNota", maxlength: "1000", value: state.nota, placeholder: "Ex.: ajustei o orçamento da campanha X", autocomplete: "off" }),
           iconeEnviar(),
@@ -183,7 +183,7 @@
         ...(state.enviadas[cliente.id] || []).map((t) => el("p", { class: "nota-enviada", text: "✓ " + t })),
       ]),
       el("div", { class: "rotina-foco-acoes" }, [
-        el("button", { class: "btn btn-contorno", type: "button", "data-acao": "abrir-cliente", text: "Ver Informações" }),
+        el("button", { class: "btn btn-contorno", type: "button", "data-acao": "abrir-cliente", text: "Ver informações" }),
         tipo === "aberto" ? el("button", { class: "btn btn-primario", type: "button", "data-acao": "iniciar", text: "Iniciar" }) : null,
         tipo === "andamento" ? el("button", { class: "btn btn-primario", type: "button", "data-acao": "concluir", text: "Concluir" }) : null,
         tipo === "fechado" ? el("button", { class: "btn btn-contorno", type: "button", "data-acao": "reabrir", text: "Reabrir" }) : null,
