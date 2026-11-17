@@ -84,6 +84,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await shot('1-rotina-escuro.png');
     // foco no formato fixo: selo, nome, status, nova tarefa (sem subtitulo)
     assert.equal(await ev("(() => { const f = rotinaFoco.querySelector('.rotina-foco-principal'); return [...f.children].map(c => c.className.split(' ')[0]).join(','); })()"), 'rotina-selo,rotina-foco-nome,rotina-foco-status,rotina-foco-nota,rotina-foco-acoes', 'formato fixo do foco');
+    assert.equal(await ev("(() => { const b = rotinaFoco.querySelector('[data-acao=\"abrir-cliente\"]').getBoundingClientRect(), p = rotinaFoco.querySelector('.rotina-foco-principal').getBoundingClientRect(), i = rotinaFoco.querySelector('[data-acao=\"iniciar\"]').getBoundingClientRect(); return b.left - p.left < 4 && i.right > p.right - 30; })()"), true, 'Ver informacoes a esquerda, Iniciar a direita');
     const tarefasAntes = await ev("document.querySelectorAll('#rotinaFoco .rotina-tarefa').length");
     await ev("document.getElementById('rotinaNota').value = 'Tarefa nova pelo foco'; document.getElementById('rotinaNota').dispatchEvent(new Event('input', { bubbles: true }))");
     await clicar('[data-acao="nova-tarefa"]');

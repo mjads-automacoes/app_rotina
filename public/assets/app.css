@@ -540,3 +540,4 @@ body.embutido .form-lixeira { display: none; }
 }
 .rotina-foco-nome { margin-top: 10px; }
 .rotina-foco-status { margin-top: 10px; }
+.rotina-foco-acoes [data-acao="abrir-cliente"] { margin-right: auto; } /* Ver informacoes a esquerda, Iniciar/Concluir a direita (pedido do dono) */
