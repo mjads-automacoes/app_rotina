@@ -82,11 +82,14 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     const semNull = "!/\\bnull\\b|undefined/.test(document.getElementById('rotina').innerText)";
     assert.equal(await ev(semNull), true, 'a tela da Rotina nao mostra null nem undefined');
     await shot('1-rotina-escuro.png');
-    await ev("document.getElementById('rotinaNota').value = 'Nota enviada sem concluir'; document.getElementById('rotinaNota').dispatchEvent(new Event('input', { bubbles: true }))");
-    await clicar('[data-acao="enviar-nota"]');
-    assert.ok(await esperar("[...document.querySelectorAll('.nota-enviada')].some(x => x.textContent.includes('Nota enviada sem concluir'))"), 'nota enviada aparece sem concluir');
-    assert.equal(await ev("document.getElementById('rotinaNota').value"), '', 'campo limpo apos enviar');
-    await ev("document.getElementById('rotinaNota').value = 'Ajustei o orçamento'; document.getElementById('rotinaNota').dispatchEvent(new Event('input', { bubbles: true }))");
+    // foco no formato fixo: selo, nome, status, nova tarefa (sem subtitulo)
+    assert.equal(await ev("(() => { const f = rotinaFoco.querySelector('.rotina-foco-principal'); return [...f.children].map(c => c.className.split(' ')[0]).join(','); })()"), 'rotina-selo,rotina-foco-nome,rotina-foco-status,rotina-foco-nota,rotina-foco-acoes', 'formato fixo do foco');
+    const tarefasAntes = await ev("document.querySelectorAll('#rotinaFoco .rotina-tarefa').length");
+    await ev("document.getElementById('rotinaNota').value = 'Tarefa nova pelo foco'; document.getElementById('rotinaNota').dispatchEvent(new Event('input', { bubbles: true }))");
+    await clicar('[data-acao="nova-tarefa"]');
+    assert.ok(await esperar("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa')].some(x => x.textContent.includes('Tarefa nova pelo foco'))"), 'nova tarefa aparece em Tarefas do cliente');
+    assert.ok(await ev("document.querySelectorAll('#rotinaFoco .rotina-tarefa').length") > tarefasAntes, 'lista cresceu');
+    assert.equal(await ev("document.getElementById('rotinaNota').value"), '', 'campo limpo apos criar');
     assert.equal(await ev("document.querySelector('[data-acao=\"concluir\"]') === null"), true, 'Concluir so aparece depois de Iniciar');
     await clicar('[data-acao="abrir-cliente"]');
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');
@@ -195,7 +198,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
 
     // ---- Historico e Importar
     await ir('/historico');
-    assert.ok((await texto('.tabela')).includes('Ajustei o orçamento'), 'historico mostra a conclusao da Rotina com a nota');
+    assert.ok((await texto('.tabela')).includes(nome1), 'historico mostra a conclusao da Rotina');
     await ir('/importar');
     assert.ok((await texto('main')).includes('Importar do ClickUp'), 'tela de importacao');
     await shot('11-importar-escuro.png');

@@ -538,3 +538,5 @@ body.embutido .form-lixeira { display: none; }
   .rotina-foco-principal { padding-right: 0; }
   .rotina-foco-tarefas { padding: 16px 0 0; margin-top: 16px; border-left: 0; border-top: 1px solid var(--borda-forte); }
 }
+.rotina-foco-nome { margin-top: 10px; }
+.rotina-foco-status { margin-top: 10px; }

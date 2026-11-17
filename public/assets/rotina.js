@@ -12,7 +12,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { enviadas: {}, dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, tarefasCliente: {} };
+  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {} };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
   const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] } } };
@@ -77,9 +77,11 @@
 
   async function carregar(silencioso) {
     const gestor = ui.gestor ? "&gestor=" + encodeURIComponent(ui.gestor.value) : "";
+    // uma acao feita enquanto a rotina carregava torna a resposta velha: descarta para nao desfazer o clique
+    const versao = state.versao;
     try {
       const dados = await chamar("GET", "/api/rotina?data=" + encodeURIComponent(raiz.dataset.hoje) + gestor);
-      if (state.pendentes > 0) return;
+      if (state.pendentes > 0 || versao !== state.versao) return;
       const primeira = state.dados === null;
       state.dados = dados;
       Object.values(state.tarefasCliente).forEach((x) => { x.velha = true; });
@@ -93,21 +95,22 @@
 
   // botao so com o icone de enviar (aviao de papel); o SVG e fixo, sem conteudo do usuario
   function iconeEnviar() {
-    const b = el("button", { class: "btn btn-primario btn-enviar", type: "button", "data-acao": "enviar-nota", title: "Enviar nota", "aria-label": "Enviar nota" });
+    const b = el("button", { class: "btn btn-primario btn-enviar", type: "button", "data-acao": "nova-tarefa", title: "Criar tarefa", "aria-label": "Criar tarefa" });
     b.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
     return b;
   }
 
-  // envia a nota agora (como comentario da tarefa), sem concluir; fica listada abaixo do campo
-  async function enviarNota(c, botao) {
-    const texto = state.nota.trim();
-    if (!texto) { toast("Escreva a nota antes de enviar.", true); return; }
+  // cria uma nova tarefa para o cliente em foco (prazo hoje); ela aparece na lista "Tarefas do cliente"
+  async function criarTarefa(c, botao) {
+    const titulo = state.nota.trim();
+    if (!titulo) { toast("Escreva a tarefa antes de enviar.", true); return; }
+    if (!c.cliente_id) return;
     botao.disabled = true;
     try {
-      await chamar("POST", "/api/tarefas/" + c.id + "/comentarios", { texto });
-      (state.enviadas[c.id] = state.enviadas[c.id] || []).push(texto);
+      await chamar("POST", "/api/tarefas", { titulo, cliente_id: c.cliente_id, lista_id: 2, prazo: raiz.dataset.hoje });
+      if (state.tarefasCliente[c.cliente_id]) state.tarefasCliente[c.cliente_id].velha = true;
       state.nota = "";
-      toast("Nota enviada.");
+      toast("Tarefa criada.");
       renderizar();
       const campo = $("rotinaNota");
       if (campo) campo.focus();
@@ -120,6 +123,7 @@
     tarefa.status_nome = STATUS[tipo];
     if (tipo === "fechado") state.foco = null;
     renderizar();
+    state.versao++;
     state.pendentes++;
     try {
       await chamar("POST", "/api/rotina/" + rota, Object.assign({ tarefa_id: tarefa.id }, extra || {}));
@@ -173,15 +177,15 @@
     const tipo = cliente.status_tipo;
     const principal = el("div", { class: "rotina-foco-principal" }, [
       el("span", { class: "rotina-selo" + (tipo === "fechado" ? " is-ok" : ""), text: tipo === "fechado" ? "CONCLUÍDO" : "EM FOCO" }),
-      el("div", { class: "rotina-foco-linha" }, [el("h2", { class: "rotina-foco-nome", text: cliente.cliente_nome || cliente.titulo }), el("span", { class: "pilula is-" + tipo, text: STATUS[tipo] || cliente.status_nome })]),
-      cliente.cliente_descricao ? el("p", { class: "rotina-foco-descricao", text: cliente.cliente_descricao }) : null,
-      tipo === "fechado" ? null : el("div", { class: "rotina-foco-nota" }, [
-        el("label", { for: "rotinaNota", text: "Nota da tarefa" }),
+      // formato fixo pedido pelo dono: selo, nome, status (cada um em sua linha), nova tarefa, botoes
+      el("h2", { class: "rotina-foco-nome", text: cliente.cliente_nome || cliente.titulo }),
+      el("div", { class: "rotina-foco-status" }, [el("span", { class: "pilula is-" + tipo, text: STATUS[tipo] || cliente.status_nome })]),
+      el("div", { class: "rotina-foco-nota" }, [
+        el("label", { for: "rotinaNota", text: "Nova tarefa" }),
         el("div", { class: "nota-linha" }, [
-          el("input", { type: "text", id: "rotinaNota", maxlength: "1000", value: state.nota, placeholder: "Ex.: ajustei o orçamento da campanha X", autocomplete: "off" }),
+          el("input", { type: "text", id: "rotinaNota", maxlength: "200", value: state.nota, placeholder: "Ex.: revisar os criativos da campanha", autocomplete: "off" }),
           iconeEnviar(),
         ]),
-        ...(state.enviadas[cliente.id] || []).map((t) => el("p", { class: "nota-enviada", text: "✓ " + t })),
       ]),
       el("div", { class: "rotina-foco-acoes" }, [
         el("button", { class: "btn btn-contorno", type: "button", "data-acao": "abrir-cliente", text: "Ver informações" }),
@@ -279,8 +283,8 @@
     const c = clientesDo(state.turno).find((x) => x.id === state.foco);
     if (!c) return;
     if (botao.dataset.acao === "abrir-cliente") return abrirFicha(c);
-    if (botao.dataset.acao === "enviar-nota") return enviarNota(c, botao);
-    if (botao.dataset.acao === "concluir") { const nota = state.nota; state.nota = ""; acao(c, "fechado", "concluir", { nota }); toast("Análise registrada."); }
+    if (botao.dataset.acao === "nova-tarefa") return criarTarefa(c, botao);
+    if (botao.dataset.acao === "concluir") { acao(c, "fechado", "concluir"); toast("Análise registrada."); }
     if (botao.dataset.acao === "iniciar") acao(c, "andamento", "iniciar");
     if (botao.dataset.acao === "reabrir") acao(c, "aberto", "reabrir");
   });
@@ -289,8 +293,8 @@
     if (event.key !== "Enter" || event.target.id !== "rotinaNota") return;
     event.preventDefault();
     const c = clientesDo(state.turno).find((x) => x.id === state.foco);
-    const botao = raiz.querySelector('[data-acao="enviar-nota"]');
-    if (c && botao) enviarNota(c, botao);
+    const botao = raiz.querySelector('[data-acao="nova-tarefa"]');
+    if (c && botao) criarTarefa(c, botao);
   });
   raiz.addEventListener("input", (event) => { if (event.target.id === "rotinaNota") state.nota = event.target.value; });
   if (ui.atualizar) ui.atualizar.addEventListener("click", () => carregar(false));
