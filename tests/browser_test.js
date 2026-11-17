@@ -75,6 +75,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return f.bottom <= c.top && Math.abs(c.top - k.top) < 2 && Math.abs(c.width - k.width) < 2 && Math.abs(c.height - k.height) < 2 && f.width > c.width * 1.8; })()"), true, 'foco na largura toda; checklist e clientes lado a lado, mesma largura e altura');
     assert.equal(await ev("(() => { const i = document.querySelector('.rotina-item'); return i.firstElementChild.className + '|' + i.lastElementChild.className; })()"), 'rotina-check|rotina-item-texto', 'caixa de marcacao a esquerda do texto');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
+    assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
     // foco em duas colunas: a direita, depois de uma linha, as tarefas do cliente com o status
     assert.ok(await esperar("document.querySelectorAll('#rotinaFoco .rotina-foco-tarefas .rotina-tarefa .pilula').length > 0 && rotinaFoco.querySelector('.rotina-foco-tarefas').getBoundingClientRect().left > rotinaFoco.querySelector('.rotina-foco-principal').getBoundingClientRect().right - 1"), 'tarefas do cliente ao lado direito do foco, com status');
     const nome1 = await texto('.rotina-foco-nome');
@@ -91,6 +92,13 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa')].some(x => x.textContent.includes('Tarefa nova pelo foco'))"), 'nova tarefa aparece em Tarefas do cliente');
     assert.ok(await ev("document.querySelectorAll('#rotinaFoco .rotina-tarefa').length") > tarefasAntes, 'lista cresceu');
     assert.equal(await ev("document.getElementById('rotinaNota').value"), '', 'campo limpo apos criar');
+    for (let i = 0; i < 3 && (await n('#rotinaFoco .rotina-tarefa')) <= 3; i++) {
+      await ev("document.getElementById('rotinaNota').value = 'Extra " + i + "'; document.getElementById('rotinaNota').dispatchEvent(new Event('input', { bubbles: true }))");
+      const antes2 = await n('#rotinaFoco .rotina-tarefa');
+      await clicar('[data-acao="nova-tarefa"]');
+      await esperar(`document.querySelectorAll('#rotinaFoco .rotina-tarefa').length > ${antes2}`);
+    }
+    assert.equal(await ev("(() => { const ul = rotinaFoco.querySelector('.rotina-tarefas-lista'), r = ul.getBoundingClientRect(); const vis = [...ul.children].filter(li => { const b = li.getBoundingClientRect(); return b.top >= r.top - 1 && b.bottom <= r.bottom + 1; }).length; return ul.children.length > 3 && vis === 3 && ul.scrollHeight > ul.clientHeight; })()"), true, 'tarefas do cliente: 3 visiveis, o resto rolando');
     assert.equal(await ev("document.querySelector('[data-acao=\"concluir\"]') === null"), true, 'Concluir so aparece depois de Iniciar');
     await clicar('[data-acao="abrir-cliente"]');
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');

@@ -526,7 +526,7 @@ body.embutido .form-lixeira { display: none; }
 .rotina-foco-principal { min-width: 0; padding-right: 24px; }
 .rotina-foco-tarefas { min-width: 0; padding-left: 24px; border-left: 1px solid var(--borda-forte); }
 .rotina-foco-tarefas h3 { margin: 0 0 8px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.rotina-tarefas-lista { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.rotina-tarefas-lista { position: relative; list-style: none; margin: 0; padding: 0; overflow-y: auto; }
 .rotina-tarefa { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 8px; border-bottom: 1px solid var(--borda); border-radius: 8px; }
 .rotina-tarefa:last-child { border-bottom: 0; }
 .rotina-tarefa.is-foco { background: var(--acento-fundo); }
@@ -541,3 +541,12 @@ body.embutido .form-lixeira { display: none; }
 .rotina-foco-nome { margin-top: 10px; }
 .rotina-foco-status { margin-top: 10px; }
 .rotina-foco-acoes [data-acao="abrir-cliente"] { margin-right: auto; } /* Ver informacoes a esquerda, Iniciar/Concluir a direita (pedido do dono) */
+
+/* Rotina cabe na tela, sem a barra de rolagem da pagina (pedido do dono): checklist e clientes rolam por dentro */
+@media (min-width: 861px) and (min-height: 600px) {
+  .conteudo:has(#painelRotina:not([hidden])) { height: 100vh; display: flex; flex-direction: column; padding-bottom: 24px; overflow: hidden; }
+  .conteudo:has(#painelRotina:not([hidden])) > #rotina { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #painelRotina:not([hidden]) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #painelRotina .rotina-grade { flex: 1 1 auto; min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
+  #painelRotina .rotina-checklist, #painelRotina .rotina-clientes { min-height: 0; overflow-y: auto; }
+}

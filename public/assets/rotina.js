@@ -216,7 +216,15 @@
               el("span", { class: "pilula is-" + st.tipo, text: st.nome }),
             ]);
           }))];
+      const antiga = lado.querySelector(".rotina-tarefas-lista");
+      const rolagem = antiga ? antiga.scrollTop : null;
       lado.replaceChildren(titulo(), ...itens);
+      // mostra no maximo 3 tarefas; as demais aparecem rolando a lista (pedido do dono)
+      const ul = lado.querySelector(".rotina-tarefas-lista");
+      if (!ul || ul.children.length <= 3) return;
+      ul.style.maxHeight = (ul.children[3].offsetTop - ul.children[0].offsetTop) + "px";
+      const emFoco = ul.querySelector(".is-foco");
+      ul.scrollTop = rolagem !== null ? rolagem : (emFoco ? emFoco.offsetTop - ul.children[0].offsetTop : 0);
     };
     if (!cliente.cliente_id) return desenhar([]);
     // mostra o que ja tem na hora e busca de novo quando a Rotina recarregou (sem piscar "Carregando…")
