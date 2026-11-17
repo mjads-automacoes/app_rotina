@@ -17,7 +17,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <h1 data-cliente-nome><?= e((string) $c['nome']) ?></h1>
         <form method="post" action="/clientes/<?= (int) $c['id'] ?>/excluir" class="form-lixeira">
           <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-          <button class="btn btn-icone btn-lixeira" type="submit" data-confirmar="Excluir o cliente <?= e((string) $c['nome']) ?>? As tarefas dele ficam, sem cliente." aria-label="Excluir cliente" title="Excluir cliente"><?= icone('lixeira') ?></button>
+          <button class="btn btn-icone btn-lixeira" type="submit" data-confirmar="Excluir o cliente <?= e((string) $c['nome']) ?>? As tarefas em aberto dele também serão apagadas." aria-label="Excluir cliente" title="Excluir cliente"><?= icone('lixeira') ?></button>
         </form>
       </div>
       <p class="muted"><?= $c['contato_nome'] !== '' ? e((string) $c['contato_nome']) . ' · ' : '' ?><span class="selo selo-<?= e((string) $c['status']) ?>"><?= e(ucfirst((string) $c['status'])) ?></span> · responsável: <?= e($gestor) ?></p>

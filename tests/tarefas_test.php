@@ -171,10 +171,16 @@ t('excluir tarefa remove checklist, comentarios e etiquetas', function (): void 
     }
 });
 
-t('apagar um cliente mantem a tarefa, sem cliente', function (): void {
+t('apagar um cliente apaga as tarefas em aberto e mantem as concluidas, sem cliente', function (): void {
     [$n, , $ana] = nucleo_teste();
     $c = $n->clientes->criar($ana, ['nome' => 'X']);
-    $id = $n->tarefas->criar($ana, ['titulo' => 'T', 'lista_id' => 2, 'cliente_id' => $c]);
+    $aberta = $n->tarefas->criar($ana, ['titulo' => 'Aberta', 'lista_id' => 2, 'cliente_id' => $c]);
+    $andamento = $n->tarefas->criar($ana, ['titulo' => 'Andamento', 'lista_id' => 2, 'cliente_id' => $c]);
+    $feita = $n->tarefas->criar($ana, ['titulo' => 'Feita', 'lista_id' => 2, 'cliente_id' => $c]);
+    $n->tarefas->moverPorTipo($ana, $andamento, 'andamento');
+    $n->tarefas->moverPorTipo($ana, $feita, 'fechado');
     $n->clientes->excluir($ana, $c);
-    eq(null, $n->tarefas->obter($ana, $id)['cliente_id']);
+    $restam = $n->pdo->query('SELECT id FROM tarefas WHERE id IN (' . $aberta . ',' . $andamento . ',' . $feita . ')')->fetchAll(PDO::FETCH_COLUMN);
+    eq([$feita], array_map('intval', $restam));
+    eq(null, $n->tarefas->obter($ana, $feita)['cliente_id']);
 });

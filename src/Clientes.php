@@ -106,7 +106,17 @@ final class Clientes
     public function excluir(array $actor, int $id): void
     {
         $this->buscar($actor, $id);
-        $this->pdo->prepare('DELETE FROM clientes WHERE id = ?')->execute([$id]);
+        // pedido do dono (17/11/2026): as tarefas em aberto do cliente vao junto; as concluidas ficam, sem cliente, para o historico
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->pdo->prepare("DELETE FROM tarefas WHERE cliente_id = ? AND status_id IN (SELECT id FROM status WHERE tipo != 'fechado')")->execute([$id]);
+            $this->pdo->prepare('DELETE FROM clientes WHERE id = ?')->execute([$id]);
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
     // ---------- notas ----------
