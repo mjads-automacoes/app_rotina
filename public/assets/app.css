@@ -554,9 +554,9 @@ body.embutido .form-lixeira { display: none; }
 /* Checklist do dia: lapis (editar nome) a esquerda, botao de concluir a direita, "Add +" no fim (pedido do dono, 19/11/2026) */
 .rotina-checklist .rotina-item { align-items: center; gap: 10px; cursor: default; }
 .rotina-checklist .rotina-item:hover { background: transparent; }
-.rotina-lapis { flex: none; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
-.rotina-lapis:hover, .rotina-lapis:focus-visible { border-color: var(--borda-forte); color: var(--texto); background: var(--panel-2); }
-.rotina-lapis .ic { width: 16px; height: 16px; }
+.rotina-mais { flex: none; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
+.rotina-mais:hover, .rotina-mais:focus-visible { border-color: var(--borda-forte); color: var(--texto); background: var(--panel-2); }
+.rotina-mais .ic { width: 16px; height: 16px; }
 .rotina-concluir { flex: none; padding: 5px 12px; border: 1px solid var(--borda-forte); border-radius: 999px; background: transparent; color: var(--texto); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .rotina-concluir:hover { border-color: var(--verde); color: var(--verde); }
 .rotina-concluir[aria-pressed=true] { border-color: transparent; background: rgba(34, 197, 94, 0.16); color: var(--verde); }
@@ -576,3 +576,7 @@ body.embutido .form-lixeira { display: none; }
   #rotina .pagina-topo { flex-wrap: wrap; }
   #rotina .pagina-topo .rotina-controles { order: 3; flex-basis: 100%; }
 }
+
+.rotina-mais circle { fill: currentColor; stroke: none; }
+.btn-certo { width: 36px; padding: 4px; justify-content: center; }
+.btn-certo .ic { width: 18px; height: 18px; }

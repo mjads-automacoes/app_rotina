@@ -153,17 +153,17 @@
       el("p", { class: "rotina-subtitulo", text: rotulo }),
       el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).map((i) => {
         const feito = i.status_tipo === "fechado";
-        // pedido do dono: lapis a esquerda (editar o nome), botao de concluir a direita
+        // pedido do dono: tres pontinhos (editar o nome) logo antes do botao de concluir, a direita
         if (state.editando === i.id) {
           return el("div", { class: "rotina-item is-editando", "data-item": i.id }, [
             el("input", { type: "text", id: "rotinaEditar", class: "rotina-editar-campo", maxlength: "200", value: state.editTexto, "aria-label": "Nome do item", autocomplete: "off" }),
-            el("button", { class: "btn btn-primario btn-mini", type: "button", "data-check": "salvar-nome", text: "Salvar" }),
+            iconeBotao("btn btn-primario btn-mini btn-certo", "salvar-nome", "Salvar nome", '<polyline points="20 6 9 17 4 12"/>'),
             el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "cancelar", text: "Cancelar" }),
           ]);
         }
         return el("div", { class: "rotina-item" + (feito ? " is-feito" : ""), "data-item": i.id }, [
-          iconeLapis(),
           el("span", { class: "rotina-item-texto", text: i.titulo }),
+          iconeBotao("rotina-mais", "editar", "Editar nome", '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>'),
           el("button", { class: "rotina-concluir", type: "button", "data-check": "concluir", "aria-pressed": feito ? "true" : "false", title: feito ? "Desfazer" : "Concluir", text: feito ? "✓ Concluído" : "Concluir" }),
         ]);
       })),
@@ -184,10 +184,10 @@
     );
   }
 
-  // lapis so de icone (SVG fixo, sem conteudo do usuario)
-  function iconeLapis() {
-    const b = el("button", { class: "rotina-lapis", type: "button", "data-check": "editar", title: "Editar nome", "aria-label": "Editar nome" });
-    b.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+  // botao so de icone (SVG fixo do codigo, sem conteudo do usuario)
+  function iconeBotao(classe, acao, rotulo, desenho) {
+    const b = el("button", { class: classe, type: "button", "data-check": acao, title: rotulo, "aria-label": rotulo });
+    b.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + desenho + '</svg>';
     return b;
   }
 

@@ -73,7 +73,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // formato: cliente em foco em cima, na largura toda; checklist e clientes lado a lado embaixo
     assert.equal(await ev("[...document.getElementById('rotinaGrade').children].map(c => c.id).join(',')"), 'rotinaFoco,rotinaChecklist,rotinaClientes', 'ordem: foco, checklist, clientes');
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return f.bottom <= c.top && Math.abs(c.top - k.top) < 2 && Math.abs(c.width - k.width) < 2 && Math.abs(c.height - k.height) < 2 && f.width > c.width * 1.8; })()"), true, 'foco na largura toda; checklist e clientes lado a lado, mesma largura e altura');
-    assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-lapis|rotina-item-texto|rotina-concluir', 'checklist: lapis a esquerda, concluir a direita');
+    assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-item-texto|rotina-mais|rotina-concluir', 'checklist: tres pontinhos antes do concluir');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
     assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
     assert.equal(await ev("(() => { const h = document.querySelector('#painelRotina h1').getBoundingClientRect(), d = rotinaDias.getBoundingClientRect(); return d.top < h.bottom && d.bottom > h.top && d.left > h.right; })()"), true, 'barra do dia na mesma linha do titulo Rotina');
@@ -128,8 +128,8 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("document.querySelector('#rotinaDias strong')"));
     assert.equal(await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')"), 'true', 'o check sobrevive ao recarregar');
     // lapis: renomeia o item
-    await clicar('#rotinaChecklist .rotina-lapis');
-    assert.ok(await esperar("!!document.getElementById('rotinaEditar')"), 'lapis abre o campo do nome');
+    await clicar('#rotinaChecklist .rotina-mais');
+    assert.ok(await esperar("!!document.getElementById('rotinaEditar')"), 'tres pontinhos abrem o campo do nome');
     await ev("(() => { const c = document.getElementById('rotinaEditar'); c.value = 'Item renomeado'; c.dispatchEvent(new Event('input', { bubbles: true })); })()");
     await clicar('[data-check="salvar-nome"]');
     assert.ok(await esperar("document.querySelector('#rotinaChecklist .rotina-item-texto').textContent === 'Item renomeado'"), 'nome trocado na hora');
