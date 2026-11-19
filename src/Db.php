@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 2;
+    public const VERSAO = 3;
 
     public static function open(string $caminho): PDO
     {
@@ -55,6 +55,10 @@ final class Db
 
             if ($atual < 2) {
                 self::v2($pdo);
+            }
+
+            if ($atual < 3) {
+                self::v3($pdo);
             }
 
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
@@ -150,6 +154,18 @@ final class Db
 
         foreach ($itens as $i => [$turno, $chave, $texto, $auto]) {
             $ins->execute([$turno, $chave, $texto, $i + 1, $auto]);
+        }
+    }
+
+    /** v3: o site ficticio (https://exemplo.com/...) dos clientes de demonstracao fica em branco (pedido do dono, 19/11/2026). */
+    private static function v3(PDO $pdo): void
+    {
+        $existe = (bool) $pdo->query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'meta'")->fetchColumn();
+        $valor = $existe ? $pdo->query("SELECT valor FROM meta WHERE chave = 'demo'")->fetchColumn() : false;
+        $ids = $valor === false ? [] : array_map('intval', (array) (json_decode((string) $valor, true)['clientes'] ?? []));
+
+        if ($ids !== []) {
+            $pdo->exec("UPDATE clientes SET link = '' WHERE link LIKE 'https://exemplo.com/%' AND id IN (" . implode(',', $ids) . ')');
         }
     }
 

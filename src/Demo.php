@@ -60,7 +60,7 @@ final class Demo
 
         foreach ($clientes as [$g, $nome, $empresa, $desc, $dias, $turno, $status, $plat, $orc, $contato, $tel, $obs]) {
             $ids[$nome] = $n->clientes->criar($g, ['nome' => $nome, 'empresa' => $empresa, 'descricao' => $desc, 'dias' => $dias, 'turno' => $turno, 'status' => $status, 'plataformas' => $plat,
-                'orcamento' => $orc, 'contato_nome' => $contato, 'contato_telefone' => $tel, 'observacoes' => $obs, 'link' => 'https://exemplo.com/' . strtolower((string) preg_replace('/\W+/', '-', $nome))]);
+                'orcamento' => $orc, 'contato_nome' => $contato, 'contato_telefone' => $tel, 'observacoes' => $obs, 'link' => '']); // site em branco (pedido do dono)
         }
 
         $n->clientes->notaAdicionar($dono, $ids['BILL BORRACHA'], 'Cliente pediu relatório semanal por WhatsApp.');

@@ -57,3 +57,16 @@ t('demo: cada dia util tem pelo menos 6 clientes na rotina do dono, mesmo com um
         ok((int) $st->fetchColumn() >= 6, $dia . ' deveria ter pelo menos 6 clientes');
     }
 });
+
+t('demo: site do cliente fica em branco, inclusive nos que ja estavam carregados (migracao v3)', function (): void {
+    [$n, $admin] = nucleo_teste();
+    $real = $n->clientes->criar($admin, ['nome' => 'REAL', 'link' => 'https://exemplo.com/real']);
+    Demo::carregar($n, $admin);
+    eq(0, (int) $n->pdo->query("SELECT COUNT(*) FROM clientes WHERE link != '' AND id != $real")->fetchColumn(), 'carga nova sem site');
+    // banco antigo: os ficticios tinham o site https://exemplo.com/...
+    $n->pdo->exec("UPDATE clientes SET link = 'https://exemplo.com/' || id WHERE id != $real");
+    $n->pdo->exec('PRAGMA user_version = 2');
+    Db::migrate($n->pdo);
+    eq(0, (int) $n->pdo->query("SELECT COUNT(*) FROM clientes WHERE link != '' AND id != $real")->fetchColumn(), 'migracao limpou o site ficticio');
+    eq('https://exemplo.com/real', $n->clientes->buscar($admin, $real)['link'], 'cliente real mantem o site');
+});
