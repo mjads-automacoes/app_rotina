@@ -13,14 +13,13 @@
         </select>
       <?php endif; ?>
     </div>
+    <div class="rotina-controles">
+      <div class="rotina-data" id="rotinaDias" aria-label="Dia"></div>
+    </div>
     <div class="topo-acoes">
       <button class="btn btn-icone" type="button" id="rotinaAtualizar" title="Atualizar" aria-label="Atualizar"><?= icone('atualizar') ?></button>
     </div>
   </header>
-
-  <div class="rotina-controles">
-    <div class="rotina-data" id="rotinaDias" aria-label="Dia"></div>
-  </div>
 
   <div class="aviso aviso-erro" id="rotinaErro" hidden role="alert"></div>
 

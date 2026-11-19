@@ -76,6 +76,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-lapis|rotina-item-texto|rotina-concluir', 'checklist: lapis a esquerda, concluir a direita');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
     assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
+    assert.equal(await ev("(() => { const h = document.querySelector('#painelRotina h1').getBoundingClientRect(), d = rotinaDias.getBoundingClientRect(); return d.top < h.bottom && d.bottom > h.top && d.left > h.right; })()"), true, 'barra do dia na mesma linha do titulo Rotina');
     // foco em duas colunas: a direita, depois de uma linha, as tarefas do cliente com o status
     assert.ok(await esperar("document.querySelectorAll('#rotinaFoco .rotina-foco-tarefas .rotina-tarefa .pilula').length > 0 && rotinaFoco.querySelector('.rotina-foco-tarefas').getBoundingClientRect().left > rotinaFoco.querySelector('.rotina-foco-principal').getBoundingClientRect().right - 1"), 'tarefas do cliente ao lado direito do foco, com status');
     const nome1 = await texto('.rotina-foco-nome');
