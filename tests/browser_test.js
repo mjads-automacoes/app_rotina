@@ -73,7 +73,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // formato: cliente em foco em cima, na largura toda; checklist e clientes lado a lado embaixo
     assert.equal(await ev("[...document.getElementById('rotinaGrade').children].map(c => c.id).join(',')"), 'rotinaFoco,rotinaChecklist,rotinaClientes', 'ordem: foco, checklist, clientes');
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return f.bottom <= c.top && Math.abs(c.top - k.top) < 2 && Math.abs(c.width - k.width) < 2 && Math.abs(c.height - k.height) < 2 && f.width > c.width * 1.8; })()"), true, 'foco na largura toda; checklist e clientes lado a lado, mesma largura e altura');
-    assert.equal(await ev("(() => { const i = document.querySelector('.rotina-item'); return i.firstElementChild.className + '|' + i.lastElementChild.className; })()"), 'rotina-check|rotina-item-texto', 'caixa de marcacao a esquerda do texto');
+    assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-lapis|rotina-item-texto|rotina-concluir', 'checklist: lapis a esquerda, concluir a direita');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
     assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
     // foco em duas colunas: a direita, depois de uma linha, as tarefas do cliente com o status
@@ -119,13 +119,29 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.notEqual(await texto('.rotina-foco-nome'), nome1, 'o proximo cliente entra em foco');
     assert.equal(await ev(semNull), true, 'sem null depois de concluir');
     await sleep(700);
-    await clicar('#rotinaChecklist .rotina-item');
-    const marcado = await ev("document.querySelector('#rotinaChecklist .rotina-item').getAttribute('aria-checked')");
+    await clicar('#rotinaChecklist .rotina-concluir');
+    const marcado = await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')");
     assert.equal(marcado, 'true', 'item do checklist marcado');
     await sleep(700);
     await ir('/');
     assert.ok(await esperar("document.querySelector('#rotinaDias strong')"));
-    assert.equal(await ev("document.querySelector('#rotinaChecklist .rotina-item').getAttribute('aria-checked')"), 'true', 'o check sobrevive ao recarregar');
+    assert.equal(await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')"), 'true', 'o check sobrevive ao recarregar');
+    // lapis: renomeia o item
+    await clicar('#rotinaChecklist .rotina-lapis');
+    assert.ok(await esperar("!!document.getElementById('rotinaEditar')"), 'lapis abre o campo do nome');
+    await ev("(() => { const c = document.getElementById('rotinaEditar'); c.value = 'Item renomeado'; c.dispatchEvent(new Event('input', { bubbles: true })); })()");
+    await clicar('[data-check="salvar-nome"]');
+    assert.ok(await esperar("document.querySelector('#rotinaChecklist .rotina-item-texto').textContent === 'Item renomeado'"), 'nome trocado na hora');
+    // Add +: novo item no checklist
+    const itensAntes = await n('#rotinaChecklist .rotina-item');
+    await clicar('[data-check="abrir-novo"]');
+    await ev("(() => { const c = document.getElementById('rotinaAddTexto'); c.value = 'Item novo do teste'; c.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('rotinaAddTurno').value = 'fechamento'; })()");
+    await clicar('[data-check="salvar-novo"]');
+    assert.ok(await esperar(`document.querySelectorAll('#rotinaChecklist .rotina-item').length > ${itensAntes} && document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')`), 'Add + cria item no checklist');
+    assert.ok(await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-subtitulo')].some(x => x.textContent === 'Fechamento')"), 'checklist mostra o Fechamento');
+    await sleep(700);
+    await ir('/');
+    assert.ok(await esperar("document.getElementById('rotinaChecklist').textContent.includes('Item renomeado') && document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')"), 'nome e item novo continuam depois de recarregar');
     await tema('claro');
     await shot('2-rotina-claro.png');
     await tema('escuro');
@@ -172,7 +188,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok((await n('.cliente-card')) >= 8, 'cards de clientes');
     await shot('8-clientes-escuro.png');
     await ev("document.querySelector('.cliente-card').click()");
-    assert.ok(await esperar("location.pathname.startsWith('/clientes/')"), 'ficha do cliente');
+    assert.ok(await esperar("location.pathname.startsWith('/clientes/') && document.readyState === 'complete' && !!document.querySelector('.nota-form textarea')"), 'ficha do cliente');
     await ev("(() => { const t = document.querySelector('.nota-form textarea'); t.value = 'Nota criada no teste'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("document.body.textContent.includes('Nota criada no teste')"), 'nota salva');
     // tarefas do cliente: adicionar pela ficha e excluir com confirmacao

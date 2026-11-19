@@ -8,20 +8,22 @@
 
   const DIAS = { segunda: "Segunda", terca: "Terça", quarta: "Quarta", quinta: "Quinta", sexta: "Sexta" };
   const TURNOS = [["manha", "Manhã", "da manhã"], ["tarde", "Tarde", "da tarde"]];
+  // o checklist tem tambem o Fechamento (pedido do dono, 19/11/2026); os clientes continuam so manha e tarde
+  const TURNOS_CHECK = [...TURNOS, ["fechamento", "Fechamento", "do fechamento"]];
   const STATUS = { aberto: "A fazer", andamento: "Em andamento", fechado: "Concluído" };
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {} };
+  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
-  const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] } } };
+  const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] }, fechamento: { clientes: [], checklist: [] } } };
   const dia = () => state.dados.semana[state.data] || VAZIO;
-  const clientesDo = (turno, d) => (d || dia()).turnos[turno].clientes;
-  const checklistDo = (turno, d) => (d || dia()).turnos[turno].checklist;
+  const clientesDo = (turno, d) => ((d || dia()).turnos[turno] || { clientes: [] }).clientes;
+  const checklistDo = (turno, d) => ((d || dia()).turnos[turno] || { checklist: [] }).checklist;
   const todosClientes = (d) => TURNOS.flatMap(([t]) => clientesDo(t, d));
   const tarefaPorId = (id) => {
-    for (const d of Object.values(state.dados.semana)) for (const [t] of TURNOS) for (const x of [...clientesDo(t, d), ...checklistDo(t, d)]) if (x.id === id) return x;
+    for (const d of Object.values(state.dados.semana)) for (const [t] of TURNOS_CHECK) for (const x of [...clientesDo(t, d), ...checklistDo(t, d)]) if (x.id === id) return x;
     return null;
   };
 
@@ -138,33 +140,88 @@
   // ---------- desenho ----------
   function topo() {
     const d = dia();
-    const feitas = TURNOS.reduce((s, [t]) => s + clientesDo(t, d).filter((c) => c.status_tipo === "fechado").length + checklistDo(t, d).filter((c) => c.status_tipo === "fechado").length, 0);
-    const total = TURNOS.reduce((s, [t]) => s + clientesDo(t, d).length + checklistDo(t, d).length, 0);
+    const feitas = TURNOS_CHECK.reduce((s, [t]) => s + clientesDo(t, d).filter((c) => c.status_tipo === "fechado").length + checklistDo(t, d).filter((c) => c.status_tipo === "fechado").length, 0);
+    const total = TURNOS_CHECK.reduce((s, [t]) => s + clientesDo(t, d).length + checklistDo(t, d).length, 0);
     const nome = { segunda: "Segunda-feira", terca: "Terça-feira", quarta: "Quarta-feira", quinta: "Quinta-feira", sexta: "Sexta-feira" }[d.dia] || "Hoje";
     ui.dias.replaceChildren(...[el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }), total ? el("span", { class: "rotina-data-sep", text: "|", "aria-hidden": "true" }) : null, total ? el("small", { text: feitas + " de " + total + " concluídos" }) : null].filter(Boolean));
   }
 
   function checklist() {
-    const todos = TURNOS.flatMap(([t]) => checklistDo(t));
+    const todos = TURNOS_CHECK.flatMap(([t]) => checklistDo(t));
     const feitas = todos.filter((i) => i.status_tipo === "fechado").length;
-    const grupos = TURNOS.filter(([t]) => checklistDo(t).length > 0).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
+    const grupos = TURNOS_CHECK.filter(([t]) => checklistDo(t).length > 0).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
       el("p", { class: "rotina-subtitulo", text: rotulo }),
       el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).map((i) => {
         const feito = i.status_tipo === "fechado";
-        return el("button", { class: "rotina-item" + (feito ? " is-feito" : ""), type: "button", role: "checkbox", "aria-checked": feito ? "true" : "false", "data-item": i.id },
-          [el("span", { class: "rotina-check", text: feito ? "✓" : "" }), el("span", { class: "rotina-item-texto", text: i.titulo })]);
+        // pedido do dono: lapis a esquerda (editar o nome), botao de concluir a direita
+        if (state.editando === i.id) {
+          return el("div", { class: "rotina-item is-editando", "data-item": i.id }, [
+            el("input", { type: "text", id: "rotinaEditar", class: "rotina-editar-campo", maxlength: "200", value: state.editTexto, "aria-label": "Nome do item", autocomplete: "off" }),
+            el("button", { class: "btn btn-primario btn-mini", type: "button", "data-check": "salvar-nome", text: "Salvar" }),
+            el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "cancelar", text: "Cancelar" }),
+          ]);
+        }
+        return el("div", { class: "rotina-item" + (feito ? " is-feito" : ""), "data-item": i.id }, [
+          iconeLapis(),
+          el("span", { class: "rotina-item-texto", text: i.titulo }),
+          el("button", { class: "rotina-concluir", type: "button", "data-check": "concluir", "aria-pressed": feito ? "true" : "false", title: feito ? "Desfazer" : "Concluir", text: feito ? "✓ Concluído" : "Concluir" }),
+        ]);
       })),
     ]));
+    const hora = parseInt(raiz.dataset.hora || "9", 10);
+    const adicionar = state.adicionando
+      ? el("div", { class: "rotina-add-form" }, [
+        el("input", { type: "text", id: "rotinaAddTexto", maxlength: "200", value: state.addTexto, placeholder: "Novo item do checklist", "aria-label": "Novo item do checklist", autocomplete: "off" }),
+        el("select", { id: "rotinaAddTurno", "aria-label": "Turno" }, TURNOS_CHECK.map(([t, rotulo]) => el("option", { value: t, selected: (state.addTurno || (hora >= 13 ? "tarde" : "manha")) === t, text: rotulo }))),
+        el("button", { class: "btn btn-primario btn-mini", type: "button", "data-check": "salvar-novo", text: "Salvar" }),
+        el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "fechar-novo", text: "Cancelar" }),
+      ])
+      : el("button", { class: "btn btn-contorno btn-add", type: "button", "data-check": "abrir-novo", text: "Add +" });
     ui.checklist.replaceChildren(
       el("div", { class: "cartao-topo" }, [el("h3", { text: "Checklist do dia" }), el("span", { class: "contagem", text: feitas + " de " + todos.length })]),
       ...(grupos.length ? grupos : [el("p", { class: "muted", text: "Sem itens hoje." })]),
+      adicionar,
     );
+  }
+
+  // lapis so de icone (SVG fixo, sem conteudo do usuario)
+  function iconeLapis() {
+    const b = el("button", { class: "rotina-lapis", type: "button", "data-check": "editar", title: "Editar nome", "aria-label": "Editar nome" });
+    b.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    return b;
+  }
+
+  async function salvarNome(tarefa) {
+    const titulo = state.editTexto.trim();
+    if (!titulo) { toast("Escreva o nome do item.", true); return; }
+    const anterior = tarefa.titulo;
+    tarefa.titulo = titulo;
+    state.editando = null;
+    renderizar();
+    state.versao++;
+    try { await chamar("POST", "/api/tarefas/" + tarefa.id, { titulo }); toast("Nome atualizado."); }
+    catch (e) { tarefa.titulo = anterior; toast(e.message, true); renderizar(); }
+  }
+
+  async function salvarNovo(botao) {
+    const titulo = state.addTexto.trim();
+    const sel = $("rotinaAddTurno");
+    const turno = sel ? sel.value : "manha";
+    if (!titulo) { toast("Escreva o item antes de salvar.", true); return; }
+    botao.disabled = true;
+    try {
+      await chamar("POST", "/api/tarefas", { titulo, lista_id: 1, prazo: raiz.dataset.hoje, turno, responsavel_id: state.dados.gestor_id });
+      state.adicionando = false;
+      state.addTexto = "";
+      toast("Item adicionado ao checklist.");
+      await carregar(false);
+    } catch (e) { toast(e.message, true); botao.disabled = false; }
   }
 
   function foco() {
     const cliente = clientesDo(state.turno).find((c) => c.id === state.foco);
     if (!cliente) {
-      const vazioDia = TURNOS.every(([t]) => clientesDo(t).length + checklistDo(t).length === 0);
+      const vazioDia = TURNOS_CHECK.every(([t]) => clientesDo(t).length + checklistDo(t).length === 0);
       const hoje = state.data === raiz.dataset.hoje;
       ui.foco.replaceChildren(el("div", { class: "rotina-vazio" }, [
         el("span", { class: "rotina-vazio-icone", text: vazioDia ? "📅" : "☕" }),
@@ -259,12 +316,13 @@
   function renderizar() {
     if (!state.dados) return;
     escolherFoco();
-    const digitando = document.activeElement && document.activeElement.id === "rotinaNota";
+    // quem estava sendo digitado continua com o cursor depois de redesenhar (a Rotina recarrega a cada minuto)
+    const ativo = document.activeElement && ["rotinaNota", "rotinaEditar", "rotinaAddTexto"].includes(document.activeElement.id) ? document.activeElement.id : null;
     topo();
     checklist();
     foco();
     clientes();
-    if (digitando) { const campo = $("rotinaNota"); if (campo) { campo.focus(); campo.setSelectionRange(campo.value.length, campo.value.length); } }
+    if (ativo) { const campo = $(ativo); if (campo) { campo.focus(); campo.setSelectionRange(campo.value.length, campo.value.length); } }
   }
 
   // ---------- eventos ----------
@@ -276,10 +334,20 @@
     if (turno) { state.turno = turno.dataset.turno; state.foco = null; return renderizar(); }
     const cli = event.target.closest(".rotina-cliente");
     if (cli) { state.turno = cli.dataset.turno; state.foco = parseInt(cli.dataset.cliente, 10); return renderizar(); }
-    const item = event.target.closest(".rotina-item");
-    if (item) {
-      const tarefa = tarefaPorId(parseInt(item.dataset.item, 10));
-      return tarefa && acao(tarefa, tarefa.status_tipo === "fechado" ? "aberto" : "fechado", tarefa.status_tipo === "fechado" ? "reabrir" : "concluir");
+    const check = event.target.closest("[data-check]");
+    if (check) {
+      const tipo = check.dataset.check;
+      if (tipo === "abrir-novo") { state.adicionando = true; renderizar(); const c = $("rotinaAddTexto"); if (c) c.focus(); return; }
+      if (tipo === "fechar-novo") { state.adicionando = false; state.addTexto = ""; return renderizar(); }
+      if (tipo === "salvar-novo") return salvarNovo(check);
+      const item = check.closest(".rotina-item");
+      const tarefa = item && tarefaPorId(parseInt(item.dataset.item, 10));
+      if (!tarefa) return;
+      if (tipo === "editar") { state.editando = tarefa.id; state.editTexto = tarefa.titulo; renderizar(); const c = $("rotinaEditar"); if (c) { c.focus(); c.select(); } return; }
+      if (tipo === "cancelar") { state.editando = null; return renderizar(); }
+      if (tipo === "salvar-nome") return salvarNome(tarefa);
+      if (tipo === "concluir") return acao(tarefa, tarefa.status_tipo === "fechado" ? "aberto" : "fechado", tarefa.status_tipo === "fechado" ? "reabrir" : "concluir");
+      return;
     }
     const botao = event.target.closest("[data-acao]");
     if (!botao) return;
@@ -298,13 +366,26 @@
   });
 
   raiz.addEventListener("keydown", (event) => {
+    if (event.target.id === "rotinaEditar" || event.target.id === "rotinaAddTexto") {
+      const editar = event.target.id === "rotinaEditar";
+      if (event.key === "Escape") { if (editar) state.editando = null; else { state.adicionando = false; state.addTexto = ""; } renderizar(); return; }
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      if (editar) { const t = tarefaPorId(state.editando); if (t) salvarNome(t); } else { const b = raiz.querySelector('[data-check="salvar-novo"]'); if (b) salvarNovo(b); }
+      return;
+    }
     if (event.key !== "Enter" || event.target.id !== "rotinaNota") return;
     event.preventDefault();
     const c = clientesDo(state.turno).find((x) => x.id === state.foco);
     const botao = raiz.querySelector('[data-acao="nova-tarefa"]');
     if (c && botao) criarTarefa(c, botao);
   });
-  raiz.addEventListener("input", (event) => { if (event.target.id === "rotinaNota") state.nota = event.target.value; });
+  raiz.addEventListener("input", (event) => {
+    if (event.target.id === "rotinaNota") state.nota = event.target.value;
+    if (event.target.id === "rotinaEditar") state.editTexto = event.target.value;
+    if (event.target.id === "rotinaAddTexto") state.addTexto = event.target.value;
+  });
+  raiz.addEventListener("change", (event) => { if (event.target.id === "rotinaAddTurno") state.addTurno = event.target.value; });
   if (ui.atualizar) ui.atualizar.addEventListener("click", () => carregar(false));
   if (ui.gestor) ui.gestor.addEventListener("change", () => { state.dados = null; state.foco = null; carregar(false); });
 
