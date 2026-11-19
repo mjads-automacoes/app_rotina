@@ -621,3 +621,10 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .multi-lista .check:has(input:checked) { background: var(--acento-fundo); color: var(--acento-texto); }
 .multi-lista input[type=checkbox] { accent-color: var(--acento); width: 16px; height: 16px; }
 .multi summary { font-size: 0.84rem; }
+
+/* Integracoes (antiga Importar): cabecalho de cada integracao (pedido do dono, 19/11/2026) */
+.integracao-topo { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding: 16px 18px; border: 1px solid var(--borda); border-radius: 16px; background: var(--panel); }
+.integracao-topo h2 { margin: 0 0 2px; }
+.integracao-topo p { margin: 0; font-size: 0.9rem; }
+.integracao-logo { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7b68ee, #fd71af); color: #fff; font-weight: 900; font-size: 0.95rem; }
+@media (max-width: 560px) { .integracao-topo { flex-wrap: wrap; } }

@@ -228,8 +228,8 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // ---- Historico e Importar
     await ir('/historico');
     assert.ok((await texto('.tabela')).includes(nome1), 'historico mostra a conclusao da Rotina');
-    await ir('/importar');
-    assert.ok((await texto('main')).includes('Importar do ClickUp'), 'tela de importacao');
+    await ir('/integracoes');
+    assert.ok((await texto('main')).includes('Integrações') && (await texto('main')).includes('ClickUp'), 'tela de integracoes');
     await shot('11-importar-escuro.png');
 
     // ---- Tema: escolha fica salva (parte do escuro: o navegador pode abrir claro, conforme o sistema)
@@ -252,7 +252,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
 
     assert.equal((await fetch(BASE + '/api/tarefas')).status, 401, 'a API exige login');
     assert.deepEqual(erros, [], 'sem erros de JavaScript/console: ' + erros.join(' / '));
-    console.log('PASS: Rotina no navegador (login, rotina, tarefas, quadro, automacoes, clientes, historico, importar, temas, celular)');
+    console.log('PASS: Rotina no navegador (login, rotina, tarefas, quadro, automacoes, clientes, historico, integracoes, temas, celular)');
   } finally {
     try { ws && ws.close(); } catch {}
     edge.kill(); php.kill();

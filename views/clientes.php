@@ -35,7 +35,7 @@ $admin = $usuario['papel'] === 'admin';
 </details>
 
 <?php if ($lista === []): ?>
-  <p class="muted">Nenhum cliente ainda. Cadastre acima ou traga do ClickUp em <a href="/importar">Importar</a>.</p>
+  <p class="muted">Nenhum cliente ainda. Cadastre acima ou traga do ClickUp em <a href="/integracoes">Integrações</a>.</p>
 <?php else: ?>
   <div class="cards-clientes" id="clientesLista">
     <?php foreach ($lista as $c): ?>

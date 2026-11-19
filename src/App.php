@@ -106,7 +106,7 @@ final class App
 
     private function voltarPara(string $caminho): string
     {
-        if (preg_match('#^/(clientes/\d+|clientes|equipe|conta|importar)#', $caminho, $m)) {
+        if (preg_match('#^/(clientes/\d+|clientes|equipe|conta|integracoes)#', $caminho, $m)) {
             return '/' . $m[1];
         }
 
@@ -278,8 +278,13 @@ final class App
             return $this->tela($r, $u, 'historico', ['registros' => $this->n->rotina->historico($u, $f), 'clientes' => $this->n->clientes->listar($u), 'filtros' => $f]);
         }
 
-        if ($caminho === '/importar' || str_starts_with($caminho, '/importar/')) {
-            return $this->importar($r, $caminho, $u);
+        // "Importar" virou "Integracoes" (19/11/2026); os enderecos antigos /importar continuam funcionando
+        if ($caminho === '/importar' && $r->metodo === 'GET') {
+            return Response::redirect('/integracoes' . (isset($r->query['listas']) ? '?listas=1' : ''));
+        }
+
+        if (preg_match('#^/(?:integracoes|importar)(/.*)?$#', $caminho, $m)) {
+            return $this->importar($r, '/integracoes' . ($m[1] ?? ''), $u);
         }
 
         if ($caminho === '/conta') {
@@ -316,12 +321,12 @@ final class App
         $imp = $this->n->importacao;
 
         if ($r->metodo === 'POST') {
-            if ($caminho === '/importar/token' || $caminho === '/importar/remover') {
+            if ($caminho === '/integracoes/token' || $caminho === '/integracoes/remover') {
                 if ($u['papel'] !== 'admin') {
                     throw new AcessoNegado('Só o administrador conecta o ClickUp.');
                 }
 
-                if ($caminho === '/importar/token') {
+                if ($caminho === '/integracoes/token') {
                     $imp->salvarToken((string) ($r->post['token'] ?? ''));
                     $this->flash($r, 'ok', 'ClickUp conectado.');
                 } else {
@@ -329,14 +334,14 @@ final class App
                     $this->flash($r, 'ok', 'ClickUp desconectado.');
                 }
 
-                return Response::redirect('/importar');
+                return Response::redirect('/integracoes');
             }
 
-            if ($caminho === '/importar/executar') {
+            if ($caminho === '/integracoes/executar') {
                 $res = $imp->importar($u, (string) ($r->post['lista_id'] ?? ''), ['gestor_id' => $r->post['gestor_id'] ?? null]);
                 $this->flash($r, 'ok', 'Importação concluída: ' . $res['criados'] . ' cliente(s) novo(s), ' . $res['atualizados'] . ' atualizado(s) e ' . $res['notas'] . ' nota(s).');
 
-                return Response::redirect('/importar');
+                return Response::redirect('/integracoes');
             }
 
             throw new RuntimeException('Esse endereço não existe.');
@@ -353,7 +358,7 @@ final class App
             }
         }
 
-        return $this->tela($r, $u, 'importar', ['conectado' => $imp->temToken(), 'listas' => $listas, 'erro' => $erro, 'gestores' => $u['papel'] === 'admin' ? $this->gestores() : []]);
+        return $this->tela($r, $u, 'integracoes', ['conectado' => $imp->temToken(), 'listas' => $listas, 'erro' => $erro, 'gestores' => $u['papel'] === 'admin' ? $this->gestores() : []]);
     }
 
     private function equipe(Request $r, string $caminho, array $u): Response

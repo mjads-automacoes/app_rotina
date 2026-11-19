@@ -185,7 +185,7 @@ A versão 1 tinha `andamento`, `checklist_modelo`, `checklist_marcas` e `registr
 | `POST /clientes/{id}/tarefas`, `POST /clientes/{id}/tarefas/{tid}/excluir` | adicionar e excluir tarefa pela ficha |
 | `GET /automacoes` | tela Automações |
 | `GET /historico` | concluídas, com filtros `de`, `ate`, `cliente_id`, `responsavel_id` |
-| `GET /importar`, `POST /importar/token`, `/importar/remover`, `/importar/executar` | ClickUp |
+| `GET /integracoes`, `POST /integracoes/token`, `/integracoes/remover`, `/integracoes/executar` | ClickUp (tela "Integrações"; os antigos `/importar...` continuam funcionando, `GET /importar` redireciona) |
 | `GET /conta`, `POST /conta/senha` | trocar a própria senha |
 | `GET/POST /equipe`, `POST /equipe/{id}/ativo`, `POST /equipe/{id}/senha` | só admin |
 
@@ -258,7 +258,7 @@ Vive dentro da tela Rotina, escondido (`<div id="tarefas" hidden>`). **Hoje não
 
 Tarefas concluídas, mais recentes primeiro, com responsável e a última nota.
 
-### Importar do ClickUp
+### Integrações (antiga "Importar do ClickUp", renomeada em 19/11/2026)
 
 Só fala com `api.clickup.com`. Lê (`GET`) clientes e comentários; a **única escrita** é publicar como comentário da tarefa a nota enviada na ficha (pedido do dono em 16/11/2026: "tudo que eu preencher e mandar em Notas vai para os comentários do ClickUp, e puxa o que já estiver lá"). O admin cola o API Token, que fica criptografado com AES-256-GCM (chave em `ROTINA_SECRET` ou no arquivo `chave.key` da pasta de dados) e nunca volta para a tela. Cada tarefa da lista escolhida vira um cliente; os comentários viram notas; importar de novo atualiza sem duplicar. Regras do mapeamento:
 
@@ -273,7 +273,7 @@ Só fala com `api.clickup.com`. Lê (`GET`) clientes e comentários; a **única 
 
 ### Visual
 
-Tema escuro (padrão) e claro, com botão no menu; segue o sistema na primeira visita e lembra a escolha. Funciona no celular (menu vira gaveta, sem rolagem horizontal). Os tokens de cor ficam no topo do `app.css`. Menu lateral: **Trabalho** (Rotina, Clientes) e **Sistema** (Automações, Histórico, Importar e, para o admin, Equipe).
+Tema escuro (padrão) e claro, com botão no menu; segue o sistema na primeira visita e lembra a escolha. Funciona no celular (menu vira gaveta, sem rolagem horizontal). Os tokens de cor ficam no topo do `app.css`. Menu lateral: **Trabalho** (Rotina, Clientes) e **Sistema** (Automações, **Integrações** com ícone de elo de corrente e, para o admin, Equipe). Desde 19/11/2026, a pedido do dono, o **Histórico saiu do menu**, mas a página `/historico` continua existindo (só pelo endereço); perguntado ao dono se apaga de vez.
 
 ## 10. Histórico do que foi feito (em ordem)
 

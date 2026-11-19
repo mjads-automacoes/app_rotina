@@ -122,7 +122,7 @@ function cenario_http(): array
 t('todas as paginas abrem para o admin logado', function (): void {
     [$app, , $admin] = cenario_http();
 
-    foreach (['/', '/clientes', '/automacoes', '/historico', '/importar', '/equipe', '/conta'] as $p) {
+    foreach (['/', '/clientes', '/automacoes', '/historico', '/integracoes', '/equipe', '/conta'] as $p) {
         $r = req($app, $admin, 'GET', $p);
         eq(200, $r->status, $p . ' => ' . $r->status);
         ok(str_contains($r->body, 'data-theme-toggle'), $p . ' tem o botao de tema');
@@ -286,9 +286,13 @@ t('importar: so o admin guarda o token; a tela nunca mostra o token', function (
     [$app, , $admin, $ana] = cenario_http();
     eq(403, req($app, $ana, 'POST', '/importar/token', ['csrf' => (string) $ana->d['csrf'], 'token' => 'pk_x'])->status);
     eq(302, req($app, $admin, 'POST', '/importar/token', ['csrf' => (string) $admin->d['csrf'], 'token' => 'pk_segredo_xyz'])->status);
-    $pag = req($app, $admin, 'GET', '/importar')->body;
+    $pag = req($app, $admin, 'GET', '/integracoes')->body;
     ok(!str_contains($pag, 'pk_segredo_xyz'), 'token nao aparece');
     ok(str_contains($pag, 'Conectado'));
+    eq(302, req($app, $admin, 'POST', '/integracoes/remover', ['csrf' => (string) $admin->d['csrf']])->status, 'endereco novo');
+    eq('/integracoes', req($app, $admin, 'GET', '/importar')->headers['Location'], 'endereco antigo leva para Integracoes');
+    $menu = req($app, $admin, 'GET', '/')->body;
+    ok(str_contains($menu, 'href="/integracoes"') && str_contains($menu, 'Integrações') && !str_contains($menu, 'href="/historico"') && !str_contains($menu, 'href="/importar"'), 'menu: Integracoes no lugar de Importar, sem Historico');
 });
 
 t('cabecalhos de seguranca, tema claro/escuro e nome do produto vem da configuracao', function (): void {

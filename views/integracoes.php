@@ -5,10 +5,19 @@ $admin = $usuario['papel'] === 'admin';
 ?>
 <header class="pagina-topo">
   <div>
-    <h1>Importar do ClickUp</h1>
-    <p class="muted">O ClickUp serve só para trazer e guardar os dados de cada cliente. Nada é escrito lá: o sistema apenas lê.</p>
+    <h1>Integrações</h1>
+    <p class="muted">Conecte o Rotina a outros sistemas.</p>
   </div>
 </header>
+
+<section class="integracao-topo">
+  <span class="integracao-logo" aria-hidden="true">CU</span>
+  <div class="grow">
+    <h2>ClickUp</h2>
+    <p class="muted">Traz os clientes e os comentários de uma lista do ClickUp. A descrição da tarefa vira as Observações e as notas enviadas na ficha viram comentários lá.</p>
+  </div>
+  <span class="selo <?= $conectado ? 'selo-ativo' : '' ?>"><?= $conectado ? 'Conectado' : 'Não conectado' ?></span>
+</section>
 
 <?php if ($erro !== ''): ?><div class="aviso aviso-erro" data-notificacao="erro" role="alert"><?= e($erro) ?></div><?php endif; ?>
 
@@ -18,14 +27,14 @@ $admin = $usuario['papel'] === 'admin';
     <?php if ($conectado): ?>
       <p><span class="selo selo-ativo">Conectado</span> O token fica guardado criptografado e nunca é exibido de novo.</p>
       <?php if ($admin): ?>
-        <form method="post" action="/importar/remover">
+        <form method="post" action="/integracoes/remover">
           <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
           <button class="btn btn-contorno" type="submit" data-confirmar="Desconectar o ClickUp?">Desconectar</button>
         </form>
       <?php endif; ?>
     <?php elseif ($admin): ?>
       <p class="muted">No ClickUp: foto do perfil › Configurações › Apps › API Token › Gerar.</p>
-      <form method="post" action="/importar/token" class="form-pilha">
+      <form method="post" action="/integracoes/token" class="form-pilha">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
         <label>API Token pessoal <input type="password" name="token" placeholder="pk_..." autocomplete="new-password" required></label>
         <button class="btn btn-primario" type="submit">Conectar</button>
@@ -40,9 +49,9 @@ $admin = $usuario['papel'] === 'admin';
     <?php if (!$conectado): ?>
       <p class="muted">Conecte primeiro.</p>
     <?php elseif ($listas === []): ?>
-      <a class="btn btn-contorno" href="/importar?listas=1">Buscar minhas listas</a>
+      <a class="btn btn-contorno" href="/integracoes?listas=1">Buscar minhas listas</a>
     <?php else: ?>
-      <form method="post" action="/importar/executar" class="form-pilha">
+      <form method="post" action="/integracoes/executar" class="form-pilha">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
         <label>Lista de clientes
           <select name="lista_id" required>

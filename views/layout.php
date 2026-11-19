@@ -9,8 +9,8 @@ $menu = [
     ],
     'Sistema' => [
         'automacoes' => ['/automacoes', 'Automações', 'automacoes'],
-        'historico' => ['/historico', 'Histórico', 'historico'],
-        'importar' => ['/importar', 'Importar', 'importar'],
+        // Historico saiu do menu a pedido do dono (19/11/2026); a pagina /historico continua existindo
+        'integracoes' => ['/integracoes', 'Integrações', 'elo'],
     ],
 ];
 
