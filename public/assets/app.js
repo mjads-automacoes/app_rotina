@@ -100,7 +100,40 @@
     form.querySelector("[data-obs-ver]").hidden = true;
     const campo = form.querySelector("[data-obs-campo]");
     campo.hidden = false;
+    const barra = form.querySelector("[data-obs-barra]");
+    if (barra) barra.hidden = false;
     campo.querySelector("textarea").focus();
+  });
+
+  // ---- barra das observacoes: # titulo, B negrito, I italico, U sublinhado (marcacao em texto, salva sozinha)
+  document.addEventListener("mousedown", (event) => { if (event.target.closest("[data-formato]")) event.preventDefault(); });
+  document.addEventListener("click", (event) => {
+    const botao = event.target.closest("[data-formato]");
+    if (!botao) return;
+    const area = botao.closest("form").querySelector("textarea[name=observacoes]");
+    const v = area.value;
+    let ini = area.selectionStart, fim = area.selectionEnd;
+    if (botao.dataset.formato === "titulo") {
+      // liga/desliga "# " no comeco da linha onde esta o cursor
+      const linha = v.lastIndexOf("\n", ini - 1) + 1;
+      const tem = v.startsWith("# ", linha);
+      area.value = v.slice(0, linha) + (tem ? v.slice(linha + 2) : "# " + v.slice(linha));
+      ini = fim = Math.max(linha, ini + (tem ? -2 : 2));
+      area.setSelectionRange(ini, tem ? Math.max(linha, fim) : fim);
+    } else {
+      const m = { negrito: "**", italico: "*", sublinhado: "++" }[botao.dataset.formato];
+      const sel = v.slice(ini, fim);
+      const marcado = v.slice(ini - m.length, ini) === m && v.slice(fim, fim + m.length) === m;
+      if (marcado && !(m === "*" && v.slice(ini - 2, ini) === "**")) {
+        area.value = v.slice(0, ini - m.length) + sel + v.slice(fim + m.length);
+        area.setSelectionRange(ini - m.length, fim - m.length);
+      } else {
+        area.value = v.slice(0, ini) + m + sel + m + v.slice(fim);
+        area.setSelectionRange(ini + m.length, fim + m.length);
+      }
+    }
+    area.focus();
+    area.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
   // ---- cores vindas dos dados (CSP: sem style inline no HTML, so via script)

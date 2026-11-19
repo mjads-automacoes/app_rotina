@@ -582,11 +582,42 @@ body.embutido .form-lixeira { display: none; }
 .btn-certo .ic { width: 18px; height: 18px; }
 
 /* Ficha: data do prazo mais estreita e com visual de pilula; botao "Add +" a direita (pedido do dono, 19/11/2026) */
-.tarefa-nova label.tarefa-prazo { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; padding: 0 6px 0 12px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel-2); cursor: pointer; }
+.tarefa-nova label.tarefa-prazo { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel-2); cursor: pointer; }
 .tarefa-nova label.tarefa-prazo:focus-within { border-color: var(--acento); }
-.tarefa-prazo-rotulo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .tarefa-nova .tarefa-prazo input[type=date] { width: 132px; min-height: 36px; padding: 4px 2px; border: 0; background: transparent; box-shadow: none; font-size: 0.9rem; cursor: pointer; }
 .tarefa-nova .tarefa-prazo input[type=date]:focus { outline: none; box-shadow: none; }
 .tarefa-prazo input[type=date]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.7; }
 .tarefa-prazo input[type=date]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 .tarefa-nova .btn { margin-left: auto; }
+
+/* Observacoes da ficha: barra de formatacao ao lado do titulo (pedido do dono, 19/11/2026) */
+.obs-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.obs-topo h3 { margin: 0; font: inherit; letter-spacing: inherit; color: inherit; }
+.obs-barra { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel-2); text-transform: none; letter-spacing: 0; }
+.obs-barra[hidden] { display: none; }
+.obs-fmt { display: grid; place-items: center; width: 32px; height: 30px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--texto); font: 700 0.95rem/1 Georgia, "Times New Roman", serif; cursor: pointer; }
+.obs-fmt:hover, .obs-fmt:focus-visible { background: var(--acento-fundo); color: var(--acento-texto); }
+.obs-fmt[data-formato=titulo] { font-family: inherit; font-weight: 800; }
+.obs-fmt-i { font-style: italic; font-weight: 600; }
+.obs-fmt-u { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Menus de selecao mais bonitos (pedido do dono, 19/11/2026): fundo levemente destacado, seta em circulo, hover e foco roxos */
+select, .multi summary {
+  min-height: 40px; padding-right: 42px; border-radius: 11px; background-color: var(--panel-2); font-weight: 500;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%238c97ad' fill-opacity='0.14'/%3E%3Cpath d='M7 9.5l4 4 4-4' fill='none' stroke='%238c97ad' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 9px center; background-size: 22px 22px;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+select:hover, .multi summary:hover { border-color: var(--acento); }
+select:focus, .multi[open] summary {
+  border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-fundo);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%237c5cff' fill-opacity='0.22'/%3E%3Cpath d='M7 12.5l4-4 4 4' fill='none' stroke='%237c5cff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.multi summary { cursor: pointer; }
+select option, select optgroup { background: var(--panel); color: var(--texto); font-weight: 500; }
+select option:checked { background: var(--acento-fundo); color: var(--acento-texto); }
+.multi-lista { padding: 6px; border-radius: 12px; }
+.multi-lista .check { align-items: center; gap: 10px; font-weight: 500; color: var(--texto); }
+.multi-lista .check:has(input:checked) { background: var(--acento-fundo); color: var(--acento-texto); }
+.multi-lista input[type=checkbox] { accent-color: var(--acento); width: 16px; height: 16px; }
+.multi summary { font-size: 0.84rem; }

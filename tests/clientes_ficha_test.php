@@ -60,6 +60,7 @@ t('texto_rico: formata o markdown do ClickUp e nunca deixa HTML de fora passar',
     ok(str_contains($h, '<ul><li>um <a href="https://x.com/a_b" target="_blank" rel="noopener noreferrer">site</a> e <code>c_d</code></li><li>dois</li></ul>'), 'lista, link intacto e codigo');
     ok(str_contains($h, '<ol><li>primeiro</li></ol><hr><blockquote>nota</blockquote>'), 'numerada, linha e citacao');
     ok(!str_contains(texto_rico('[x](javascript:alert(1))'), 'href'), 'link so http(s)');
+    eq('<p><u>grifado</u> e <strong>forte</strong></p>', texto_rico('++grifado++ e **forte**'), 'sublinhado do botao U');
     ok(!str_contains(texto_rico('[x](https://a.com" onmouseover="b)'), 'onmouseover="'), 'aspas nao quebram o atributo');
 });
 

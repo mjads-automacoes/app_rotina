@@ -192,6 +192,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("location.pathname.startsWith('/clientes/') && document.readyState === 'complete' && !!document.querySelector('.nota-form textarea')"), 'ficha do cliente');
     await ev("(() => { const t = document.querySelector('.nota-form textarea'); t.value = 'Nota criada no teste'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("document.body.textContent.includes('Nota criada no teste')"), 'nota salva');
+    // barra das observacoes: B, I, U e # aplicam a marcacao no texto selecionado
+    assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');
+    assert.equal(await ev("[...document.querySelectorAll('[data-obs-barra] .obs-fmt')].map(b => b.textContent).join('')"), '#BIU', 'botoes #, B, I, U');
     // tarefas do cliente: adicionar pela ficha e excluir com confirmacao
     await ev("(() => { const f = document.querySelector('.tarefa-nova'); f.querySelector('[name=titulo]').value = 'Tarefa criada na ficha'; f.querySelector('[name=prazo]').value = '2026-12-01'; f.requestSubmit(); })()");
     assert.ok(await esperar("[...document.querySelectorAll('.lista-simples li')].some(li => li.textContent.includes('Tarefa criada na ficha') && li.textContent.includes('01/12'))"), 'tarefa adicionada na ficha');

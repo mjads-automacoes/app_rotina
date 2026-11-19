@@ -70,15 +70,23 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <input type="text" name="descricao" value="<?= e((string) $c['descricao']) ?>" maxlength="500" placeholder="Aparece abaixo do nome do cliente na Rotina. Ex.: Revisar campanhas e registrar ajustes">
       </label>
 
-      <h3 class="form-secao largo">Observações</h3>
       <?php $temObs = trim((string) $c['observacoes']) !== ''; ?>
+      <div class="form-secao largo obs-topo">
+        <h3>Observações</h3>
+        <div class="obs-barra" role="toolbar" aria-label="Formatar observações" data-obs-barra <?= $temObs ? 'hidden' : '' ?>>
+          <button type="button" class="obs-fmt" data-formato="titulo" title="Título" aria-label="Título">#</button>
+          <button type="button" class="obs-fmt obs-fmt-b" data-formato="negrito" title="Negrito" aria-label="Negrito">B</button>
+          <button type="button" class="obs-fmt obs-fmt-i" data-formato="italico" title="Itálico" aria-label="Itálico">I</button>
+          <button type="button" class="obs-fmt obs-fmt-u" data-formato="sublinhado" title="Sublinhado" aria-label="Sublinhado">U</button>
+        </div>
+      </div>
       <?php if ($temObs): ?>
         <div class="largo obs-ver" data-obs-ver>
           <div class="texto-rico recolhivel" data-recolher><?= texto_rico((string) $c['observacoes']) ?></div>
           <button class="btn btn-contorno btn-obs-editar" type="button" data-obs-editar>Editar observações</button>
         </div>
       <?php endif; ?>
-      <label class="largo" data-obs-campo <?= $temObs ? 'hidden' : '' ?>><span class="sr-only">Observações</span><textarea name="observacoes" rows="<?= $temObs ? 14 : 4 ?>" maxlength="<?= Clientes::OBSERVACOES_MAX ?>" placeholder="Use # para título, **negrito**, *itálico* e - para listas."><?= e((string) $c['observacoes']) ?></textarea></label>
+      <label class="largo" data-obs-campo <?= $temObs ? 'hidden' : '' ?>><span class="sr-only">Observações</span><textarea name="observacoes" rows="<?= $temObs ? 14 : 4 ?>" maxlength="<?= Clientes::OBSERVACOES_MAX ?>" placeholder="Selecione o texto e use os botões acima (# título, B negrito, I itálico, U sublinhado). Use - para listas."><?= e((string) $c['observacoes']) ?></textarea></label>
     </form>
   </section>
 
@@ -88,7 +96,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas" class="tarefa-nova">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
         <label class="grow"><span class="sr-only">Nova tarefa</span><input type="text" name="titulo" maxlength="200" placeholder="Nova tarefa para este cliente…" required></label>
-        <label class="tarefa-prazo"><span class="tarefa-prazo-rotulo">Prazo</span><input type="date" name="prazo" title="Prazo (opcional)"></label>
+        <label class="tarefa-prazo"><span class="sr-only">Prazo</span><input type="date" name="prazo" title="Prazo (opcional)"></label>
         <button class="btn btn-primario" type="submit">Add +</button>
       </form>
       <?php if ($tarefas === []): ?>

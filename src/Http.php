@@ -125,6 +125,7 @@ function texto_rico_linha(string $linha): string
     $s = (string) preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $s);
     $s = (string) preg_replace('/__(.+?)__/u', '<strong>$1</strong>', $s);
     $s = (string) preg_replace('/~~(.+?)~~/u', '<s>$1</s>', $s);
+    $s = (string) preg_replace('/\+\+(.+?)\+\+/u', '<u>$1</u>', $s); // sublinhado (botao U das observacoes)
     $s = (string) preg_replace('/(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])/u', '<em>$1</em>', $s);
     $s = (string) preg_replace('/(?<![\w])_(?!\s)(.+?)(?<!\s)_(?![\w])/u', '<em>$1</em>', $s);
 
