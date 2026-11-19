@@ -130,6 +130,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // lapis: renomeia o item
     await clicar('#rotinaChecklist .rotina-mais');
     assert.equal(await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-menu-op')].map(b => b.textContent).join(',')"), 'Editar,Excluir', 'tres pontinhos: Editar e Excluir');
+    assert.equal(await ev("(() => { const [a, b] = document.querySelectorAll('#rotinaChecklist .rotina-menu-op'); return b.getBoundingClientRect().top >= a.getBoundingClientRect().bottom - 1; })()"), true, 'menu em lista: Excluir abaixo de Editar');
     await clicar('#rotinaChecklist [data-check="editar"]');
     assert.ok(await esperar("!!document.getElementById('rotinaEditar')"), 'tres pontinhos abrem o campo do nome');
     await ev("(() => { const c = document.getElementById('rotinaEditar'); c.value = 'Item renomeado'; c.dispatchEvent(new Event('input', { bubbles: true })); })()");

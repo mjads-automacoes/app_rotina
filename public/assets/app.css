@@ -631,8 +631,9 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 
 /* Menu dos tres pontinhos do checklist: Editar e Excluir, lado a lado, a esquerda do botao (pedido do dono, 19/11/2026) */
 .rotina-mais-wrap { position: relative; flex: none; display: inline-flex; }
-.rotina-menu { position: absolute; z-index: 30; top: 50%; right: calc(100% + 6px); transform: translateY(-50%); display: flex; gap: 4px; padding: 4px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel); box-shadow: var(--sombra); white-space: nowrap; }
-.rotina-menu-op { padding: 6px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--texto); font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+.rotina-menu { position: absolute; z-index: 30; top: calc(100% + 4px); right: 0; display: grid; gap: 2px; min-width: 140px; padding: 4px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel); box-shadow: var(--sombra); white-space: nowrap; }
+.rotina-menu-op { display: block; width: 100%; text-align: left; padding: 8px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--texto); font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
 .rotina-menu-op:hover, .rotina-menu-op:focus-visible { background: var(--panel-2); }
 .rotina-menu-op.is-perigo { color: var(--vermelho, #ef4444); }
 .rotina-menu-op.is-perigo:hover { background: rgba(239, 68, 68, 0.12); }
+.rotina-menu.para-cima { top: auto; bottom: calc(100% + 4px); } /* perto do fim do bloco, abre para cima */

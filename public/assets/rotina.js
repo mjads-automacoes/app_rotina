@@ -342,6 +342,9 @@
     checklist();
     foco();
     clientes();
+    // menu dos tres pontinhos em lista: se nao couber embaixo dentro do bloco, abre para cima
+    const menu = ui.checklist.querySelector(".rotina-menu");
+    if (menu && menu.getBoundingClientRect().bottom > ui.checklist.getBoundingClientRect().bottom - 4) menu.classList.add("para-cima");
     if (ativo) { const campo = $(ativo); if (campo) { campo.focus(); campo.setSelectionRange(campo.value.length, campo.value.length); } }
   }
 
