@@ -86,7 +86,7 @@
     const rapido = el("form", { class: "rapido", id: "rapido" }, [
       el("input", { type: "text", id: "rapidoTitulo", placeholder: "Adicionar tarefa e apertar Enter…", maxlength: "200", autocomplete: "off" }),
       el("select", { id: "rapidoLista", "aria-label": "Lista" }, state.meta.listas.map((x) => el("option", { value: String(x.id), text: x.nome }))),
-      el("button", { class: "btn btn-primario", type: "submit" }, [el("span", { text: "Adicionar" })]),
+      el("button", { class: "btn btn-primario", type: "submit" }, [el("span", { text: "Add +" })]),
     ]);
     const rl = rapido.querySelector("#rapidoLista");
     rl.value = String(l ? l.id : (state.meta.listas.find((x) => x.id !== 1) || state.meta.listas[0]).id);
@@ -166,7 +166,7 @@
       x.addEventListener("click", async () => { try { await chamar("POST", "/api/itens/" + i.id + "/excluir", {}); await recarregar(); abrir(t.id); } catch (e) { toast(e.message, true); } });
       return el("div", { class: "item-check" + (i.feito ? " is-feito" : "") }, [cb, el("span", { class: "grow", text: i.texto }), x]);
     }));
-    const novoItem = el("form", { class: "linha-add" }, [el("input", { type: "text", placeholder: "Novo item do checklist", maxlength: "200" }), el("button", { class: "btn btn-contorno", type: "submit", text: "Adicionar" })]);
+    const novoItem = el("form", { class: "linha-add" }, [el("input", { type: "text", placeholder: "Novo item do checklist", maxlength: "200" }), el("button", { class: "btn btn-contorno", type: "submit", text: "Add +" })]);
     novoItem.addEventListener("submit", async (ev) => {
       ev.preventDefault();
       const texto = novoItem.querySelector("input").value.trim();

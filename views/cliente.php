@@ -88,8 +88,8 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas" class="tarefa-nova">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
         <label class="grow"><span class="sr-only">Nova tarefa</span><input type="text" name="titulo" maxlength="200" placeholder="Nova tarefa para este cliente…" required></label>
-        <label><span class="sr-only">Prazo</span><input type="date" name="prazo" title="Prazo (opcional)"></label>
-        <button class="btn btn-primario" type="submit">Adicionar</button>
+        <label class="tarefa-prazo"><span class="tarefa-prazo-rotulo">Prazo</span><input type="date" name="prazo" title="Prazo (opcional)"></label>
+        <button class="btn btn-primario" type="submit">Add +</button>
       </form>
       <?php if ($tarefas === []): ?>
         <p class="muted">Nenhuma tarefa ainda.</p>
@@ -117,7 +117,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/notas" class="nota-form">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
         <textarea name="texto" rows="2" maxlength="<?= Clientes::NOTA_MAX ?>" placeholder="<?= empty($c['clickup_id']) ? 'Anote algo sobre o cliente…' : 'Anote algo sobre o cliente (vai também para os comentários do ClickUp)…' ?>" required></textarea>
-        <button class="btn btn-primario" type="submit">Adicionar</button>
+        <button class="btn btn-primario" type="submit">Add +</button>
       </form>
       <?php foreach ($notas as $nota): ?>
         <article class="nota">

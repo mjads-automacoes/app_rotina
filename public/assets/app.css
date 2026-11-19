@@ -580,3 +580,13 @@ body.embutido .form-lixeira { display: none; }
 .rotina-mais circle { fill: currentColor; stroke: none; }
 .btn-certo { width: 36px; padding: 4px; justify-content: center; }
 .btn-certo .ic { width: 18px; height: 18px; }
+
+/* Ficha: data do prazo mais estreita e com visual de pilula; botao "Add +" a direita (pedido do dono, 19/11/2026) */
+.tarefa-nova label.tarefa-prazo { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; padding: 0 6px 0 12px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel-2); cursor: pointer; }
+.tarefa-nova label.tarefa-prazo:focus-within { border-color: var(--acento); }
+.tarefa-prazo-rotulo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.tarefa-nova .tarefa-prazo input[type=date] { width: 132px; min-height: 36px; padding: 4px 2px; border: 0; background: transparent; box-shadow: none; font-size: 0.9rem; cursor: pointer; }
+.tarefa-nova .tarefa-prazo input[type=date]:focus { outline: none; box-shadow: none; }
+.tarefa-prazo input[type=date]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.7; }
+.tarefa-prazo input[type=date]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+.tarefa-nova .btn { margin-left: auto; }
