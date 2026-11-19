@@ -73,7 +73,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // formato: cliente em foco em cima, na largura toda; checklist e clientes lado a lado embaixo
     assert.equal(await ev("[...document.getElementById('rotinaGrade').children].map(c => c.id).join(',')"), 'rotinaFoco,rotinaChecklist,rotinaClientes', 'ordem: foco, checklist, clientes');
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return f.bottom <= c.top && Math.abs(c.top - k.top) < 2 && Math.abs(c.width - k.width) < 2 && Math.abs(c.height - k.height) < 2 && f.width > c.width * 1.8; })()"), true, 'foco na largura toda; checklist e clientes lado a lado, mesma largura e altura');
-    assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-item-texto|rotina-mais|rotina-concluir', 'checklist: tres pontinhos antes do concluir');
+    assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-item-texto|rotina-mais-wrap|rotina-concluir', 'checklist: tres pontinhos antes do concluir');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
     assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
     assert.equal(await ev("(() => { const h = document.querySelector('#painelRotina h1').getBoundingClientRect(), d = rotinaDias.getBoundingClientRect(); return d.top < h.bottom && d.bottom > h.top && d.left > h.right; })()"), true, 'barra do dia na mesma linha do titulo Rotina');
@@ -129,6 +129,8 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')"), 'true', 'o check sobrevive ao recarregar');
     // lapis: renomeia o item
     await clicar('#rotinaChecklist .rotina-mais');
+    assert.equal(await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-menu-op')].map(b => b.textContent).join(',')"), 'Editar,Excluir', 'tres pontinhos: Editar e Excluir');
+    await clicar('#rotinaChecklist [data-check="editar"]');
     assert.ok(await esperar("!!document.getElementById('rotinaEditar')"), 'tres pontinhos abrem o campo do nome');
     await ev("(() => { const c = document.getElementById('rotinaEditar'); c.value = 'Item renomeado'; c.dispatchEvent(new Event('input', { bubbles: true })); })()");
     await clicar('[data-check="salvar-nome"]');
@@ -143,6 +145,15 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await sleep(700);
     await ir('/');
     assert.ok(await esperar("document.getElementById('rotinaChecklist').textContent.includes('Item renomeado') && document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')"), 'nome e item novo continuam depois de recarregar');
+    // Excluir pelo menu (o confirm do navegador e aceito automaticamente no teste)
+    await ev("window.confirm = () => true");
+    const itensAntesExcluir = await n('#rotinaChecklist .rotina-item');
+    await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-item')].find(i => i.textContent.includes('Item novo do teste')).querySelector('.rotina-mais').click()");
+    await clicar('#rotinaChecklist [data-check="excluir"]');
+    assert.ok(await esperar(`document.querySelectorAll('#rotinaChecklist .rotina-item').length === ${itensAntesExcluir} - 1 && !document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')`), 'Excluir tira o item');
+    await sleep(600);
+    await ir('/');
+    assert.ok(await esperar("!!document.querySelector('#rotinaChecklist .rotina-item') && !document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')"), 'item excluido nao volta ao recarregar');
     await tema('claro');
     await shot('2-rotina-claro.png');
     await tema('escuro');

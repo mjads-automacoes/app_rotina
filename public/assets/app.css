@@ -628,3 +628,11 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .integracao-topo p { margin: 0; font-size: 0.9rem; }
 .integracao-logo { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7b68ee, #fd71af); color: #fff; font-weight: 900; font-size: 0.95rem; }
 @media (max-width: 560px) { .integracao-topo { flex-wrap: wrap; } }
+
+/* Menu dos tres pontinhos do checklist: Editar e Excluir, lado a lado, a esquerda do botao (pedido do dono, 19/11/2026) */
+.rotina-mais-wrap { position: relative; flex: none; display: inline-flex; }
+.rotina-menu { position: absolute; z-index: 30; top: 50%; right: calc(100% + 6px); transform: translateY(-50%); display: flex; gap: 4px; padding: 4px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel); box-shadow: var(--sombra); white-space: nowrap; }
+.rotina-menu-op { padding: 6px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--texto); font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+.rotina-menu-op:hover, .rotina-menu-op:focus-visible { background: var(--panel-2); }
+.rotina-menu-op.is-perigo { color: var(--vermelho, #ef4444); }
+.rotina-menu-op.is-perigo:hover { background: rgba(239, 68, 68, 0.12); }

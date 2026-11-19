@@ -14,7 +14,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
+  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, menuItem: null, editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
   const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] }, fechamento: { clientes: [], checklist: [] } } };
@@ -163,7 +163,14 @@
         }
         return el("div", { class: "rotina-item" + (feito ? " is-feito" : ""), "data-item": i.id }, [
           el("span", { class: "rotina-item-texto", text: i.titulo }),
-          iconeBotao("rotina-mais", "editar", "Editar nome", '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>'),
+          // tres pontinhos: abre o menu com Editar e Excluir (pedido do dono)
+          el("span", { class: "rotina-mais-wrap" }, [
+            iconeBotao("rotina-mais", "menu", "Mais opções", '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>'),
+            state.menuItem === i.id ? el("span", { class: "rotina-menu", role: "menu" }, [
+              el("button", { class: "rotina-menu-op", type: "button", role: "menuitem", "data-check": "editar", text: "Editar" }),
+              el("button", { class: "rotina-menu-op is-perigo", type: "button", role: "menuitem", "data-check": "excluir", text: "Excluir" }),
+            ]) : null,
+          ].filter(Boolean)),
           el("button", { class: "rotina-concluir", type: "button", "data-check": "concluir", "aria-pressed": feito ? "true" : "false", title: feito ? "Desfazer" : "Concluir", text: feito ? "✓ Concluído" : "Concluir" }),
         ]);
       })),
@@ -201,6 +208,19 @@
     state.versao++;
     try { await chamar("POST", "/api/tarefas/" + tarefa.id, { titulo }); toast("Nome atualizado."); }
     catch (e) { tarefa.titulo = anterior; toast(e.message, true); renderizar(); }
+  }
+
+  async function excluirItem(tarefa) {
+    if (!window.confirm('Excluir o item "' + tarefa.titulo + '" do checklist?')) { renderizar(); return; }
+    for (const d of Object.values(state.dados.semana)) for (const [t] of TURNOS_CHECK) {
+      const lista = checklistDo(t, d);
+      const pos = lista.indexOf(tarefa);
+      if (pos >= 0) lista.splice(pos, 1);
+    }
+    renderizar();
+    state.versao++;
+    try { await chamar("POST", "/api/tarefas/" + tarefa.id + "/excluir", {}); toast("Item excluído."); }
+    catch (e) { toast(e.message, true); carregar(false); }
   }
 
   async function salvarNovo(botao) {
@@ -335,6 +355,8 @@
     const cli = event.target.closest(".rotina-cliente");
     if (cli) { state.turno = cli.dataset.turno; state.foco = parseInt(cli.dataset.cliente, 10); return renderizar(); }
     const check = event.target.closest("[data-check]");
+    // clique fora do menu dos tres pontinhos fecha o menu
+    if (state.menuItem !== null && (!check || !["menu", "editar", "excluir"].includes(check.dataset.check))) { state.menuItem = null; renderizar(); }
     if (check) {
       const tipo = check.dataset.check;
       if (tipo === "abrir-novo") { state.adicionando = true; renderizar(); const c = $("rotinaAddTexto"); if (c) c.focus(); return; }
@@ -343,6 +365,9 @@
       const item = check.closest(".rotina-item");
       const tarefa = item && tarefaPorId(parseInt(item.dataset.item, 10));
       if (!tarefa) return;
+      if (tipo === "menu") { state.menuItem = state.menuItem === tarefa.id ? null : tarefa.id; return renderizar(); }
+      state.menuItem = null;
+      if (tipo === "excluir") return excluirItem(tarefa);
       if (tipo === "editar") { state.editando = tarefa.id; state.editTexto = tarefa.titulo; renderizar(); const c = $("rotinaEditar"); if (c) { c.focus(); c.select(); } return; }
       if (tipo === "cancelar") { state.editando = null; return renderizar(); }
       if (tipo === "salvar-nome") return salvarNome(tarefa);
@@ -366,6 +391,7 @@
   });
 
   raiz.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.menuItem !== null) { state.menuItem = null; renderizar(); return; }
     if (event.target.id === "rotinaEditar" || event.target.id === "rotinaAddTexto") {
       const editar = event.target.id === "rotinaEditar";
       if (event.key === "Escape") { if (editar) state.editando = null; else { state.adicionando = false; state.addTexto = ""; } renderizar(); return; }
