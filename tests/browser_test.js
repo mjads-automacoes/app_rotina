@@ -102,6 +102,12 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const ul = rotinaFoco.querySelector('.rotina-tarefas-lista'), r = ul.getBoundingClientRect(); const vis = [...ul.children].filter(li => { const b = li.getBoundingClientRect(); return b.top >= r.top - 1 && b.bottom <= r.bottom + 1; }).length; return ul.children.length > 3 && vis === 3 && ul.scrollHeight > ul.clientHeight; })()"), true, 'tarefas do cliente: 3 visiveis, o resto rolando');
     assert.equal(await ev("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa small')].every(x => x.textContent === rotina.dataset.hoje.slice(8, 10) + '/' + rotina.dataset.hoje.slice(5, 7))"), true, 'tarefas do cliente: so as de hoje');
     assert.equal(await ev("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa-certo')].every(b => b.disabled)"), true, 'certo bloqueado antes de Iniciar');
+    // botao de mais: detalhes da tarefa
+    await clicar('#rotinaFoco .rotina-tarefa .rotina-tarefa-mais');
+    assert.ok(await esperar("!!document.getElementById('rotinaDetalhe')"), 'mais abre o campo de detalhes');
+    await ev("(() => { const t = document.getElementById('rotinaDetalhe'); t.value = 'Conferir verba da campanha'; t.dispatchEvent(new Event('input', { bubbles: true })); })()");
+    await clicar('[data-acao="detalhe-salvar"]');
+    assert.ok(await esperar("(document.querySelector('#rotinaFoco .rotina-tarefa-detalhe') || {}).textContent === 'Conferir verba da campanha'"), 'detalhe aparece embaixo da tarefa');
     assert.equal(await ev("document.querySelector('[data-acao=\"concluir\"]') === null"), true, 'Concluir so aparece depois de Iniciar');
     await clicar('[data-acao="abrir-cliente"]');
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');

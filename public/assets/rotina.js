@@ -14,7 +14,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, menuItem: null, editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
+  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, menuItem: null, detalhe: null, detalheTexto: "", editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
   const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] }, fechamento: { clientes: [], checklist: [] } } };
@@ -255,6 +255,17 @@
     }
   }
 
+  async function salvarDetalhe(c, id) {
+    const t = ((state.tarefasCliente[c.cliente_id] || {}).lista || []).find((x) => x.id === id);
+    if (!t) return;
+    const antes = t.descricao;
+    t.descricao = state.detalheTexto.trim();
+    state.detalhe = null;
+    renderizar();
+    try { await chamar("POST", "/api/tarefas/" + id, { descricao: t.descricao }); toast(t.descricao ? "Detalhes salvos." : "Detalhes apagados."); }
+    catch (e) { t.descricao = antes; toast(e.message, true); renderizar(); }
+  }
+
   async function salvarNovo(botao) {
     const titulo = state.addTexto.trim();
     const sel = $("rotinaAddTurno");
@@ -323,13 +334,24 @@
             const certo = el("button", { class: "rotina-tarefa-certo" + (feita ? " is-feita" : ""), type: "button", "data-acao": "concluir-tarefa", "data-tarefa": t.id,
               disabled: feita || !liberado, title: feita ? "Concluída" : liberado ? "Concluir tarefa" : "Clique em Iniciar para liberar", "aria-label": feita ? "Concluída" : "Concluir tarefa" });
             certo.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+            // botao de mais: detalhes da tarefa (guardados na descricao), pedido do dono 23/11/2026
+            const mais = el("button", { class: "rotina-tarefa-mais", type: "button", "data-acao": "detalhe-tarefa", "data-tarefa": t.id, title: t.descricao ? "Editar detalhes" : "Adicionar detalhes", "aria-label": t.descricao ? "Editar detalhes" : "Adicionar detalhes", text: "+" });
+            const editando = state.detalhe === t.id;
             return el("li", { class: "rotina-tarefa" + (t.id === cliente.id ? " is-foco" : "") + (feita ? " is-feita" : "") }, [
               el("span", { class: "rotina-tarefa-texto" }, [
                 el("span", { text: t.titulo }),
                 t.prazo ? el("small", { class: "muted", text: t.prazo.slice(8, 10) + "/" + t.prazo.slice(5, 7) }) : null,
+                t.descricao && !editando ? el("small", { class: "rotina-tarefa-detalhe", text: t.descricao }) : null,
               ].filter(Boolean)),
-              el("span", { class: "rotina-tarefa-fim" }, [el("span", { class: "pilula is-" + st.tipo, text: st.nome }), certo]),
-            ]);
+              el("span", { class: "rotina-tarefa-fim" }, [mais, el("span", { class: "pilula is-" + st.tipo, text: st.nome }), certo]),
+              editando ? el("div", { class: "rotina-detalhe-form" }, [
+                el("textarea", { id: "rotinaDetalhe", rows: "3", maxlength: "5000", placeholder: "Detalhes desta tarefa…", "aria-label": "Detalhes da tarefa", value: state.detalheTexto }),
+                el("div", { class: "rotina-detalhe-botoes" }, [
+                  el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-acao": "detalhe-cancelar", text: "Cancelar" }),
+                  el("button", { class: "btn btn-primario btn-mini", type: "button", "data-acao": "detalhe-salvar", "data-tarefa": t.id, text: "Salvar" }),
+                ]),
+              ]) : null,
+            ].filter(Boolean));
           }))];
       const antiga = lado.querySelector(".rotina-tarefas-lista");
       const rolagem = antiga ? antiga.scrollTop : null;
@@ -375,7 +397,7 @@
     if (!state.dados) return;
     escolherFoco();
     // quem estava sendo digitado continua com o cursor depois de redesenhar (a Rotina recarrega a cada minuto)
-    const ativo = document.activeElement && ["rotinaNota", "rotinaEditar", "rotinaAddTexto"].includes(document.activeElement.id) ? document.activeElement.id : null;
+    const ativo = document.activeElement && ["rotinaNota", "rotinaEditar", "rotinaAddTexto", "rotinaDetalhe"].includes(document.activeElement.id) ? document.activeElement.id : null;
     topo();
     checklist();
     foco();
@@ -427,6 +449,17 @@
     if (botao.dataset.acao === "abrir-cliente") return abrirFicha(c);
     if (botao.dataset.acao === "nova-tarefa") return criarTarefa(c, botao);
     if (botao.dataset.acao === "concluir") { acao(c, "fechado", "concluir"); toast("Análise registrada."); }
+    if (botao.dataset.acao === "detalhe-tarefa") {
+      const id = parseInt(botao.dataset.tarefa, 10);
+      const t = ((state.tarefasCliente[c.cliente_id] || {}).lista || []).find((x) => x.id === id);
+      if (state.detalhe === id) { state.detalhe = null; return renderizar(); }
+      state.detalhe = id; state.detalheTexto = (t && t.descricao) || "";
+      renderizar();
+      const campo = $("rotinaDetalhe"); if (campo) campo.focus();
+      return;
+    }
+    if (botao.dataset.acao === "detalhe-cancelar") { state.detalhe = null; return renderizar(); }
+    if (botao.dataset.acao === "detalhe-salvar") return salvarDetalhe(c, parseInt(botao.dataset.tarefa, 10));
     if (botao.dataset.acao === "concluir-tarefa") return concluirTarefaCliente(c, parseInt(botao.dataset.tarefa, 10));
     if (botao.dataset.acao === "iniciar") acao(c, "andamento", "iniciar");
     if (botao.dataset.acao === "reabrir") acao(c, "aberto", "reabrir");
@@ -434,6 +467,7 @@
 
   raiz.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && state.menuItem !== null) { state.menuItem = null; renderizar(); return; }
+    if (event.key === "Escape" && event.target.id === "rotinaDetalhe") { state.detalhe = null; renderizar(); return; }
     if (event.target.id === "rotinaEditar" || event.target.id === "rotinaAddTexto") {
       const editar = event.target.id === "rotinaEditar";
       if (event.key === "Escape") { if (editar) state.editando = null; else { state.adicionando = false; state.addTexto = ""; } renderizar(); return; }
@@ -452,6 +486,7 @@
     if (event.target.id === "rotinaNota") state.nota = event.target.value;
     if (event.target.id === "rotinaEditar") state.editTexto = event.target.value;
     if (event.target.id === "rotinaAddTexto") state.addTexto = event.target.value;
+    if (event.target.id === "rotinaDetalhe") state.detalheTexto = event.target.value;
   });
   raiz.addEventListener("change", (event) => { if (event.target.id === "rotinaAddTurno") state.addTurno = event.target.value; });
   if (ui.atualizar) ui.atualizar.addEventListener("click", () => carregar(false));
