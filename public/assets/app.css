@@ -713,3 +713,9 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-subtitulo::after { display: none; }
 /* "Tarefas do cliente" */
 .rotina-foco-tarefas h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
+
+/* Itens selecionados (cliente em foco) com tom mais escuro que os cabecalhos (pedido do dono, 23/11/2026) */
+:root { --selecionado: #0f0c26; }
+:root[data-tema="claro"] { --selecionado: #e4ddff; }
+.rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(124, 92, 255, 0.55); }
+.rotina-cliente.is-foco:hover, .rotina-tarefa.is-foco:hover { background: var(--selecionado); }
