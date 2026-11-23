@@ -339,5 +339,64 @@
     });
   }
 
-  window.Rotina = { el, toast, chamar, dataBR, iniciais, confirmar };
+  // ---- menus de selecao proprios (pedido do dono, 23/11/2026): a lista que abre tambem segue o visual do sistema.
+  // O <select> original continua no formulario (escondido) e recebe o valor e o evento "change" de sempre.
+  function selecao(select) {
+    if (select.multiple || select.dataset.selecaoPronta) return;
+    select.dataset.selecaoPronta = "1";
+    const caixa = el("div", { class: "selecao" + (select.classList.contains("campo-curto") ? " campo-curto" : "") });
+    const texto = el("span", { class: "selecao-texto" });
+    const botao = el("button", { class: "selecao-botao", type: "button", "aria-haspopup": "listbox", "aria-expanded": "false" }, [texto]);
+    if (select.getAttribute("aria-label")) botao.setAttribute("aria-label", select.getAttribute("aria-label"));
+    if (select.id) botao.dataset.selecaoDe = select.id;
+    select.parentNode.insertBefore(caixa, select);
+    caixa.append(select, botao);
+    select.classList.add("selecao-original");
+    select.tabIndex = -1;
+    let lista = null;
+    const atualizar = () => {
+      const op = select.options[select.selectedIndex];
+      texto.textContent = op ? op.textContent : "";
+      botao.disabled = select.disabled;
+    };
+    const fechar = () => { if (lista) { lista.remove(); lista = null; botao.setAttribute("aria-expanded", "false"); } };
+    const escolher = (i) => {
+      fechar();
+      if (select.selectedIndex !== i) { select.selectedIndex = i; select.dispatchEvent(new Event("input", { bubbles: true })); select.dispatchEvent(new Event("change", { bubbles: true })); }
+      atualizar();
+      botao.focus();
+    };
+    const marcar = (n) => {
+      const itens = [...lista.querySelectorAll(".selecao-op:not(:disabled)")];
+      if (!itens.length) return;
+      const atual = itens.indexOf(document.activeElement);
+      itens[(atual + n + itens.length) % itens.length].focus();
+    };
+    botao.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      if (lista) return fechar();
+      lista = el("div", { class: "selecao-lista", role: "listbox" }, [...select.options].map((op, i) =>
+        el("button", { type: "button", role: "option", class: "selecao-op" + (i === select.selectedIndex ? " is-escolhida" : ""), "aria-selected": i === select.selectedIndex ? "true" : "false", disabled: op.disabled, "data-indice": i, text: op.textContent })));
+      lista.addEventListener("click", (e) => { e.preventDefault(); const b = e.target.closest(".selecao-op"); if (b) escolher(Number(b.dataset.indice)); });
+      lista.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown") { e.preventDefault(); marcar(1); }
+        if (e.key === "ArrowUp") { e.preventDefault(); marcar(-1); }
+        if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fechar(); botao.focus(); }
+        if (e.key === "Tab") fechar();
+      });
+      caixa.append(lista);
+      botao.setAttribute("aria-expanded", "true");
+      // perto do fim da tela, abre para cima
+      if (lista.getBoundingClientRect().bottom > window.innerHeight - 8) lista.classList.add("para-cima");
+      (lista.querySelector(".is-escolhida") || lista.querySelector(".selecao-op:not(:disabled)") || botao).focus();
+    });
+    botao.addEventListener("keydown", (e) => { if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !lista) { e.preventDefault(); botao.click(); } });
+    document.addEventListener("click", (e) => { if (lista && !caixa.contains(e.target)) fechar(); });
+    select.addEventListener("change", atualizar);
+    new MutationObserver(atualizar).observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled"] });
+    atualizar();
+  }
+  document.querySelectorAll("select:not([multiple])").forEach(selecao);
+
+  window.Rotina = { el, toast, chamar, dataBR, iniciais, confirmar, selecao };
 })();

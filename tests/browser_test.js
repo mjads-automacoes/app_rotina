@@ -212,6 +212,11 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const min = document.querySelector('[data-calendario]').dataset.min; return [...document.querySelectorAll('.cal-dia')].every(b => b.disabled === (b.dataset.dia < min)); })()"), true, 'dias antes de hoje bloqueados');
     await ev("[...document.querySelectorAll('.cal-atalho')].find(b => b.textContent === 'Amanhã').click()");
     assert.equal(await ev("(() => { const v = document.querySelector('[data-calendario] input[name=prazo]').value; const t = document.querySelector('[data-cal-texto]').textContent; return /^\\d{4}-\\d{2}-\\d{2}$/.test(v) && t === v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4) && !document.querySelector('.cal-painel'); })()"), true, 'Amanha preenche o prazo e fecha');
+    // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original
+    await clicar('select[name=status] + .selecao-botao');
+    assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 3"), 'lista propria do menu abre');
+    await ev("[...document.querySelectorAll('.selecao-lista .selecao-op')].find(b => b.textContent === 'Pausado').click()");
+    assert.equal(await ev("document.querySelector('select[name=status]').value + '|' + document.querySelector('select[name=status] + .selecao-botao').textContent + '|' + !document.querySelector('.selecao-lista')"), 'pausado|Pausado|true', 'escolha vai para o campo e fecha a lista');
     // barra das observacoes: B, I, U e # aplicam a marcacao no texto selecionado
     assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');
     assert.equal(await ev("[...document.querySelectorAll('[data-obs-barra] .obs-fmt')].map(b => b.textContent).join('')"), '#BIU', 'botoes #, B, I, U');
