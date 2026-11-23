@@ -184,7 +184,7 @@
 
     const excluir = el("button", { class: "btn btn-perigo btn-pequeno", type: "button", text: "Excluir tarefa" });
     excluir.addEventListener("click", async () => {
-      if (!window.confirm("Excluir esta tarefa?")) return;
+      if (!(await window.Rotina.confirmar("Excluir esta tarefa?"))) return;
       try { await chamar("POST", "/api/tarefas/" + t.id + "/excluir", {}); fechar(); await recarregar(); } catch (e) { toast(e.message, true); }
     });
     const fecharBtn = el("button", { class: "btn btn-icone", type: "button", "aria-label": "Fechar", text: "✕" });

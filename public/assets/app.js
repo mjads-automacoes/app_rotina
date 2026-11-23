@@ -14,8 +14,13 @@
       try { window.localStorage.setItem("rotina_tema", novo); } catch (e) { /* sem armazenamento: so vale nesta visita */ }
     }
     if (event.target.closest("[data-menu-toggle]")) document.body.classList.toggle("menu-aberto");
+    // confirmacao propria, no meio da tela (pedido do dono, 23/11/2026); depois do "sim" o clique segue normalmente
     const botao = event.target.closest("[data-confirmar]");
-    if (botao && !window.confirm(botao.dataset.confirmar)) event.preventDefault();
+    if (botao) {
+      if (botao.dataset.confirmado === "1") { delete botao.dataset.confirmado; return; }
+      event.preventDefault();
+      confirmar(botao.dataset.confirmar).then((sim) => { if (sim) { botao.dataset.confirmado = "1"; botao.click(); } });
+    }
   });
 
   // ---- ficha do cliente: salva sozinha a cada mudanca (sem botao Salvar)
@@ -305,5 +310,34 @@
     // ao adicionar a tarefa, o formulario recarrega a pagina; nada a limpar aqui
   });
 
-  window.Rotina = { el, toast, chamar, dataBR, iniciais };
+  // Pop-up de confirmacao simples, sempre no meio da tela. Na ficha em janela (iframe), abre na tela principal.
+  function confirmar(mensagem, acao) {
+    if (document.body.classList.contains("embutido") && window.parent !== window) {
+      try { if (window.parent.Rotina && window.parent.Rotina.confirmar) return window.parent.Rotina.confirmar(mensagem, acao); } catch (e) { /* outra origem */ }
+    }
+    const rotulo = acao || (/^(excluir|apagar|remover|desconectar)/i.test(mensagem) ? mensagem.split(" ")[0] : "Confirmar");
+    const perigo = /^(excluir|apagar|remover|desconectar)/i.test(rotulo);
+    return new Promise((resolver) => {
+      const sim = el("button", { class: "btn " + (perigo ? "btn-perigo" : "btn-primario"), type: "button", "data-confirmar-ok": "", text: rotulo });
+      const nao = el("button", { class: "btn btn-contorno", type: "button", "data-confirmar-nao": "", text: "Cancelar" });
+      const caixa = el("div", { class: "confirmar-caixa", role: "alertdialog", "aria-modal": "true", "aria-label": mensagem }, [
+        el("p", { class: "confirmar-texto", text: mensagem }),
+        el("div", { class: "confirmar-botoes" }, [nao, sim]),
+      ]);
+      const fundo = el("div", { class: "confirmar-fundo" }, [caixa]);
+      const fim = (valor) => { fundo.remove(); document.removeEventListener("keydown", tecla, true); resolver(valor); };
+      const tecla = (ev) => {
+        if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); fim(false); }
+        if (ev.key === "Enter") { ev.preventDefault(); ev.stopPropagation(); fim(true); }
+      };
+      sim.addEventListener("click", () => fim(true));
+      nao.addEventListener("click", () => fim(false));
+      fundo.addEventListener("click", (ev) => { if (ev.target === fundo) fim(false); });
+      document.addEventListener("keydown", tecla, true);
+      document.body.append(fundo);
+      sim.focus();
+    });
+  }
+
+  window.Rotina = { el, toast, chamar, dataBR, iniciais, confirmar };
 })();

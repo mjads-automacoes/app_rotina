@@ -146,11 +146,13 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await sleep(700);
     await ir('/');
     assert.ok(await esperar("document.getElementById('rotinaChecklist').textContent.includes('Item renomeado') && document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')"), 'nome e item novo continuam depois de recarregar');
-    // Excluir pelo menu (o confirm do navegador e aceito automaticamente no teste)
-    await ev("window.confirm = () => true");
+    // Excluir pelo menu: pop-up de confirmacao proprio, no meio da tela
     const itensAntesExcluir = await n('#rotinaChecklist .rotina-item');
     await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-item')].find(i => i.textContent.includes('Item novo do teste')).querySelector('.rotina-mais').click()");
     await clicar('#rotinaChecklist [data-check="excluir"]');
+    assert.ok(await esperar("!!document.querySelector('.confirmar-caixa')"), 'pop-up de confirmacao abre');
+    assert.equal(await ev("(() => { const r = document.querySelector('.confirmar-caixa').getBoundingClientRect(); return Math.abs((r.left + r.right) / 2 - innerWidth / 2) < 3 && Math.abs((r.top + r.bottom) / 2 - innerHeight / 2) < 3; })()"), true, 'pop-up no meio da tela');
+    await clicar('[data-confirmar-ok]');
     assert.ok(await esperar(`document.querySelectorAll('#rotinaChecklist .rotina-item').length === ${itensAntesExcluir} - 1 && !document.getElementById('rotinaChecklist').textContent.includes('Item novo do teste')`), 'Excluir tira o item');
     await sleep(600);
     await ir('/');
@@ -214,9 +216,11 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');
     assert.equal(await ev("[...document.querySelectorAll('[data-obs-barra] .obs-fmt')].map(b => b.textContent).join('')"), '#BIU', 'botoes #, B, I, U');
     // tarefas do cliente: adicionar pela ficha e excluir com confirmacao
-    await ev("(() => { const f = document.querySelector('.tarefa-nova'); f.querySelector('[name=titulo]').value = 'Tarefa criada na ficha'; f.querySelector('[name=prazo]').value = '2026-12-01'; f.requestSubmit(); })()");
-    assert.ok(await esperar("[...document.querySelectorAll('.lista-simples li')].some(li => li.textContent.includes('Tarefa criada na ficha') && li.textContent.includes('01/12'))"), 'tarefa adicionada na ficha');
-    await ev("window.confirm = () => true; [...document.querySelectorAll('.lista-simples li')].find(li => li.textContent.includes('Tarefa criada na ficha')).querySelector('.btn-excluir-tarefa').click()");
+    await ev("(() => { const f = document.querySelector('.tarefa-nova'); f.querySelector('[name=titulo]').value = 'Tarefa criada na ficha'; f.querySelector('[name=prazo]').value = document.querySelector('[data-calendario]').dataset.min; f.requestSubmit(); })()");
+    assert.ok(await esperar("[...document.querySelectorAll('.lista-simples li')].some(li => li.textContent.includes('Tarefa criada na ficha') && /\\d{2}\\/\\d{2}/.test(li.textContent))"), 'tarefa adicionada na ficha');
+    await ev("[...document.querySelectorAll('.lista-simples li')].find(li => li.textContent.includes('Tarefa criada na ficha')).querySelector('.btn-excluir-tarefa').click()");
+    assert.ok(await esperar("!!document.querySelector('[data-confirmar-ok]')"), 'confirmacao da ficha abre');
+    await clicar('[data-confirmar-ok]');
     await sleep(400);
     assert.ok(await esperar("document.readyState === 'complete' && !document.body.textContent.includes('Tarefa criada na ficha') && document.body.textContent.includes('Tarefa excluída')"), 'tarefa excluida na ficha');
     assert.ok(await esperar("!!document.querySelector('#notificacoes .notificacao')"), 'aviso do servidor vira notificacao');

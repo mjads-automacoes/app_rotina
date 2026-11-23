@@ -80,7 +80,7 @@
       ed.addEventListener("click", () => editar(a));
       const ex = el("button", { class: "btn btn-suave perigo btn-pequeno", type: "button", text: "Excluir" });
       ex.addEventListener("click", async () => {
-        if (!window.confirm("Excluir a automação “" + a.nome + "”?")) return;
+        if (!(await window.Rotina.confirmar("Excluir a automação “" + a.nome + "”?"))) return;
         try { await chamar("POST", "/api/automacoes/" + a.id + "/excluir", {}); await carregar(); } catch (e) { toast(e.message, true); }
       });
       botoes.push(ed, ex);

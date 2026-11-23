@@ -719,3 +719,12 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 :root[data-tema="claro"] { --selecionado: #e4ddff; }
 .rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(124, 92, 255, 0.55); }
 .rotina-cliente.is-foco:hover, .rotina-tarefa.is-foco:hover { background: var(--selecionado); }
+
+/* Pop-up de confirmacao proprio: simples e no meio da tela (pedido do dono, 23/11/2026) */
+.confirmar-fundo { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; padding: 20px; background: rgba(4, 6, 14, 0.6); backdrop-filter: blur(2px); animation: confirmar-entra 0.12s ease-out; }
+.confirmar-caixa { width: min(400px, 100%); padding: 22px; border: 1px solid var(--borda-forte); border-radius: 16px; background: var(--panel); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); text-align: center; }
+.confirmar-texto { margin: 0 0 18px; color: var(--texto); font-size: 1rem; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
+.confirmar-botoes { display: flex; justify-content: center; gap: 10px; }
+.confirmar-botoes .btn { min-width: 120px; }
+@keyframes confirmar-entra { from { opacity: 0; } to { opacity: 1; } }
+.confirmar-botoes .btn-perigo { border-color: transparent; background: var(--vermelho); color: #fff; }

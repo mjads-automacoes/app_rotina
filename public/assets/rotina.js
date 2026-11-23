@@ -4,7 +4,7 @@
 
   const raiz = document.getElementById("rotina");
   if (!raiz) return;
-  const { el, toast, chamar } = window.Rotina;
+  const { el, toast, chamar, confirmar } = window.Rotina;
 
   const DIAS = { segunda: "Segunda", terca: "Terça", quarta: "Quarta", quinta: "Quinta", sexta: "Sexta" };
   const TURNOS = [["manha", "Manhã", "da manhã"], ["tarde", "Tarde", "da tarde"]];
@@ -54,7 +54,7 @@
     lixeira.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
     lixeira.addEventListener("click", async () => {
       const nome = fundo.querySelector("[data-janela-nome]").textContent;
-      if (!window.confirm("Excluir o cliente " + nome + "? As tarefas em aberto dele também serão apagadas.")) return;
+      if (!(await confirmar("Excluir o cliente " + nome + "? As tarefas em aberto dele também serão apagadas."))) return;
       try {
         await chamar("POST", "/api/clientes/" + c.cliente_id + "/excluir", {});
         toast("Cliente excluído.");
@@ -211,7 +211,7 @@
   }
 
   async function excluirItem(tarefa) {
-    if (!window.confirm('Excluir o item "' + tarefa.titulo + '" do checklist?')) { renderizar(); return; }
+    if (!(await confirmar('Excluir o item "' + tarefa.titulo + '" do checklist?'))) { renderizar(); return; }
     for (const d of Object.values(state.dados.semana)) for (const [t] of TURNOS_CHECK) {
       const lista = checklistDo(t, d);
       const pos = lista.indexOf(tarefa);
