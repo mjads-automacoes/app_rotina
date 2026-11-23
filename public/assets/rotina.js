@@ -1,4 +1,5 @@
 // Rotina do gestor (modo foco). Dados de /api/rotina; tudo otimista: a tela muda na hora e confirma no servidor.
+// (Ao conferir um deploy, olhe so o HTML de /login: buscar o arquivo com o ?v= novo antes do deploy terminar faz a Cloudflare guardar a versao velha.)
 (function () {
   "use strict";
 
