@@ -763,3 +763,7 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-tarefa-certo:disabled { opacity: 0.45; cursor: not-allowed; }
 .rotina-tarefa-certo.is-feita { opacity: 1; border-color: transparent; background: var(--verde); color: #fff; cursor: default; }
 .rotina-tarefa.is-feita .rotina-tarefa-texto > span:first-child { color: var(--muted); text-decoration: line-through; }
+
+/* Tarefas do cliente: sem a selecao escura na tarefa da rotina (pedido do dono, 23/11/2026) */
+.rotina-tarefa.is-foco, .rotina-tarefa.is-foco:hover { background: transparent; border-color: transparent; border-bottom-color: var(--borda); }
+.rotina-tarefa.is-foco:hover { background: var(--panel-2); }
