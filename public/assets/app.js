@@ -238,5 +238,72 @@
   const dataBR = (iso) => (iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : "");
   const iniciais = (nome) => (nome || "?").trim().slice(0, 2).toUpperCase();
 
+  // ---- calendario proprio (ficha: prazo da nova tarefa). Em portugues, sem dias que ja passaram (pedido do dono, 23/11/2026)
+  const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const deIso = (s) => { const [a, m, d] = s.split("-").map(Number); return new Date(a, m - 1, d); };
+  document.querySelectorAll("[data-calendario]").forEach((caixa) => {
+    const campo = caixa.querySelector("input[type=hidden]");
+    const botao = caixa.querySelector("[data-cal-abrir]");
+    const texto = caixa.querySelector("[data-cal-texto]");
+    const min = caixa.dataset.min || iso(new Date());
+    let mes = deIso(min); mes.setDate(1);
+    let painel = null;
+    const fechar = () => { if (painel) { painel.remove(); painel = null; botao.setAttribute("aria-expanded", "false"); } };
+    const escolher = (valor) => {
+      campo.value = valor;
+      texto.textContent = valor ? valor.slice(8, 10) + "/" + valor.slice(5, 7) + "/" + valor.slice(0, 4) : "Prazo";
+      caixa.classList.toggle("tem-data", !!valor);
+      fechar();
+      botao.focus();
+    };
+    const desenhar = () => {
+      const primeiro = new Date(mes.getFullYear(), mes.getMonth(), 1);
+      const inicio = new Date(primeiro); inicio.setDate(1 - primeiro.getDay());
+      const minMes = deIso(min); minMes.setDate(1);
+      const dias = [];
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(inicio); d.setDate(inicio.getDate() + i);
+        const v = iso(d);
+        const fora = d.getMonth() !== mes.getMonth();
+        if (fora && i >= 35) break;
+        dias.push(el("button", { type: "button", class: "cal-dia" + (fora ? " is-fora" : "") + (v === min ? " is-hoje" : "") + (v === campo.value ? " is-escolhido" : ""), "data-dia": v, disabled: v < min, "aria-label": d.getDate() + " de " + MESES[d.getMonth()], text: String(d.getDate()) }));
+      }
+      const amanha = deIso(min); amanha.setDate(amanha.getDate() + 1);
+      painel.replaceChildren(
+        el("div", { class: "cal-topo" }, [
+          el("button", { type: "button", class: "cal-nav", "data-cal-nav": "-1", "aria-label": "Mês anterior", disabled: mes <= minMes, text: "‹" }),
+          el("strong", { text: MESES[mes.getMonth()][0].toUpperCase() + MESES[mes.getMonth()].slice(1) + " de " + mes.getFullYear() }),
+          el("button", { type: "button", class: "cal-nav", "data-cal-nav": "1", "aria-label": "Próximo mês", text: "›" }),
+        ]),
+        el("div", { class: "cal-semana", "aria-hidden": "true" }, ["D", "S", "T", "Q", "Q", "S", "S"].map((l) => el("span", { text: l }))),
+        el("div", { class: "cal-dias" }, dias),
+        el("div", { class: "cal-rodape" }, [
+          el("button", { type: "button", class: "cal-atalho", "data-dia": min, text: "Hoje" }),
+          el("button", { type: "button", class: "cal-atalho", "data-dia": iso(amanha), text: "Amanhã" }),
+          el("button", { type: "button", class: "cal-atalho cal-limpar", "data-dia": "", text: "Sem prazo" }),
+        ]),
+      );
+    };
+    botao.addEventListener("click", () => {
+      if (painel) return fechar();
+      if (campo.value) { mes = deIso(campo.value); mes.setDate(1); }
+      painel = el("div", { class: "cal-painel", role: "dialog", "aria-label": "Escolher prazo" });
+      painel.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const nav = ev.target.closest("[data-cal-nav]");
+        if (nav && !nav.disabled) { mes.setMonth(mes.getMonth() + Number(nav.dataset.calNav)); return desenhar(); }
+        const dia = ev.target.closest("[data-dia]");
+        if (dia && !dia.disabled) escolher(dia.dataset.dia);
+      });
+      desenhar();
+      caixa.append(painel);
+      botao.setAttribute("aria-expanded", "true");
+    });
+    document.addEventListener("click", (ev) => { if (painel && !caixa.contains(ev.target)) fechar(); });
+    document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && painel) { fechar(); botao.focus(); } });
+    // ao adicionar a tarefa, o formulario recarrega a pagina; nada a limpar aqui
+  });
+
   window.Rotina = { el, toast, chamar, dataBR, iniciais };
 })();

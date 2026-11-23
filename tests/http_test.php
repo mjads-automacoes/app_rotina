@@ -323,6 +323,10 @@ t('ficha: adicionar e excluir tarefa do cliente, so nos proprios clientes', func
     ok(str_contains($ficha, 'Revisar criativos'), 'aparece na ficha');
     ok(str_contains($ficha, "/clientes/{$id}/tarefas/{$t['id']}/excluir"), 'com o botao de excluir');
 
+    ok(str_contains($ficha, 'data-calendario data-min="2026-11-09"'), 'calendario proprio comeca em hoje');
+    // prazo em dia que ja passou: recusado, nada criado
+    eq(302, req($app, $beto, 'POST', "/clientes/{$id}/tarefas", ['csrf' => $csrf, 'titulo' => 'No passado', 'prazo' => '2026-11-08'])->status);
+    eq(0, (int) $pdo->query("SELECT COUNT(*) FROM tarefas WHERE titulo = 'No passado'")->fetchColumn(), 'prazo no passado nao cria');
     // sem titulo: aviso, nada criado
     eq(302, req($app, $beto, 'POST', "/clientes/{$id}/tarefas", ['csrf' => $csrf, 'titulo' => ''])->status);
     eq(1, $doCliente());

@@ -1,5 +1,5 @@
 <?php
-/** @var Request $r @var array $usuario @var array $cliente @var array $notas @var array $tarefas @var string $gestor @var array $gestores */
+/** @var Request $r @var array $usuario @var array $cliente @var array $notas @var array $tarefas @var string $gestor @var array $gestores @var string $hoje */
 $csrf = (string) $r->sessao->d['csrf'];
 $rotuloDia = ['segunda' => 'Seg', 'terca' => 'Ter', 'quarta' => 'Qua', 'quinta' => 'Qui', 'sexta' => 'Sex'];
 $rotuloTurno = ['manha' => '08h · Manhã', 'tarde' => '13h · Tarde', 'fechamento' => '17h · Fechamento'];
@@ -86,7 +86,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
           <button class="btn btn-contorno btn-obs-editar" type="button" data-obs-editar>Editar observações</button>
         </div>
       <?php endif; ?>
-      <label class="largo" data-obs-campo <?= $temObs ? 'hidden' : '' ?>><span class="sr-only">Observações</span><textarea name="observacoes" rows="<?= $temObs ? 14 : 4 ?>" maxlength="<?= Clientes::OBSERVACOES_MAX ?>" placeholder="Selecione o texto e use os botões acima (# título, B negrito, I itálico, U sublinhado). Use - para listas."><?= e((string) $c['observacoes']) ?></textarea></label>
+      <label class="largo" data-obs-campo <?= $temObs ? 'hidden' : '' ?>><span class="sr-only">Observações</span><textarea name="observacoes" rows="<?= $temObs ? 14 : 4 ?>" maxlength="<?= Clientes::OBSERVACOES_MAX ?>"><?= e((string) $c['observacoes']) ?></textarea></label>
     </form>
   </section>
 
@@ -96,7 +96,10 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas" class="tarefa-nova">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
         <label class="grow"><span class="sr-only">Nova tarefa</span><input type="text" name="titulo" maxlength="200" placeholder="Nova tarefa para este cliente…" required></label>
-        <label class="tarefa-prazo"><span class="sr-only">Prazo</span><input type="date" name="prazo" title="Prazo (opcional)"></label>
+        <div class="calendario" data-calendario data-min="<?= e($hoje) ?>">
+          <input type="hidden" name="prazo" value="">
+          <button type="button" class="calendario-botao" data-cal-abrir aria-haspopup="dialog" aria-expanded="false" title="Prazo (opcional)"><?= icone('calendario') ?><span data-cal-texto>Prazo</span></button>
+        </div>
         <button class="btn btn-primario" type="submit">Add +</button>
       </form>
       <?php if ($tarefas === []): ?>

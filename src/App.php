@@ -217,7 +217,14 @@ final class App
                 if ($acao === 'tarefas') {
                     // tarefa avulsa do cliente, criada pela ficha (lista Geral, responsavel = quem criou)
                     $this->n->clientes->buscar($u, $id);
-                    $this->n->tarefas->criar($u, ['titulo' => (string) ($r->post['titulo'] ?? ''), 'prazo' => (string) ($r->post['prazo'] ?? ''), 'lista_id' => 2, 'cliente_id' => $id]);
+                    $prazo = (string) ($r->post['prazo'] ?? '');
+
+                    // pedido do dono (23/11/2026): o prazo nao pode ser um dia que ja passou
+                    if ($prazo !== '' && $prazo < $this->agora()->format('Y-m-d')) {
+                        throw new InvalidArgumentException('O prazo não pode ser um dia que já passou.');
+                    }
+
+                    $this->n->tarefas->criar($u, ['titulo' => (string) ($r->post['titulo'] ?? ''), 'prazo' => $prazo, 'lista_id' => 2, 'cliente_id' => $id]);
                     $this->flash($r, 'ok', 'Tarefa adicionada.');
 
                     return Response::redirect('/clientes/' . $id);
@@ -269,6 +276,7 @@ final class App
                 'tarefas' => $this->n->tarefas->listar($u, ['cliente_id' => $id], 100),
                 'gestor' => $this->n->auth->buscar($cliente['gestor_id'])['nome'] ?? '',
                 'gestores' => $this->gestores(),
+                'hoje' => $this->agora()->format('Y-m-d'),
             ]);
         }
 

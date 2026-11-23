@@ -637,3 +637,29 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-menu-op.is-perigo { color: var(--vermelho, #ef4444); }
 .rotina-menu-op.is-perigo:hover { background: rgba(239, 68, 68, 0.12); }
 .rotina-menu.para-cima { top: auto; bottom: calc(100% + 4px); } /* perto do fim do bloco, abre para cima */
+
+/* Calendario proprio do prazo (ficha), em portugues, sem dias passados (pedido do dono, 23/11/2026) */
+.calendario { position: relative; flex: 0 0 auto; }
+.calendario-botao { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 14px 0 12px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel-2); color: var(--muted); font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: border-color 0.15s; }
+.calendario-botao:hover, .calendario-botao[aria-expanded=true] { border-color: var(--acento); }
+.calendario-botao .ic { width: 16px; height: 16px; }
+.calendario.tem-data .calendario-botao { color: var(--texto); }
+.calendario.tem-data .calendario-botao .ic { color: var(--acento-texto); }
+.cal-painel { position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; width: 280px; padding: 12px; border: 1px solid var(--borda-forte); border-radius: 14px; background: var(--panel); box-shadow: var(--sombra); }
+.cal-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cal-topo strong { font-size: 0.95rem; }
+.cal-nav { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--texto); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.cal-nav:hover:not(:disabled) { background: var(--panel-2); }
+.cal-nav:disabled { opacity: 0.25; cursor: default; }
+.cal-semana, .cal-dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-semana span { padding: 4px 0; text-align: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); }
+.cal-dia { height: 34px; border: 0; border-radius: 9px; background: transparent; color: var(--texto); font: inherit; font-size: 0.88rem; cursor: pointer; }
+.cal-dia:hover:not(:disabled) { background: var(--acento-fundo); color: var(--acento-texto); }
+.cal-dia.is-fora { color: var(--muted); }
+.cal-dia:disabled { opacity: 0.28; cursor: not-allowed; text-decoration: line-through; }
+.cal-dia.is-hoje { box-shadow: inset 0 0 0 1px var(--acento); font-weight: 700; }
+.cal-dia.is-escolhido { background: var(--acento); color: #fff; font-weight: 700; }
+.cal-rodape { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--borda); }
+.cal-atalho { flex: 1; padding: 6px 4px; border: 1px solid var(--borda-forte); border-radius: 8px; background: transparent; color: var(--texto); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+.cal-atalho:hover { border-color: var(--acento); color: var(--acento-texto); }
+.cal-limpar { color: var(--muted); }
