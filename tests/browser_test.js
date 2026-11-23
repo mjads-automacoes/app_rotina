@@ -104,10 +104,11 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa-certo')].every(b => b.disabled)"), true, 'certo bloqueado antes de Iniciar');
     // botao de mais: detalhes da tarefa
     await clicar('#rotinaFoco .rotina-tarefa .rotina-tarefa-mais');
-    assert.ok(await esperar("!!document.getElementById('rotinaDetalhe')"), 'mais abre o campo de detalhes');
+    assert.ok(await esperar("!!document.getElementById('rotinaDetalhe')"), 'mais abre o pop-up de detalhes');
     await ev("(() => { const t = document.getElementById('rotinaDetalhe'); t.value = 'Conferir verba da campanha'; t.dispatchEvent(new Event('input', { bubbles: true })); })()");
-    await clicar('[data-acao="detalhe-salvar"]');
-    assert.ok(await esperar("(document.querySelector('#rotinaFoco .rotina-tarefa-detalhe') || {}).textContent === 'Conferir verba da campanha'"), 'detalhe aparece embaixo da tarefa');
+    assert.equal(await ev("(() => { const r = document.querySelector('.detalhe-caixa').getBoundingClientRect(); return Math.abs((r.left + r.right) / 2 - innerWidth / 2) < 3 && !document.querySelector('.detalhe-caixa button'); })()"), true, 'detalhes em pop-up no meio da tela, sem botoes');
+    await clicar('.detalhe-fundo');
+    assert.ok(await esperar("(document.querySelector('#rotinaFoco .rotina-tarefa-detalhe') || {}).textContent === 'Conferir verba da campanha'"), 'clicar fora salva e o detalhe aparece embaixo da tarefa');
     assert.equal(await ev("document.querySelector('[data-acao=\"concluir\"]') === null"), true, 'Concluir so aparece depois de Iniciar');
     await clicar('[data-acao="abrir-cliente"]');
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');
@@ -135,6 +136,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     }
     assert.notEqual(await texto('#rotinaDias small'), antes, 'o progresso andou na hora');
     assert.notEqual(await texto('.rotina-foco-nome'), nome1, 'o proximo cliente entra em foco');
+    assert.ok(await esperar("[...document.querySelectorAll('#rotinaClientes .rotina-cliente.is-concluido')].some(b => b.textContent.includes('Concluído'))"), 'cliente concluido grifado de verde');
     assert.equal(await ev(semNull), true, 'sem null depois de concluir');
     await sleep(700);
     await clicar('#rotinaChecklist .rotina-concluir');

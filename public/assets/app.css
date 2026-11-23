@@ -770,9 +770,17 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 
 /* Tarefas do cliente: botao de mais para detalhes (pedido do dono, 23/11/2026) */
 .rotina-tarefa { flex-wrap: wrap; }
-.rotina-tarefa-mais { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--borda-forte); border-radius: 50%; background: transparent; color: var(--acento-texto); font-family: inherit; font-size: 1.25rem; font-weight: 600; line-height: 1; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-.rotina-tarefa-mais:hover { border-color: var(--acento); background: var(--acento-fundo); }
+.rotina-tarefa-mais { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--acento-texto); font-family: inherit; font-size: 1.45rem; font-weight: 500; line-height: 1; cursor: pointer; transition: background 0.15s; }
+.rotina-tarefa-mais:hover { background: var(--acento-fundo); }
 .rotina-tarefa-detalhe { margin-top: 2px; color: var(--muted); font-size: 0.82rem; white-space: pre-wrap; overflow-wrap: anywhere; }
-.rotina-detalhe-form { flex-basis: 100%; display: grid; gap: 8px; margin-top: 8px; }
-.rotina-detalhe-form textarea { min-height: 70px; font-size: 0.9rem; }
-.rotina-detalhe-botoes { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Pop-up dos detalhes da tarefa: no meio da tela, salva ao clicar fora (pedido do dono, 23/11/2026) */
+.detalhe-fundo { position: fixed; inset: 0; z-index: 140; display: grid; place-items: center; padding: 20px; background: rgba(4, 6, 14, 0.6); backdrop-filter: blur(2px); }
+.detalhe-caixa { display: grid; gap: 10px; width: min(520px, 100%); padding: 20px; border: 1px solid var(--borda-forte); border-radius: 16px; background: var(--panel); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); }
+.detalhe-titulo { font-size: 1.02rem; overflow-wrap: anywhere; }
+.detalhe-caixa textarea { min-height: 140px; }
+
+/* Clientes do dia: concluidos levemente grifados de verde (pedido do dono, 23/11/2026) */
+.rotina-cliente.is-concluido { background: rgba(34, 197, 94, 0.09); }
+.rotina-cliente.is-concluido:hover { background: rgba(34, 197, 94, 0.14); }
+.rotina-cliente.is-concluido .rotina-cliente-status { background: rgba(34, 197, 94, 0.15); color: var(--verde); }
