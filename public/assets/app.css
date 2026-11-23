@@ -663,3 +663,37 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .cal-atalho { flex: 1; padding: 6px 4px; border: 1px solid var(--borda-forte); border-radius: 8px; background: transparent; color: var(--texto); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
 .cal-atalho:hover { border-color: var(--acento); color: var(--acento-texto); }
 .cal-limpar { color: var(--muted); }
+
+/* ===== Rotina: acabamento visual (pedido do dono, 23/11/2026) — so aparencia, a estrutura nao muda ===== */
+#painelRotina .cartao { border-radius: 18px; box-shadow: var(--sombra); }
+/* barra do dia */
+#rotina .pagina-topo .rotina-controles { border-radius: 12px; background: var(--panel); box-shadow: var(--sombra); }
+#rotinaDias strong { color: var(--texto); }
+#rotinaDias small { color: var(--acento-texto); font-weight: 700; }
+/* cliente em foco: faixa de cor no topo e brilho suave */
+#painelRotina .rotina-foco { position: relative; overflow: hidden; background: radial-gradient(520px 200px at 0% 0%, var(--acento-fundo), transparent 70%), var(--panel); }
+#painelRotina .rotina-foco::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--acento), var(--acento-2)); }
+.rotina-foco-nome { font-size: 1.75rem; font-weight: 800; }
+.rotina-foco-nota > label, .rotina-foco-tarefas h3 { letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.74rem; font-weight: 800; color: var(--muted); }
+.rotina-foco-tarefas { border-left-color: var(--borda); }
+.rotina-tarefa { margin-bottom: 4px; border: 1px solid transparent; border-bottom-color: var(--borda); transition: background 0.15s, border-color 0.15s; }
+.rotina-tarefa:hover { background: var(--panel-2); }
+.rotina-tarefa.is-foco { border-color: rgba(124, 92, 255, 0.35); }
+/* titulos dos blocos com um marcador de cor */
+.rotina-checklist .cartao-topo h3, .rotina-clientes h2 { display: inline-flex; align-items: center; gap: 10px; letter-spacing: 0.06em; font-size: 0.92rem; }
+.rotina-checklist .cartao-topo h3::before, .rotina-clientes h2::before { content: ""; width: 4px; height: 16px; border-radius: 4px; background: linear-gradient(180deg, var(--acento), var(--acento-2)); }
+.rotina-checklist .contagem { padding: 3px 10px; border-radius: 999px; background: var(--acento-fundo); color: var(--acento-texto); font-weight: 700; font-size: 0.8rem; }
+/* checklist */
+.rotina-subtitulo { display: flex; align-items: center; gap: 10px; margin: 6px 0 6px; font-size: 0.72rem; font-weight: 800; }
+.rotina-subtitulo::after { content: ""; flex: 1; height: 1px; background: var(--borda); }
+.rotina-checklist .rotina-item { width: 100%; margin: 0 0 2px; padding: 8px 10px; border-bottom: 0; border-radius: 10px; transition: background 0.15s; }
+.rotina-checklist .rotina-item:hover { background: var(--panel-2); }
+.rotina-checklist .rotina-item.is-feito { background: rgba(34, 197, 94, 0.06); }
+.rotina-concluir { padding: 5px 14px; background: var(--panel-2); transition: border-color 0.15s, color 0.15s, background 0.15s; }
+.rotina-concluir:hover { background: rgba(34, 197, 94, 0.1); }
+/* clientes do dia */
+.rotina-grupo-topo { display: flex; align-items: center; gap: 8px; padding: 7px 12px; background: transparent; border: 1px solid var(--borda); color: var(--acento-texto); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.rotina-cliente { margin-bottom: 2px; border-bottom: 0; border-radius: 10px; transition: background 0.15s; }
+.rotina-cliente.is-foco { box-shadow: inset 3px 0 0 var(--acento); font-weight: 700; }
+.rotina-cliente-status { padding: 3px 10px; border-radius: 999px; background: var(--panel-2); font-size: 0.78rem; font-weight: 700; }
+.rotina-cliente-status .ponto { width: 7px; height: 7px; }
