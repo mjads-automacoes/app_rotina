@@ -349,18 +349,16 @@ t('ficha: adicionar e excluir tarefa do cliente, so nos proprios clientes', func
     eq(0, $doCliente());
 });
 
-t('ficha: campo "Subtitulo na Rotina" salva e aparece na rotina', function (): void {
+t('ficha: campo "Subtitulo na Rotina" removido (pedido do dono); salvar a ficha nao apaga o que estava guardado', function (): void {
     [$app, $pdo, , , $beto] = cenario_http();
     $csrf = (string) $beto->d['csrf'];
     req($app, $beto, 'POST', '/clientes', ['csrf' => $csrf, 'nome' => 'Do Beto']);
     $id = (int) $pdo->query('SELECT id FROM clientes')->fetchColumn();
-    ok(str_contains(req($app, $beto, 'GET', "/clientes/{$id}")->body, 'name="descricao"'), 'campo na ficha');
-    eq(302, req($app, $beto, 'POST', "/clientes/{$id}", ['csrf' => $csrf, 'nome' => 'Do Beto', 'descricao' => 'Revisar leads da semana'])->status);
-    eq('Revisar leads da semana', $pdo->query('SELECT descricao FROM clientes')->fetchColumn());
-    ok(str_contains(req($app, $beto, 'GET', "/clientes/{$id}")->body, 'value="Revisar leads da semana"'));
-    // salvar a ficha sem mexer no campo nao apaga
-    req($app, $beto, 'POST', "/clientes/{$id}/notas", ['csrf' => $csrf, 'texto' => 'oi']);
-    eq('Revisar leads da semana', $pdo->query('SELECT descricao FROM clientes')->fetchColumn());
+    $pdo->exec("UPDATE clientes SET descricao = 'Antigo'");
+    $ficha = req($app, $beto, 'GET', "/clientes/{$id}")->body;
+    ok(!str_contains($ficha, 'name="descricao"') && !str_contains($ficha, 'Subtítulo na Rotina'), 'campo fora da ficha');
+    eq(200, req($app, $beto, 'POST', "/api/clientes/{$id}", ['nome' => 'Do Beto', 'observacoes' => 'x'], [], ['X-CSRF-Token' => $csrf])->status, 'salvou');
+    eq('Antigo', $pdo->query('SELECT descricao FROM clientes')->fetchColumn(), 'salvar sem o campo nao apaga');
 });
 
 t('ficha salva sozinha pela API e exclui pela lixeira, so nos proprios clientes', function (): void {
