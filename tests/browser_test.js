@@ -100,6 +100,8 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
       await esperar(`document.querySelectorAll('#rotinaFoco .rotina-tarefa').length > ${antes2}`);
     }
     assert.equal(await ev("(() => { const ul = rotinaFoco.querySelector('.rotina-tarefas-lista'), r = ul.getBoundingClientRect(); const vis = [...ul.children].filter(li => { const b = li.getBoundingClientRect(); return b.top >= r.top - 1 && b.bottom <= r.bottom + 1; }).length; return ul.children.length > 3 && vis === 3 && ul.scrollHeight > ul.clientHeight; })()"), true, 'tarefas do cliente: 3 visiveis, o resto rolando');
+    assert.equal(await ev("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa small')].every(x => x.textContent === rotina.dataset.hoje.slice(8, 10) + '/' + rotina.dataset.hoje.slice(5, 7))"), true, 'tarefas do cliente: so as de hoje');
+    assert.equal(await ev("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa-certo')].every(b => b.disabled)"), true, 'certo bloqueado antes de Iniciar');
     assert.equal(await ev("document.querySelector('[data-acao=\"concluir\"]') === null"), true, 'Concluir so aparece depois de Iniciar');
     await clicar('[data-acao="abrir-cliente"]');
     assert.ok(await esperar("!!document.querySelector('.janela-quadro')"), 'ficha abre em janela');
@@ -115,6 +117,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("document.querySelector('.janela-fundo') === null"), true, 'janela fecha');
     await clicar('[data-acao="iniciar"]');
     assert.ok(await esperar("!!document.querySelector('[data-acao=\"concluir\"]') && !document.querySelector('[data-acao=\"iniciar\"]')"), 'Iniciar vira Concluir');
+    assert.ok(await esperar("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa-certo')].length > 1 && [...document.querySelectorAll('#rotinaFoco .rotina-tarefa-certo')].every(b => !b.disabled)"), 'depois de Iniciar o certo fica liberado');
+    await ev("[...document.querySelectorAll('#rotinaFoco .rotina-tarefa:not(.is-foco)')].find(li => li.textContent.includes('Tarefa nova pelo foco')).querySelector('.rotina-tarefa-certo').click()");
+    assert.ok(await esperar("(() => { const li = [...document.querySelectorAll('#rotinaFoco .rotina-tarefa')].find(x => x.textContent.includes('Tarefa nova pelo foco')); return li && li.textContent.includes('Concluído') && li.querySelector('.rotina-tarefa-certo').disabled; })()"), 'certo conclui a tarefa do cliente');
     await clicar('[data-acao="concluir"]');
     assert.notEqual(await texto('#rotinaDias small'), antes, 'o progresso andou na hora');
     assert.notEqual(await texto('.rotina-foco-nome'), nome1, 'o proximo cliente entra em foco');

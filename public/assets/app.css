@@ -753,3 +753,13 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .selecao-op.is-escolhida { background: var(--acento-fundo); color: var(--acento-texto); font-weight: 700; }
 .selecao-op.is-escolhida::before { content: "✓"; position: absolute; left: 11px; font-weight: 900; }
 .selecao-op:disabled { opacity: 0.4; cursor: default; }
+
+/* Tarefas do cliente: botao de certo ao lado do status (pedido do dono, 23/11/2026) */
+.rotina-tarefa-fim { flex: none; display: inline-flex; align-items: center; gap: 8px; }
+.rotina-tarefa-certo { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--borda-forte); border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.rotina-tarefa-certo .ic { width: 15px; height: 15px; }
+.rotina-tarefa-certo:not(:disabled) { border-color: var(--verde); background: rgba(34, 197, 94, 0.15); color: var(--verde); }
+.rotina-tarefa-certo:not(:disabled):hover { background: var(--verde); color: #fff; }
+.rotina-tarefa-certo:disabled { opacity: 0.45; cursor: not-allowed; }
+.rotina-tarefa-certo.is-feita { opacity: 1; border-color: transparent; background: var(--verde); color: #fff; cursor: default; }
+.rotina-tarefa.is-feita .rotina-tarefa-texto > span:first-child { color: var(--muted); text-decoration: line-through; }

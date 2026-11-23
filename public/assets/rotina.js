@@ -223,6 +223,19 @@
     catch (e) { toast(e.message, true); carregar(false); }
   }
 
+  // conclui uma tarefa do cliente em foco (que nao e a da rotina): muda na hora e confirma no servidor
+  async function concluirTarefaCliente(c, id) {
+    const guardada = state.tarefasCliente[c.cliente_id];
+    const t = guardada && guardada.lista.find((x) => x.id === id);
+    if (!t) return;
+    const antes = [t.status_tipo, t.status_nome];
+    t.status_tipo = "fechado"; t.status_nome = STATUS.fechado;
+    renderizar();
+    state.versao++;
+    try { await chamar("POST", "/api/rotina/concluir", { tarefa_id: id }); toast("Tarefa concluída."); guardada.velha = true; }
+    catch (e) { [t.status_tipo, t.status_nome] = antes; toast(e.message, true); renderizar(); }
+  }
+
   async function salvarNovo(botao) {
     const titulo = state.addTexto.trim();
     const sel = $("rotinaAddTurno");
@@ -279,18 +292,25 @@
   // lado direito do foco: as tarefas vinculadas ao cliente em foco, com o status de cada uma
   async function tarefasDoCliente(cliente, lado) {
     const titulo = () => el("h3", { text: "Tarefas do cliente" });
-    const desenhar = (lista) => {
+    // pedido do dono (23/11/2026): so as tarefas de hoje; cada uma com um botao de certo que so libera depois de "Iniciar"
+    const liberado = cliente.status_tipo !== "aberto";
+    const desenhar = (todas) => {
+      const lista = todas === null ? null : todas.filter((t) => t.prazo === raiz.dataset.hoje);
       const itens = lista === null ? [el("p", { class: "muted", text: "Carregando…" })]
-        : lista.length === 0 ? [el("p", { class: "muted", text: "Nenhuma tarefa vinculada." })]
+        : lista.length === 0 ? [el("p", { class: "muted", text: "Nenhuma tarefa para hoje." })]
         : [el("ul", { class: "rotina-tarefas-lista" }, lista.map((t) => {
             // a tarefa em foco usa o status da tela (muda na hora ao iniciar/concluir)
             const st = t.id === cliente.id ? { tipo: cliente.status_tipo, nome: STATUS[cliente.status_tipo] || cliente.status_nome } : { tipo: t.status_tipo, nome: t.status_nome };
-            return el("li", { class: "rotina-tarefa" + (t.id === cliente.id ? " is-foco" : "") }, [
+            const feita = st.tipo === "fechado";
+            const certo = el("button", { class: "rotina-tarefa-certo" + (feita ? " is-feita" : ""), type: "button", "data-acao": "concluir-tarefa", "data-tarefa": t.id,
+              disabled: feita || !liberado, title: feita ? "Concluída" : liberado ? "Concluir tarefa" : "Clique em Iniciar para liberar", "aria-label": feita ? "Concluída" : "Concluir tarefa" });
+            certo.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+            return el("li", { class: "rotina-tarefa" + (t.id === cliente.id ? " is-foco" : "") + (feita ? " is-feita" : "") }, [
               el("span", { class: "rotina-tarefa-texto" }, [
                 el("span", { text: t.titulo }),
                 t.prazo ? el("small", { class: "muted", text: t.prazo.slice(8, 10) + "/" + t.prazo.slice(5, 7) }) : null,
               ].filter(Boolean)),
-              el("span", { class: "pilula is-" + st.tipo, text: st.nome }),
+              el("span", { class: "rotina-tarefa-fim" }, [el("span", { class: "pilula is-" + st.tipo, text: st.nome }), certo]),
             ]);
           }))];
       const antiga = lado.querySelector(".rotina-tarefas-lista");
@@ -389,6 +409,11 @@
     if (botao.dataset.acao === "abrir-cliente") return abrirFicha(c);
     if (botao.dataset.acao === "nova-tarefa") return criarTarefa(c, botao);
     if (botao.dataset.acao === "concluir") { acao(c, "fechado", "concluir"); toast("Análise registrada."); }
+    if (botao.dataset.acao === "concluir-tarefa") {
+      const id = parseInt(botao.dataset.tarefa, 10);
+      if (id === c.id) { acao(c, "fechado", "concluir"); toast("Tarefa concluída."); return; }
+      return concluirTarefaCliente(c, id);
+    }
     if (botao.dataset.acao === "iniciar") acao(c, "andamento", "iniciar");
     if (botao.dataset.acao === "reabrir") acao(c, "aberto", "reabrir");
   });
