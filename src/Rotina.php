@@ -41,6 +41,16 @@ final class Rotina
         $clientes = $this->pdo->query('SELECT id, nome, descricao, link FROM clientes')->fetchAll(PDO::FETCH_UNIQUE);
         usort($tarefas, static fn (array $a, array $b): int => [$a['cliente_nome'] ?? '', $a['id']] <=> [$b['cliente_nome'] ?? '', $b['id']]);
 
+        // tarefas do cliente ainda abertas em cada dia (pedido do dono, 23/11/2026): o cliente so conta como concluido quando todas terminam
+        $abertas = [];
+        $st = $this->pdo->prepare("SELECT t.cliente_id, t.prazo, COUNT(*) FROM tarefas t JOIN status s ON s.id = t.status_id
+            WHERE t.cliente_id IS NOT NULL AND t.prazo BETWEEN ? AND ? AND s.tipo != 'fechado' GROUP BY t.cliente_id, t.prazo");
+        $st->execute([array_key_first($semana), array_key_last($semana)]);
+
+        foreach ($st->fetchAll(PDO::FETCH_NUM) as [$cli, $prazo, $qtd]) {
+            $abertas[$cli . '|' . $prazo] = (int) $qtd;
+        }
+
         foreach ($tarefas as $t) {
             if ($t['turno'] === null || !isset($dias[$t['prazo']])) {
                 continue;
@@ -54,9 +64,18 @@ final class Rotina
                 $item['cliente_link'] = $clientes[$t['cliente_id']]['link'];
             }
 
+            // analise concluida, mas ainda ha tarefas do cliente abertas no dia: o cliente continua "Em andamento"
+            $item['analise_feita'] = false;
+
+            if ($t['cliente_id'] !== null && $t['status_tipo'] === 'fechado' && ($abertas[$t['cliente_id'] . '|' . $t['prazo']] ?? 0) > 0) {
+                $item['analise_feita'] = true;
+                $item['status_tipo'] = 'andamento';
+                $item['status_nome'] = 'Em andamento';
+            }
+
             $dias[$t['prazo']]['turnos'][$t['turno']][$t['cliente_id'] === null ? 'checklist' : 'clientes'][] = $item;
             $dias[$t['prazo']]['total']++;
-            $dias[$t['prazo']]['feitas'] += $t['status_tipo'] === 'fechado' ? 1 : 0;
+            $dias[$t['prazo']]['feitas'] += $item['status_tipo'] === 'fechado' ? 1 : 0;
         }
 
         return ['data' => self::data($data)->format('Y-m-d'), 'gestor_id' => $alvo, 'semana' => $dias];

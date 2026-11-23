@@ -81,3 +81,18 @@ t('sabado mostra a semana seguinte', function (): void {
     [$n, , $ana] = cenario_dia();
     eq('2026-11-16', array_key_first($n->rotina->dia($ana, '2026-11-14')['semana']));
 });
+
+t('cliente so conta como concluido quando todas as tarefas dele do dia terminam', function (): void {
+    [$n, , $ana] = cenario_dia();
+    $item = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes'][0];
+    $extra = $n->tarefas->criar($ana, ['titulo' => 'Revisar criativos', 'lista_id' => 2, 'cliente_id' => $item['cliente_id'], 'prazo' => '2026-11-09']);
+    $n->rotina->concluir($ana, $item['id']);
+    $d = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09'];
+    $c = $d['turnos']['manha']['clientes'][0];
+    eq(['andamento', true], [$c['status_tipo'], $c['analise_feita']], 'analise feita, mas ainda ha tarefa aberta');
+    eq(0, $d['feitas'], 'nao conta como concluido');
+    $n->rotina->concluir($ana, $extra);
+    $d = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09'];
+    eq(['fechado', false], [$d['turnos']['manha']['clientes'][0]['status_tipo'], $d['turnos']['manha']['clientes'][0]['analise_feita']]);
+    eq(1, $d['feitas']);
+});

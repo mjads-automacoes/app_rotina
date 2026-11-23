@@ -223,17 +223,36 @@
     catch (e) { toast(e.message, true); carregar(false); }
   }
 
-  // conclui uma tarefa do cliente em foco (que nao e a da rotina): muda na hora e confirma no servidor
+  // pedido do dono (23/11/2026): conclui uma tarefa de hoje do cliente em foco; a proxima da lista passa para "Em andamento"
+  // e o cliente so fica concluido quando todas as tarefas de hoje terminam. Muda na hora e confirma no servidor.
   async function concluirTarefaCliente(c, id) {
     const guardada = state.tarefasCliente[c.cliente_id];
-    const t = guardada && guardada.lista.find((x) => x.id === id);
+    const hoje = guardada ? guardada.lista.filter((x) => x.prazo === raiz.dataset.hoje) : [];
+    const t = hoje.find((x) => x.id === id);
     if (!t) return;
-    const antes = [t.status_tipo, t.status_nome];
     t.status_tipo = "fechado"; t.status_nome = STATUS.fechado;
+    const proxima = hoje.find((x) => x.status_tipo !== "fechado");
+    if (proxima && proxima.status_tipo === "aberto") { proxima.status_tipo = "andamento"; proxima.status_nome = STATUS.andamento; }
+    if (proxima) {
+      if (id === c.id) c.analise_feita = true;
+      c.status_tipo = "andamento"; c.status_nome = STATUS.andamento;
+    } else {
+      c.status_tipo = "fechado"; c.status_nome = STATUS.fechado; c.analise_feita = false;
+      state.foco = null;
+    }
     renderizar();
     state.versao++;
-    try { await chamar("POST", "/api/rotina/concluir", { tarefa_id: id }); toast("Tarefa concluída."); guardada.velha = true; }
-    catch (e) { [t.status_tipo, t.status_nome] = antes; toast(e.message, true); renderizar(); }
+    state.pendentes++;
+    try {
+      await chamar("POST", "/api/rotina/concluir", { tarefa_id: id });
+      if (proxima && proxima.status_tipo === "andamento" && proxima.id !== c.id) await chamar("POST", "/api/rotina/iniciar", { tarefa_id: proxima.id });
+      toast(proxima ? "Tarefa concluída. Próxima: " + proxima.titulo : "Cliente concluído.");
+    } catch (e) { toast(e.message, true); }
+    finally {
+      state.pendentes--;
+      guardada.velha = true;
+      carregar(true);
+    }
   }
 
   async function salvarNovo(botao) {
@@ -280,7 +299,6 @@
       el("div", { class: "rotina-foco-acoes" }, [
         el("button", { class: "btn btn-contorno", type: "button", "data-acao": "abrir-cliente", text: "Ver informações" }),
         tipo === "aberto" ? el("button", { class: "btn btn-primario", type: "button", "data-acao": "iniciar", text: "Iniciar" }) : null,
-        tipo === "andamento" ? el("button", { class: "btn btn-primario", type: "button", "data-acao": "concluir", text: "Concluir" }) : null,
         tipo === "fechado" ? el("button", { class: "btn btn-contorno", type: "button", "data-acao": "reabrir", text: "Reabrir" }) : null,
       ]),
     ].filter(Boolean));
@@ -300,7 +318,7 @@
         : lista.length === 0 ? [el("p", { class: "muted", text: "Nenhuma tarefa para hoje." })]
         : [el("ul", { class: "rotina-tarefas-lista" }, lista.map((t) => {
             // a tarefa em foco usa o status da tela (muda na hora ao iniciar/concluir)
-            const st = t.id === cliente.id ? { tipo: cliente.status_tipo, nome: STATUS[cliente.status_tipo] || cliente.status_nome } : { tipo: t.status_tipo, nome: t.status_nome };
+            const st = t.id === cliente.id && !cliente.analise_feita ? { tipo: cliente.status_tipo, nome: STATUS[cliente.status_tipo] || cliente.status_nome } : { tipo: t.status_tipo, nome: t.status_nome };
             const feita = st.tipo === "fechado";
             const certo = el("button", { class: "rotina-tarefa-certo" + (feita ? " is-feita" : ""), type: "button", "data-acao": "concluir-tarefa", "data-tarefa": t.id,
               disabled: feita || !liberado, title: feita ? "Concluída" : liberado ? "Concluir tarefa" : "Clique em Iniciar para liberar", "aria-label": feita ? "Concluída" : "Concluir tarefa" });
@@ -409,11 +427,7 @@
     if (botao.dataset.acao === "abrir-cliente") return abrirFicha(c);
     if (botao.dataset.acao === "nova-tarefa") return criarTarefa(c, botao);
     if (botao.dataset.acao === "concluir") { acao(c, "fechado", "concluir"); toast("Análise registrada."); }
-    if (botao.dataset.acao === "concluir-tarefa") {
-      const id = parseInt(botao.dataset.tarefa, 10);
-      if (id === c.id) { acao(c, "fechado", "concluir"); toast("Tarefa concluída."); return; }
-      return concluirTarefaCliente(c, id);
-    }
+    if (botao.dataset.acao === "concluir-tarefa") return concluirTarefaCliente(c, parseInt(botao.dataset.tarefa, 10));
     if (botao.dataset.acao === "iniciar") acao(c, "andamento", "iniciar");
     if (botao.dataset.acao === "reabrir") acao(c, "aberto", "reabrir");
   });
