@@ -263,7 +263,6 @@
     const caixa = el("div", { class: "detalhe-caixa", role: "dialog", "aria-modal": "true", "aria-label": "Detalhes da tarefa" }, [
       el("strong", { class: "detalhe-titulo", text: t.titulo }),
       campo,
-      el("small", { class: "muted", text: "Clique fora da janela para salvar." }),
     ]);
     const fundo = el("div", { class: "detalhe-fundo" }, [caixa]);
     let fechado = false;
