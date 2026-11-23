@@ -697,3 +697,19 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-cliente.is-foco { box-shadow: inset 3px 0 0 var(--acento); font-weight: 700; }
 .rotina-cliente-status { padding: 3px 10px; border-radius: 999px; background: var(--panel-2); font-size: 0.78rem; font-weight: 700; }
 .rotina-cliente-status .ponto { width: 7px; height: 7px; }
+
+/* Rotina: cabecalhos em destaque (pedido do dono, 23/11/2026) */
+#painelRotina .rotina-checklist > .cartao-topo, #painelRotina .rotina-clientes > h2 {
+  position: sticky; top: -18px; z-index: 3; margin: -18px -20px 12px; padding: 15px 20px;
+  border-bottom: 1px solid var(--borda-forte); border-radius: 18px 18px 0 0;
+  background: linear-gradient(90deg, var(--acento-fundo), transparent 85%), var(--panel);
+}
+#painelRotina .rotina-checklist > .cartao-topo h3, #painelRotina .rotina-clientes > h2 { color: var(--texto); font-size: 1rem; }
+#painelRotina .rotina-clientes > h2 { display: flex; }
+#painelRotina .rotina-checklist .contagem { background: var(--acento); color: #fff; }
+/* turnos (Manha, Tarde, Fechamento) */
+.rotina-grupo-topo { border: 0; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
+.rotina-subtitulo { padding: 6px 10px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); font-size: 0.78rem; }
+.rotina-subtitulo::after { display: none; }
+/* "Tarefas do cliente" */
+.rotina-foco-tarefas h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
