@@ -353,6 +353,9 @@
     caixa.append(select, botao);
     select.classList.add("selecao-original");
     select.tabIndex = -1;
+    // clicar no rotulo do campo so poe o foco no menu novo (nunca abre a lista antiga do navegador)
+    const rotulo = select.closest("label");
+    if (rotulo) rotulo.addEventListener("click", (ev) => { if (!caixa.contains(ev.target) && !ev.target.closest("a, button, input, textarea")) { ev.preventDefault(); botao.focus(); } });
     let lista = null;
     const atualizar = () => {
       const op = select.options[select.selectedIndex];

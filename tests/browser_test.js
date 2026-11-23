@@ -217,6 +217,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 3"), 'lista propria do menu abre');
     await ev("[...document.querySelectorAll('.selecao-lista .selecao-op')].find(b => b.textContent === 'Pausado').click()");
     assert.equal(await ev("document.querySelector('select[name=status]').value + '|' + document.querySelector('select[name=status] + .selecao-botao').textContent + '|' + !document.querySelector('.selecao-lista')"), 'pausado|Pausado|true', 'escolha vai para o campo e fecha a lista');
+    assert.equal(await ev("[...document.querySelectorAll('.selecao-original')].every(s => getComputedStyle(s).display === 'none')"), true, 'menu antigo do navegador nunca aparece');
     // barra das observacoes: B, I, U e # aplicam a marcacao no texto selecionado
     assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');
     assert.equal(await ev("[...document.querySelectorAll('[data-obs-barra] .obs-fmt')].map(b => b.textContent).join('')"), '#BIU', 'botoes #, B, I, U');
