@@ -8,7 +8,7 @@ Atualizado em 13/11/2026. Este arquivo é o ponto de partida de qualquer sessão
 
 - **O que é:** sistema web próprio de gestão de tráfego pago, um "mini ClickUp": clientes com ficha, tarefas, rotina diária do gestor e automações internas. O objetivo de longo prazo é parar de usar o ClickUp (hoje ele só serve de fonte para importar os clientes).
 - **Tecnologia:** PHP 8.2 + SQLite (um arquivo), JavaScript puro, sem Composer, sem npm, sem framework, sem dependência externa.
-- **Estado:** funciona localmente e na nuvem, com 91 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
+- **Estado:** funciona localmente e na nuvem, com 90 testes de PHP e 1 teste de navegador passando. **Está no ar desde 13/11/2026 em `https://rotina.whatsredirect.pro`** (seção 11). A imagem Docker foi construída e testada em 13/11/2026 (seção 4). O código está no GitHub em `mjads-automacoes/app_rotina`, branch `claude/new-session-10ewul` (primeiro commit feito em 13/11/2026 a partir de um .zip da pasta do dono; a `main` do GitHub ainda está vazia).
 - **Nome:** "Rotina" é provisório. Fica em um único lugar: variável `ROTINA_APP_NAME` ou `src/config.php`.
 - **Login de teste:** `admin` / senha `1` (administrador) e `ana` / senha `1` (gestora). Vêm de `scripts/seed-demo.php`.
 - **Projeto independente:** não compartilha código, banco, login nem domínio com o WhatsRedirect (outro projeto do mesmo dono, na pasta `Gerador de Redirect_atual`). Não misture os dois.
@@ -76,7 +76,7 @@ A partida do container é `scripts/docker-entrypoint.sh`: acerta o dono do volum
 ## 5. Testes
 
 ```bash
-php tests/run.php            # 91 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
+php tests/run.php            # 90 testes; "php tests/run.php http" roda só os arquivos com "http" no nome
 node tests/browser_test.js   # ponta a ponta num navegador sem janela; SHOT=pasta salva os prints
 ```
 
@@ -219,7 +219,7 @@ Mostra **só o dia de hoje**. Não há abas de dias, nem filtro de turno, nem ba
 - **Topo:** título "Rotina"; ao lado, para o admin, o seletor de gestor (vê a rotina de outro); à direita, o botão de atualizar. Abaixo, a barra do dia: "Terça-feira 17/11 | 0 de 14 concluídos".
 - **Formato (17/11/2026, pelo modelo enviado pelo dono):** o **cliente em foco** fica em cima, na largura toda; embaixo, lado a lado, com a mesma largura e a mesma altura, **"Checklist do dia"** (esquerda) e **"Clientes do dia"** (direita). No celular vira uma coluna só.
 - **Tarefas do cliente no foco (17/11/2026):** o bloco do cliente em foco tem duas colunas separadas por uma linha vertical: à esquerda o de sempre (nome, subtítulo, nota, botões); à direita **"Tarefas do cliente"**, todas as tarefas vinculadas a ele (de `GET /api/tarefas?cliente_id=`) com data e status em pílula; a tarefa em foco fica destacada e muda de status na hora. No celular a lista desce para baixo. Mostra no máximo 3 tarefas; com mais, a lista rola por dentro (altura medida em JS) e já abre rolada até a tarefa em foco. Feito em `rotina.js` (`tarefasDoCliente`) e no fim de `app.css`.
-- **Menus de seleção próprios (23/11/2026, pedido do dono):** todo `<select>` simples que existe quando a página abre vira um menu próprio (`selecao()` em `app.js`, exposto em `Rotina.selecao`): botão no visual do sistema e lista própria (opção escolhida com ✓ e fundo roxo, setas/Enter/Esc no teclado, abre para cima perto do fim da tela). O `<select>` original fica escondido no formulário e recebe o valor e os eventos `input`/`change` (o salvamento automático continua funcionando). Selects criados depois por script (ex.: turno do "Add +" do checklist) continuam nativos, só com o CSS.
+- **Menus de seleção próprios (23/11/2026, pedido do dono):** todo `<select>` simples que existe quando a página abre vira um menu próprio (`selecao()` em `app.js`, exposto em `Rotina.selecao`): botão no visual do sistema e lista própria (opção escolhida com ✓ e fundo roxo, setas/Enter/Esc no teclado, abre para cima perto do fim da tela). O `<select>` original fica escondido no formulário e recebe o valor e os eventos `input`/`change` (o salvamento automático continua funcionando). Selects criados depois por script (automações, "Add +" do checklist, filtros e gaveta de tarefas) também viram o menu próprio, por um `MutationObserver` no `app.js`.
 - **Confirmações (23/11/2026, pedido do dono):** nenhuma tela usa mais o `window.confirm` do navegador. Todas usam o pop-up próprio `Rotina.confirmar(mensagem)` (em `app.js`, devolve uma Promise): caixa simples no meio da tela, com "Cancelar" e o botão da ação ("Excluir" em vermelho); Enter confirma, Esc/clique fora cancela. `data-confirmar` nos botões das telas usa o mesmo pop-up. Na ficha em janela (iframe), abre na tela principal.
 - **Acabamento visual da Rotina (23/11/2026, pedido do dono, só aparência):** cartões com sombra e cantos maiores; o foco tem faixa roxa/azul no topo e brilho suave; títulos dos blocos com marcador colorido; contagem "N de M" em pílula; turnos do checklist com linha ao lado; itens com hover arredondado; "Clientes do dia" com cabeçalho de turno contornado, cliente em foco com barra roxa à esquerda e status em pílula. Bloco "Rotina: acabamento visual" no fim de `app.css`. Depois (mesmo dia) os cabeçalhos ganharam destaque: topo de "Checklist do dia" e "Clientes do dia" em faixa colorida que fica presa no alto ao rolar; turnos (Manhã, Tarde, Fechamento) e "Tarefas do cliente" com fundo roxo claro e barra à esquerda. O item selecionado (cliente em foco, na lista de clientes e na de tarefas) usa um tom mais escuro (`--selecionado`) para não se confundir com os cabeçalhos.
 - **Calendário do prazo (23/11/2026, pedido do dono):** na ficha, o prazo da nova tarefa usa um **calendário próprio** (`[data-calendario]` em `app.js`, CSS no fim de `app.css`), em português, com atalhos Hoje / Amanhã / Sem prazo; os dias antes de hoje aparecem riscados e bloqueados (`data-min` = hoje, vindo do servidor). O servidor também recusa prazo no passado em `POST /clientes/{id}/tarefas`. O campo de Observações não tem mais texto de exemplo (pedido do dono).
@@ -258,9 +258,9 @@ Vive dentro da tela Rotina, escondido (`<div id="tarefas" hidden>`). **Hoje não
 - **Proteções:** não duplicam (chave única por automação, ação, dia e alvo), profundidade máxima 3 quando uma dispara outra, só o admin cria e edita, gestor desativado não recebe tarefa.
 - A rotina do dia nasce da automação *Rotina diária dos clientes*: cria "Analisar {cliente}" para cada cliente ativo agendado naquele dia, no turno do cliente, com o gestor do cliente como responsável.
 
-### Histórico
+### Histórico (apagado em 23/11/2026)
 
-Tarefas concluídas, mais recentes primeiro, com responsável e a última nota.
+A tela de Histórico foi removida a pedido do dono.
 
 ### Integrações (antiga "Importar do ClickUp", renomeada em 19/11/2026)
 
@@ -277,7 +277,7 @@ Só fala com `api.clickup.com`. Lê (`GET`) clientes e comentários; a **única 
 
 ### Visual
 
-Tema escuro (padrão) e claro, com botão no menu; segue o sistema na primeira visita e lembra a escolha. Funciona no celular (menu vira gaveta, sem rolagem horizontal). Os tokens de cor ficam no topo do `app.css`. Menu lateral: **Trabalho** (Rotina, Clientes) e **Sistema** (Automações, **Integrações** com ícone de elo de corrente e, para o admin, Equipe). Desde 19/11/2026, a pedido do dono, o **Histórico saiu do menu**, mas a página `/historico` continua existindo (só pelo endereço); perguntado ao dono se apaga de vez.
+Tema escuro (padrão) e claro, com botão no menu; segue o sistema na primeira visita e lembra a escolha. Funciona no celular (menu vira gaveta, sem rolagem horizontal). Os tokens de cor ficam no topo do `app.css`. Menu lateral: **Trabalho** (Rotina, Clientes) e **Sistema** (Automações, **Integrações** com ícone de elo de corrente e, para o admin, Equipe). O **Histórico** saiu do menu em 19/11/2026 e foi **apagado de vez em 23/11/2026** a pedido do dono (rota, tela `views/historico.php` e `Rotina::historico` removidos; `/historico` dá 404). As tarefas concluídas continuam no banco.
 
 ## 10. Histórico do que foi feito (em ordem)
 

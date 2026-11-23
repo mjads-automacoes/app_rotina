@@ -9,7 +9,7 @@ $menu = [
     ],
     'Sistema' => [
         'automacoes' => ['/automacoes', 'Automações', 'automacoes'],
-        // Historico saiu do menu a pedido do dono (19/11/2026); a pagina /historico continua existindo
+        // Historico: saiu do menu em 19/11/2026 e foi apagado de vez em 23/11/2026, a pedido do dono
         'integracoes' => ['/integracoes', 'Integrações', 'elo'],
     ],
 ];

@@ -280,12 +280,6 @@ final class App
             ]);
         }
 
-        if ($caminho === '/historico' && $r->metodo === 'GET') {
-            $f = array_intersect_key($r->query, array_flip(['de', 'ate', 'cliente_id', 'responsavel_id']));
-
-            return $this->tela($r, $u, 'historico', ['registros' => $this->n->rotina->historico($u, $f), 'clientes' => $this->n->clientes->listar($u), 'filtros' => $f]);
-        }
-
         // "Importar" virou "Integracoes" (19/11/2026); os enderecos antigos /importar continuam funcionando
         if ($caminho === '/importar' && $r->metodo === 'GET') {
             return Response::redirect('/integracoes' . (isset($r->query['listas']) ? '?listas=1' : ''));

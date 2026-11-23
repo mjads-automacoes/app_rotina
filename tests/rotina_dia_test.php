@@ -76,19 +76,6 @@ t('gerar do dia cria a rotina sob demanda e e idempotente', function (): void {
     eq(1, count($n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes']));
 });
 
-t('historico traz as tarefas concluidas com o ultimo comentario como nota', function (): void {
-    [$n, $admin, $ana, $beto] = cenario_dia();
-    $item = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes'][0];
-    $n->rotina->concluir($ana, $item['id'], 'Pausei 2 anúncios');
-    $h = $n->rotina->historico($ana, []);
-    eq(1, count($h));
-    eq('Analisar BILL BORRACHA', $h[0]['titulo']);
-    eq('BILL BORRACHA', $h[0]['cliente_nome']);
-    eq('Pausei 2 anúncios', $h[0]['nota']);
-    eq(0, count($n->rotina->historico($beto, [])), 'cada gestor ve o seu');
-    eq(1, count($n->rotina->historico($admin, [])));
-    eq(0, count($n->rotina->historico($ana, ['cliente_id' => 9999])));
-});
 
 t('sabado mostra a semana seguinte', function (): void {
     [$n, , $ana] = cenario_dia();

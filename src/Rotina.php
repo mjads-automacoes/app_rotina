@@ -95,29 +95,6 @@ final class Rotina
         return ['tarefas_criadas' => $criadas];
     }
 
-    /** Tarefas concluidas (mais recentes primeiro), com o ultimo comentario como nota. */
-    public function historico(array $actor, array $f): array
-    {
-        $filtros = ['concluidas' => true];
-
-        foreach (['cliente_id', 'responsavel_id', 'de', 'ate'] as $k) {
-            if (!empty($f[$k])) {
-                $filtros[$k] = $f[$k];
-            }
-        }
-
-        $tarefas = $this->tarefas->listar($actor, $filtros, 500);
-        usort($tarefas, static fn (array $a, array $b): int => strcmp((string) $b['concluida_em'], (string) $a['concluida_em']));
-        $nota = $this->pdo->prepare("SELECT texto FROM tarefa_atividades WHERE tarefa_id = ? AND tipo = 'comentario' ORDER BY id DESC LIMIT 1");
-
-        foreach ($tarefas as &$t) {
-            $nota->execute([$t['id']]);
-            $t['nota'] = (string) ($nota->fetchColumn() ?: '');
-        }
-
-        return $tarefas;
-    }
-
     private static function data(string $data): DateTimeImmutable
     {
         if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $data, $m) || !checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {

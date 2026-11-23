@@ -397,6 +397,14 @@
     atualizar();
   }
   document.querySelectorAll("select:not([multiple])").forEach(selecao);
+  // menus criados depois por script (automacoes, Add + do checklist, filtros de tarefas) tambem ganham o visual proprio
+  new MutationObserver((mudancas) => {
+    for (const m of mudancas) for (const n of m.addedNodes) {
+      if (n.nodeType !== 1) continue;
+      if (n.matches("select:not([multiple])")) selecao(n);
+      n.querySelectorAll && n.querySelectorAll("select:not([multiple])").forEach(selecao);
+    }
+  }).observe(document.body, { childList: true, subtree: true });
 
   window.Rotina = { el, toast, chamar, dataBR, iniciais, confirmar, selecao };
 })();

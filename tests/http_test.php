@@ -122,7 +122,7 @@ function cenario_http(): array
 t('todas as paginas abrem para o admin logado', function (): void {
     [$app, , $admin] = cenario_http();
 
-    foreach (['/', '/clientes', '/automacoes', '/historico', '/integracoes', '/equipe', '/conta'] as $p) {
+    foreach (['/', '/clientes', '/automacoes', '/integracoes', '/equipe', '/conta'] as $p) {
         $r = req($app, $admin, 'GET', $p);
         eq(200, $r->status, $p . ' => ' . $r->status);
         ok(str_contains($r->body, 'data-theme-toggle'), $p . ' tem o botao de tema');
@@ -272,14 +272,9 @@ t('conta: trocar a propria senha exige a senha atual', function (): void {
     eq(302, logar($app, new Sessao(), 'ana@exemplo.com', 'outrasenha22')->status, 'senha mudou');
 });
 
-t('historico mostra as conclusoes do gestor com a nota', function (): void {
-    [$app, $pdo, , $ana, $beto] = cenario_http();
-    (new Clientes($pdo))->criar((new Auth($pdo))->buscar(2), ['nome' => 'BILL BORRACHA', 'dias' => ['segunda'], 'turno' => 'manha']);
-    $cli = apiget($app, $ana, '/api/rotina', ['data' => '2026-11-09'])['semana']['2026-11-09']['turnos']['manha']['clientes'][0];
-    api($app, $ana, '/api/rotina/concluir', ['tarefa_id' => $cli['id'], 'nota' => 'Ajustei o orçamento']);
-    $pag = req($app, $ana, 'GET', '/historico')->body;
-    ok(str_contains($pag, 'BILL BORRACHA') && str_contains($pag, 'Ajustei o orçamento'));
-    ok(!str_contains(req($app, $beto, 'GET', '/historico')->body, 'BILL BORRACHA'), 'outro gestor nao ve');
+t('historico foi apagado de vez (pedido do dono): o endereco nao existe mais', function (): void {
+    [$app, , , $ana] = cenario_http();
+    eq(404, req($app, $ana, 'GET', '/historico')->status);
 });
 
 t('importar: so o admin guarda o token; a tela nunca mostra o token', function (): void {

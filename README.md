@@ -16,8 +16,7 @@ Não depende do WhatsRedirect (sem código, banco, login nem domínio em comum).
 | **Tarefas** | Painel dentro da tela Rotina (endereço `/#tarefas`). Estilo ClickUp, simples: **Lista** e **Quadro** (arrastar e soltar), filtros, tarefa rápida, e gaveta com status, responsável, prioridade, prazo, cliente, etiquetas, descrição, **checklist**, **comentários** e linha do tempo de atividade. |
 | **Clientes** | Cards + ficha completa (empresa, contato, plataformas, orçamento, observações, dias/turno da rotina), notas e as tarefas do cliente. |
 | **Automações** | "Quando X, faça Y" (veja abaixo). Liga/desliga, executar agora, histórico de execuções e construtor visual. |
-| **Histórico** | Tudo o que foi concluído, com responsável e nota. |
-| **Importar** | Traz clientes e comentários de uma lista do ClickUp; as notas da ficha viram comentários lá. |
+| **Integrações** | Traz clientes e comentários de uma lista do ClickUp; as notas da ficha viram comentários lá. |
 | **Equipe / Conta** | Admin cria gestores, ativa/desativa e redefine senha; cada um troca a própria senha. |
 
 Tema **escuro** e **claro** (botão no menu; segue o sistema na primeira visita e lembra a escolha). Funciona no celular.
