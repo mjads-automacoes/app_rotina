@@ -261,10 +261,11 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await shot('9b-dias-menu-aberto.png');
     await ev("document.querySelector('h1').click()");
     assert.ok(await esperar("!document.querySelector('[data-multi]').open"), 'menu de dias fecha ao clicar fora');
-    // salva sozinha: sem botao Salvar; muda um campo, espera o 'Salvo', recarrega e o valor continua
+    // salva sozinha: sem botao Salvar e sem o aviso "Salva sozinha"; muda um campo, recarrega e o valor continua
     assert.equal(await ev("[...document.querySelectorAll('form[data-autosalvar] button')].some(b => b.textContent.trim() === 'Salvar')"), false, 'sem botao Salvar');
     await ev("(() => { const i = document.querySelector('form[data-autosalvar] [name=contato_nome]'); i.value = 'Contato salvo sozinho'; i.dispatchEvent(new Event('input', { bubbles: true })); })()");
-    assert.ok(await esperar("document.querySelector('[data-salvo-status]').textContent.includes('Salvo')"), 'aparece Salvo');
+    assert.equal(await ev("!document.querySelector('[data-salvo-status]')"), true, 'sem o aviso Salva sozinha');
+    await sleep(1500);
     await ir(await ev('location.pathname'));
     assert.ok(await esperar("document.readyState === 'complete' && document.querySelector('[name=contato_nome]').value === 'Contato salvo sozinho'"), 'valor continua depois de recarregar');
     assert.equal(await ev("!!document.querySelector('.cliente-nome-linha .btn-lixeira')"), true, 'lixeira ao lado do nome');

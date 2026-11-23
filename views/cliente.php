@@ -31,7 +31,6 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
   <section class="cartao">
     <div class="cartao-topo-linha">
       <h2>Dados do cliente</h2>
-      <span class="salvo-status muted" data-salvo-status aria-live="polite">Salva sozinha</span>
     </div>
     <form method="post" action="/clientes/<?= (int) $c['id'] ?>" class="grade-form" data-autosalvar="/api/clientes/<?= (int) $c['id'] ?>">
       <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
