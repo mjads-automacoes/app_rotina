@@ -277,6 +277,7 @@ final class App
                 'gestor' => $this->n->auth->buscar($cliente['gestor_id'])['nome'] ?? '',
                 'gestores' => $this->gestores(),
                 'hoje' => $this->agora()->format('Y-m-d'),
+                'entregaveis' => $this->n->clientes->entregaveis(),
             ]);
         }
 
@@ -429,6 +430,10 @@ final class App
             return $ok($n->rotina->dia($u, (string) ($r->query['data'] ?? $this->agora()->format('Y-m-d')), isset($r->query['gestor']) ? (int) $r->query['gestor'] : null) + ['cabecalhos' => $n->rotina->cabecalhos($u)]);
         }
 
+        if ($caminho === '/api/entregaveis' && $post) {
+            return $ok(['entregaveis' => $n->clientes->salvarEntregaveis($u, (array) ($p['opcoes'] ?? []))]);
+        }
+
         if ($caminho === '/api/rotina/cabecalho' && $post) {
             return $ok(['cabecalhos' => $n->rotina->salvarCabecalho($u, (string) ($p['bloco'] ?? ''), array_intersect_key($p, array_flip(['nome', 'cor'])))]);
         }
@@ -578,10 +583,6 @@ final class App
 
         if (isset($post['plataformas_enviado']) && !isset($post['plataformas'])) {
             $post['plataformas'] = [];
-        }
-
-        if (isset($post['entregaveis_enviado']) && !isset($post['entregaveis'])) {
-            $post['entregaveis'] = [];
         }
 
         return array_intersect_key($post, array_flip(['nome', 'empresa', 'descricao', 'link', 'cnpj', 'cidade', 'estado', 'entregaveis', 'dias', 'turno', 'status', 'gestor_id', 'contato_nome', 'contato_telefone', 'contato_email', 'plataformas', 'orcamento', 'observacoes']));

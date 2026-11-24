@@ -9,11 +9,94 @@ final class Clientes
     public const OBSERVACOES_MAX = 20000;
     /** Colunas do kanban de clientes, na ordem (pedido do dono, 24/11/2026). Ativo, Alerta e Churn entram na rotina automatica; Novo fica de fora. */
     public const SITUACOES = ['novo', 'ativo', 'alerta', 'churn'];
-    /** Entregaveis que o cliente contratou (menu da ficha, varios ao mesmo tempo). Pedido do dono, 24/11/2026. */
-    public const ENTREGAVEIS = [
-        'trafego' => 'Gestão de Tráfego', 'criativos' => 'Criativos', 'relatorio' => 'Relatório Mensal', 'landing' => 'Landing Page',
-        'social' => 'Social Media', 'google_meu_negocio' => 'Google Meu Negócio', 'whatsapp' => 'Automação de WhatsApp', 'consultoria' => 'Consultoria',
+    /**
+     * Entregavel do cliente: uma etiqueta colorida escolhida numa lista que o dono edita (nome, cor, ordem), como no ClickUp.
+     * A lista fica na tabela meta (chave "entregaveis"); o cliente guarda o id da etiqueta. Pedido do dono, 24/11/2026.
+     */
+    public const CORES_ENTREGAVEL = ['#8b1a1a', '#e03131', '#e8590c', '#f5c400', '#2ecc71', '#14b8a6', '#7aa7f7', '#2f6fe0', '#1f3a8a', '#9b59b6', '#4b2bbd', '#f0386b', '#6b7785', '#3a3f46'];
+    private const ENTREGAVEIS_PADRAO = [
+        ['id' => 'completo', 'nome' => 'Completo', 'cor' => '#8b1a1a'],
+        ['id' => 'trafego', 'nome' => 'Tráfego', 'cor' => '#2ecc71'],
+        ['id' => 'trafego_lp_crm', 'nome' => 'Tráfego, LP e CRM', 'cor' => '#7aa7f7'],
+        ['id' => 'trafego_social', 'nome' => 'Tráfego e Social Media', 'cor' => '#f0386b'],
+        ['id' => 'trafego_social_lp', 'nome' => 'Tráfego, Social Media e LP', 'cor' => '#9b59b6'],
+        ['id' => 'trafego_social_crm', 'nome' => 'Tráfego, Social Media e CRM', 'cor' => '#e8590c'],
+        ['id' => 'trafego_crm', 'nome' => 'Tráfego e CRM', 'cor' => '#6b7785'],
+        ['id' => 'trafego_rebranding_crm', 'nome' => 'Tráfego, Rebranding e CRM', 'cor' => '#f5c400'],
+        ['id' => 'completo_video', 'nome' => 'Completo + Video Maker', 'cor' => '#4b2bbd'],
+        ['id' => 'trafego_lp', 'nome' => 'Tráfego + LP', 'cor' => '#1f3a8a'],
+        ['id' => 'trafego_video_social', 'nome' => 'Tráfego + Videomaker + Social Media', 'cor' => '#3a3f46'],
+        ['id' => 'bot_disparos', 'nome' => 'Bot-Disparos', 'cor' => '#2f6fe0'],
     ];
+
+    /** Etiquetas de entregavel, na ordem escolhida. */
+    public function entregaveis(): array
+    {
+        $st = $this->pdo->prepare('SELECT valor FROM meta WHERE chave = ?');
+        $st->execute(['entregaveis']);
+        $salvo = json_decode((string) ($st->fetchColumn() ?: ''), true);
+
+        return is_array($salvo) ? $salvo : self::ENTREGAVEIS_PADRAO;
+    }
+
+    /** Troca a lista inteira (renomear, mudar cor, reordenar, criar, excluir). Cliente com etiqueta excluida fica sem entregavel. */
+    public function salvarEntregaveis(array $actor, array $lista): array
+    {
+        if ($actor['papel'] !== 'admin') {
+            throw new AcessoNegado('Só o administrador edita a lista de entregáveis.');
+        }
+
+        if (count($lista) > 60) {
+            throw new InvalidArgumentException('Muitos entregáveis (máximo 60).');
+        }
+
+        $existentes = array_column($this->entregaveis(), 'id');
+        $nova = [];
+        $usados = [];
+
+        foreach ($lista as $item) {
+            $nome = trim((string) ($item['nome'] ?? ''));
+            $cor = strtolower((string) ($item['cor'] ?? ''));
+            $id = (string) ($item['id'] ?? '');
+
+            if ($nome === '' || mb_strlen($nome) > 60) {
+                throw new InvalidArgumentException('Escreva o nome do entregável (até 60 caracteres).');
+            }
+
+            if (!in_array($cor, self::CORES_ENTREGAVEL, true)) {
+                throw new InvalidArgumentException('Escolha uma das cores da lista.');
+            }
+
+            if ($id === '' || !in_array($id, $existentes, true) || isset($usados[$id])) {
+                $id = 'e' . bin2hex(random_bytes(4));
+            }
+
+            $usados[$id] = true;
+            $nova[] = ['id' => $id, 'nome' => $nome, 'cor' => $cor];
+        }
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->pdo->prepare('INSERT OR REPLACE INTO meta (chave, valor) VALUES (?, ?)')->execute(['entregaveis', json_encode($nova, JSON_UNESCAPED_UNICODE)]);
+            $removidos = array_diff($existentes, array_keys($usados));
+
+            if ($removidos !== []) {
+                $st = $this->pdo->prepare("UPDATE clientes SET entregaveis = '' WHERE entregaveis = ?");
+
+                foreach ($removidos as $id) {
+                    $st->execute([$id]);
+                }
+            }
+
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+
+        return $nova;
+    }
 
     /** Estados do Brasil para o campo "Estado" da ficha. */
     public const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
@@ -80,7 +163,7 @@ final class Clientes
         $this->pdo->prepare('INSERT INTO clientes (gestor_id, nome, empresa, descricao, link, dias, turno, status, contato_nome, contato_telefone, contato_email, plataformas, orcamento, observacoes, clickup_id, clickup_dados, criado_em, atualizado_em, cnpj, cidade, estado, entregaveis)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
             ->execute([$gestorId, $v['nome'], $v['empresa'], $v['descricao'], $v['link'], implode(',', $v['dias']), $v['turno'], $v['status'], $v['contato_nome'], $v['contato_telefone'],
-                $v['contato_email'], implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], $dados['clickup_id'] ?? null, $dados['clickup_dados'] ?? null, $agora, $agora, $v['cnpj'], $v['cidade'], $v['estado'], implode(',', $v['entregaveis'])]);
+                $v['contato_email'], implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], $dados['clickup_id'] ?? null, $dados['clickup_dados'] ?? null, $agora, $agora, $v['cnpj'], $v['cidade'], $v['estado'], $v['entregaveis']]);
 
         return (int) $this->pdo->lastInsertId();
     }
@@ -98,7 +181,7 @@ final class Clientes
         $this->pdo->prepare('UPDATE clientes SET gestor_id = ?, nome = ?, empresa = ?, descricao = ?, link = ?, dias = ?, turno = ?, status = ?, contato_nome = ?, contato_telefone = ?, contato_email = ?,
             plataformas = ?, orcamento = ?, observacoes = ?, clickup_dados = ?, atualizado_em = ?, cnpj = ?, cidade = ?, estado = ?, entregaveis = ? WHERE id = ?')
             ->execute([$gestorId, $v['nome'], $v['empresa'], $v['descricao'], $v['link'], implode(',', $v['dias']), $v['turno'], $v['status'], $v['contato_nome'], $v['contato_telefone'], $v['contato_email'],
-                implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], array_key_exists('clickup_dados', $dados) ? $dados['clickup_dados'] : $atual['clickup_dados'], date(DATE_ATOM), $v['cnpj'], $v['cidade'], $v['estado'], implode(',', $v['entregaveis']), $id]);
+                implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], array_key_exists('clickup_dados', $dados) ? $dados['clickup_dados'] : $atual['clickup_dados'], date(DATE_ATOM), $v['cnpj'], $v['cidade'], $v['estado'], $v['entregaveis'], $id]);
     }
 
     /** O responsavel do cliente precisa ser um usuario ativo da equipe. */
@@ -218,16 +301,17 @@ final class Clientes
 
         $plataformas = array_values(array_intersect(self::PLATAFORMAS, $plataformas));
 
-        $entregaveis = $d['entregaveis'] ?? [];
-        $entregaveis = is_string($entregaveis) ? array_filter(explode(',', $entregaveis), 'strlen') : (array) $entregaveis;
+        // entregavel: uma etiqueta da lista (ou nenhuma); valor antigo que nao existe mais vira "sem entregavel"
+        $entregaveis = $d['entregaveis'] ?? '';
+        $entregaveis = is_array($entregaveis) ? (string) ($entregaveis[0] ?? '') : trim((string) $entregaveis);
 
-        foreach ($entregaveis as $x) {
-            if (!isset(self::ENTREGAVEIS[$x])) {
-                throw new InvalidArgumentException('O entregável "' . $x . '" não é válido.');
+        if ($entregaveis !== '' && !in_array($entregaveis, array_column($this->entregaveis(), 'id'), true)) {
+            if (array_key_exists('entregaveis', $d) && !array_key_exists('id', $d)) {
+                throw new InvalidArgumentException('Escolha um entregável da lista.');
             }
-        }
 
-        $entregaveis = array_values(array_intersect(array_keys(self::ENTREGAVEIS), $entregaveis));
+            $entregaveis = '';
+        }
 
         $curtos = [];
 
@@ -276,7 +360,7 @@ final class Clientes
         $c['gestor_id'] = (int) $c['gestor_id'];
         $c['dias'] = $c['dias'] === '' ? [] : explode(',', (string) $c['dias']);
         $c['plataformas'] = $c['plataformas'] === '' ? [] : explode(',', (string) $c['plataformas']);
-        $c['entregaveis'] = ($c['entregaveis'] ?? '') === '' ? [] : explode(',', (string) $c['entregaveis']);
+        $c['entregaveis'] = (string) ($c['entregaveis'] ?? '');
 
         return $c;
     }

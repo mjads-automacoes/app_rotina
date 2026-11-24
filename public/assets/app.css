@@ -926,3 +926,32 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
   .plat-entregas { grid-template-columns: minmax(0, 1fr); }
   .plat-entregas-dir { margin: 14px 0 0; padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--borda); }
 }
+
+/* Entregavel: etiqueta colorida com lista editavel, como no ClickUp (pedido do dono, 24/11/2026) */
+.entregavel { position: relative; }
+.entregavel-botao { display: flex; align-items: center; width: 100%; min-height: 40px; padding: 6px 40px 6px 10px; border: 1px solid var(--borda-forte); border-radius: 11px; background-color: var(--panel-2); color: var(--texto); font: inherit; text-align: left; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%238c97ad' fill-opacity='0.14'/%3E%3Cpath d='M7 9.5l4 4 4-4' fill='none' stroke='%238c97ad' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 9px center; background-size: 22px 22px; }
+.entregavel-botao:hover, .entregavel-botao[aria-expanded=true] { border-color: var(--acento); }
+.etiqueta { display: inline-block; max-width: 100%; padding: 3px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.etiquetas-painel { position: absolute; z-index: 45; top: calc(100% + 6px); left: 0; right: 0; min-width: 260px; max-height: 360px; overflow-y: auto; display: grid; gap: 2px; padding: 6px; border: 1px solid var(--borda-forte); border-radius: 12px; background: var(--panel); box-shadow: var(--sombra); }
+.etiqueta-linha { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 3px 4px; border: 0; border-radius: 8px; background: transparent; color: var(--texto); font: inherit; text-align: left; }
+.etiqueta-linha:hover, .etiqueta-linha.is-escolhida { background: var(--panel-2); }
+.etiqueta-linha.arrastando { opacity: 0.4; }
+.etiqueta-nenhuma { padding: 6px 10px; color: var(--muted); cursor: pointer; }
+.etiqueta-escolher { flex: 1; min-width: 0; padding: 2px 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.etiqueta-alca { display: grid; place-items: center; width: 18px; color: var(--muted); cursor: grab; opacity: 0.6; }
+.etiqueta-ic svg { display: block; width: 14px; height: 14px; }
+.etiqueta-mais { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; opacity: 0; }
+.etiqueta-linha:hover .etiqueta-mais, .etiqueta-mais:focus-visible { opacity: 1; }
+.etiqueta-mais:hover { background: var(--borda); color: var(--texto); }
+.etiqueta-nova { margin-top: 4px; padding: 8px 10px; border: 1px dashed var(--borda-forte); border-radius: 8px; background: transparent; color: var(--acento-texto); font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+.etiqueta-nova:hover { border-color: var(--acento); }
+.etiqueta-edicao { display: grid; gap: 8px; padding: 8px; border: 1px solid var(--borda-forte); border-radius: 10px; background: var(--panel-2); }
+.etiqueta-nome { min-height: 34px; }
+.etiqueta-cores { display: flex; flex-wrap: wrap; gap: 6px; }
+.etiqueta-cor { width: 22px; height: 22px; padding: 0; border: 2px solid transparent; border-radius: 6px; cursor: pointer; }
+.etiqueta-cor.is-escolhida { border-color: var(--texto); box-shadow: inset 0 0 0 2px var(--panel-2); }
+.etiqueta-acoes { display: flex; justify-content: flex-end; gap: 8px; }
+.etiqueta-excluir { margin-right: auto; color: var(--vermelho); }
+.etiquetas-painel { left: auto; right: 0; min-width: 340px; }

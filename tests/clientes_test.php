@@ -95,13 +95,21 @@ t('ficha: CNPJ (14 numeros, guardado formatado), cidade e estado', function (): 
     lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'estado' => 'XX']), 'estado');
 });
 
-t('ficha: entregaveis do cliente (varios, so da lista)', function (): void {
-    [$n, , $ana] = nucleo_teste();
-    $id = $n->clientes->criar($ana, ['nome' => 'X', 'entregaveis' => ['relatorio', 'trafego']]);
-    eq(['trafego', 'relatorio'], $n->clientes->buscar($ana, $id)['entregaveis'], 'na ordem da lista');
+t('ficha: entregavel e uma etiqueta da lista; o admin edita a lista e quem tinha a excluida fica sem', function (): void {
+    [$n, $admin, $ana] = nucleo_teste();
+    $lista = $n->clientes->entregaveis();
+    eq(['Completo', 'Tráfego'], array_slice(array_column($lista, 'nome'), 0, 2), 'lista inicial igual ao ClickUp');
+    $id = $n->clientes->criar($ana, ['nome' => 'X', 'entregaveis' => 'trafego']);
+    eq('trafego', $n->clientes->buscar($ana, $id)['entregaveis']);
     $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'cidade' => 'Santos']);
-    eq(['trafego', 'relatorio'], $n->clientes->buscar($ana, $id)['entregaveis'], 'salvar outro campo nao apaga');
-    $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'entregaveis' => []]);
-    eq([], $n->clientes->buscar($ana, $id)['entregaveis']);
-    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'entregaveis' => ['inventado']]), 'não é válido');
+    eq('trafego', $n->clientes->buscar($ana, $id)['entregaveis'], 'salvar outro campo nao apaga');
+    lanca(fn () => $n->clientes->criar($ana, ['nome' => 'Y', 'entregaveis' => 'inventado']), 'da lista');
+    lanca(fn () => $n->clientes->salvarEntregaveis($ana, $lista), 'administrador');
+    $nova = $n->clientes->salvarEntregaveis($admin, [['id' => 'trafego', 'nome' => 'Tráfego Pago', 'cor' => '#2ecc71'], ['nome' => 'Novo 🚀', 'cor' => '#f5c400']]);
+    eq(['Tráfego Pago', 'Novo 🚀'], array_column($nova, 'nome'), 'renomeia, cria e tira os demais');
+    eq('trafego', $nova[0]['id'], 'mantem o id ao renomear');
+    eq('trafego', $n->clientes->buscar($ana, $id)['entregaveis']);
+    $n->clientes->salvarEntregaveis($admin, [$nova[1]]);
+    eq('', $n->clientes->buscar($ana, $id)['entregaveis'], 'etiqueta excluida: cliente fica sem');
+    lanca(fn () => $n->clientes->salvarEntregaveis($admin, [['nome' => 'X', 'cor' => '#123456']]), 'cores');
 });

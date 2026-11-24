@@ -276,10 +276,16 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("!document.querySelector('form[data-autosalvar] [name=link]') && !!document.querySelector('[name=cnpj]') && !!document.querySelector('[name=cidade]') && document.querySelectorAll('select[name=estado] option').length === 28"), true, 'CNPJ, Cidade e Estado no lugar do site');
     assert.equal(await ev("(() => { const c = document.querySelector('[name=cnpj]'); c.value = '12345678000199'; c.dispatchEvent(new Event('input', { bubbles: true })); return c.value; })()"), '12.345.678/0001-99', 'CNPJ formatado');
     assert.equal(await ev("(() => { const c = document.querySelector('[name=cidade]'); c.focus(); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); const b = document.querySelector('.emoji-botao'); return !b || b.hidden; })()"), true, 'sem emoji nos campos de empresa e contato');
-    // Entregaveis: menu de varias escolhas ao lado das plataformas, separado por uma linha
-    await ev("document.querySelector('.plat-entregas-dir summary').click()");
-    await ev("(() => { const c = document.querySelector('input[name=\"entregaveis[]\"][value=criativos]'); c.click(); })()");
-    assert.equal(await ev("document.querySelector('.plat-entregas-dir [data-multi-rotulo]').textContent"), 'Criativos', 'entregavel marcado aparece no menu');
+    // Entregavel: etiqueta colorida (como no ClickUp), ao lado das plataformas, separada por uma linha; o admin edita a lista
+    await clicar('[data-entregavel-abrir]');
+    assert.ok(await esperar("document.querySelectorAll('.etiquetas-painel .etiqueta').length === 12"), 'lista de entregaveis abre com as etiquetas');
+    await clicar('.etiquetas-painel [data-escolher="trafego"]');
+    assert.equal(await ev("document.querySelector('[data-entregavel-atual] .etiqueta').textContent + '|' + document.querySelector('input[name=entregaveis]').value + '|' + !document.querySelector('.etiquetas-painel')"), 'Tráfego|trafego|true', 'escolher uma etiqueta');
+    await clicar('[data-entregavel-abrir]');
+    await clicar('.etiquetas-painel [data-editar-etiqueta="bot_disparos"]');
+    await ev("(() => { const i = document.querySelector('.etiqueta-edicao .etiqueta-nome'); i.value = 'Bot de Disparos'; })()");
+    await ev("document.querySelector('.etiqueta-edicao .btn-primario').click()");
+    assert.ok(await esperar("[...document.querySelectorAll('.etiquetas-painel .etiqueta')].some(x => x.textContent === 'Bot de Disparos')"), 'admin renomeia a etiqueta');
     assert.equal(await ev("(() => { const p = document.querySelector('.plataformas').getBoundingClientRect(), e = document.querySelector('.plat-entregas-dir').getBoundingClientRect(); return e.left > p.right && getComputedStyle(document.querySelector('.plat-entregas-dir')).borderLeftStyle === 'solid'; })()"), true, 'entregaveis a direita, com linha divisoria');
     await ev("document.querySelector('h1').click()");
     // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original

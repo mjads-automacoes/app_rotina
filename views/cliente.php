@@ -1,5 +1,5 @@
 <?php
-/** @var Request $r @var array $usuario @var array $cliente @var array $notas @var array $tarefas @var string $gestor @var array $gestores @var string $hoje */
+/** @var Request $r @var array $usuario @var array $cliente @var array $notas @var array $tarefas @var string $gestor @var array $gestores @var string $hoje @var array $entregaveis */
 $csrf = (string) $r->sessao->d['csrf'];
 $rotuloDia = ['segunda' => 'Seg', 'terca' => 'Ter', 'quarta' => 'Qua', 'quinta' => 'Qui', 'sexta' => 'Sex'];
 $rotuloTurno = ['manha' => '08h · Manhã', 'tarde' => '13h · Tarde', 'fechamento' => '17h · Fechamento'];
@@ -51,9 +51,8 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <select name="estado"><option value="">—</option><?php foreach (Clientes::UFS as $uf): ?><option value="<?= e($uf) ?>" <?= $c['estado'] === $uf ? 'selected' : '' ?>><?= e($uf) ?></option><?php endforeach; ?></select>
       </label>
 
-      <?php // Plataformas | Entregaveis, separados por uma linha (pedido do dono, 24/11/2026)
-      $entregaveisMarcados = array_values(array_filter(array_keys(Clientes::ENTREGAVEIS), static fn (string $x): bool => in_array($x, $c['entregaveis'], true)));
-      $rotuloEntregaveis = $entregaveisMarcados === [] ? 'Selecione os entregáveis' : implode(', ', array_map(static fn (string $x): string => Clientes::ENTREGAVEIS[$x], $entregaveisMarcados)); ?>
+      <?php // Plataformas | Entregavel, separados por uma linha (pedido do dono, 24/11/2026)
+      $entregavelAtual = in_array($c['entregaveis'], array_column($entregaveis, 'id'), true) ? $c['entregaveis'] : ''; ?>
       <div class="largo plat-entregas">
         <div class="plat-entregas-col">
           <h3 class="form-secao">Plataformas</h3>
@@ -69,15 +68,11 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         </div>
         <div class="plat-entregas-col plat-entregas-dir">
           <h3 class="form-secao">Entregáveis</h3>
-          <details class="multi" data-multi data-multi-vazio="Selecione os entregáveis">
-            <summary><span data-multi-rotulo><?= e($rotuloEntregaveis) ?></span></summary>
-            <div class="multi-lista">
-              <input type="hidden" name="entregaveis_enviado" value="1">
-              <?php foreach (Clientes::ENTREGAVEIS as $chave => $rotulo): ?>
-                <label class="check"><input type="checkbox" name="entregaveis[]" value="<?= e($chave) ?>" data-curto="<?= e($rotulo) ?>" <?= in_array($chave, $entregaveisMarcados, true) ? 'checked' : '' ?>> <?= e($rotulo) ?></label>
-              <?php endforeach; ?>
-            </div>
-          </details>
+          <?php // etiqueta colorida, como no ClickUp: escolher, e (admin) editar nome, cor, ordem, criar e excluir ?>
+          <div class="entregavel" data-entregavel data-opcoes="<?= e((string) json_encode($entregaveis, JSON_UNESCAPED_UNICODE)) ?>" data-editar="<?= $usuario['papel'] === 'admin' ? '1' : '' ?>" data-cores="<?= e(implode(',', Clientes::CORES_ENTREGAVEL)) ?>">
+            <input type="hidden" name="entregaveis" value="<?= e($entregavelAtual) ?>">
+            <button type="button" class="entregavel-botao" data-entregavel-abrir aria-haspopup="listbox" aria-expanded="false"><span data-entregavel-atual>—</span></button>
+          </div>
         </div>
       </div>
 
