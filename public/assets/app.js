@@ -419,7 +419,8 @@
     ["✅", "Símbolos", "✅ ☑️ ✔️ ❌ ❎ ⚠️ 🚫 ⛔ ❗ ❓ ‼️ ⁉️ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟥 🟧 🟨 🟩 🟦 🟪 ⬆️ ⬇️ ➡️ ⬅️ 🔁 🔄 ➕ ➖ ✖️ ➗ 🆕 🆗 🆙 🔝 🔜 💲 #️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣"],
     ["🍕", "Outros", "☀️ 🌤️ ⛅ 🌧️ ⛈️ ❄️ 🌈 🌙 🌎 🏠 🏢 🏪 🏥 🏫 🚗 🚚 ✈️ 🍕 🍔 🍟 🍰 ☕ 🍺 🥂 🍎 🍀 🌱 🌻 🐶 🐱 ⚽ 🏀 🎮 🎵 🎧 📚 🎓 🙏🏻"],
   ];
-  const campoComEmoji = (n) => n && ((n.tagName === "TEXTAREA") || (n.tagName === "INPUT" && (!n.getAttribute("type") || n.type === "text"))) && !n.readOnly && !n.disabled;
+  // fora do login e da primeira configuracao (telas sem menu), pedido do dono
+  const campoComEmoji = (n) => !document.body.classList.contains("sem-menu") && n && ((n.tagName === "TEXTAREA") || (n.tagName === "INPUT" && (!n.getAttribute("type") || n.type === "text"))) && !n.readOnly && !n.disabled;
   let emojiCampo = null;
   let emojiBotao = null;
   let emojiPainel = null;
@@ -452,13 +453,19 @@
   };
   const emojiAbrirPainel = () => {
     if (emojiPainel) { emojiFecharPainel(); return; }
-    const grade = el("div", { class: "emoji-grade" });
+    // todos os emojis numa lista so, rolando so na vertical; as abas pulam para cada grupo (pedido do dono)
+    const grade = el("div", { class: "emoji-grade" }, EMOJIS.map(([, nome, lista], i) => el("section", { class: "emoji-grupo", "data-grupo": i }, [
+      el("p", { class: "emoji-grupo-nome", text: nome }),
+      el("div", { class: "emoji-itens" }, lista.split(" ").map((e) => el("button", { type: "button", class: "emoji-item", "data-emoji": e, title: e, text: e }))),
+    ])));
     const abas = el("div", { class: "emoji-abas", role: "tablist" });
-    const mostrarAba = (i) => {
-      grade.replaceChildren(...EMOJIS[i][2].split(" ").map((e) => el("button", { type: "button", class: "emoji-item", "data-emoji": e, title: e, text: e })));
-      [...abas.children].forEach((b, j) => b.classList.toggle("is-ativa", i === j));
-      grade.scrollTop = 0;
-    };
+    const marcarAba = (i) => [...abas.children].forEach((b, j) => b.classList.toggle("is-ativa", i === j));
+    const mostrarAba = (i) => { const g = grade.querySelector('[data-grupo="' + i + '"]'); grade.scrollTop = g.offsetTop; marcarAba(i); };
+    grade.addEventListener("scroll", () => {
+      let atual = 0;
+      grade.querySelectorAll(".emoji-grupo").forEach((g, i) => { if (g.offsetTop <= grade.scrollTop + 8) atual = i; });
+      marcarAba(atual);
+    });
     EMOJIS.forEach(([icone, nome], i) => abas.append(el("button", { type: "button", class: "emoji-aba", title: nome, "aria-label": nome, "data-aba": i, text: icone })));
     emojiPainel = el("div", { class: "emoji-painel", role: "dialog", "aria-label": "Emojis" }, [abas, grade]);
     emojiPainel.addEventListener("mousedown", (ev) => ev.preventDefault()); // o campo continua com o cursor
@@ -469,7 +476,7 @@
       if (item) emojiInserir(item.dataset.emoji);
     });
     document.body.append(emojiPainel);
-    mostrarAba(0);
+    marcarAba(0);
     emojiPosicionar();
   };
   document.addEventListener("focusin", (ev) => {

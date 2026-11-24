@@ -57,6 +57,8 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // ---- login
     await ir('/');
     assert.equal(await ev('location.pathname'), '/login', 'sem sessao cai no login');
+    await ev("(() => { const c = document.querySelector('form [name=email]'); c.focus(); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); })()");
+    assert.equal(await ev("!document.querySelector('.emoji-botao') || document.querySelector('.emoji-botao').hidden"), true, 'sem emoji na tela de login');
     await preencher({ email: 'admin', senha: '1' });
     await ev("document.querySelector('form').requestSubmit()");
     assert.ok(await esperar("location.pathname === '/'"), 'entrou');
@@ -236,6 +238,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("(() => { const b = document.querySelector('.emoji-botao'); return b && !b.hidden; })()"), 'botao de emoji aparece no campo');
     await clicar('.emoji-botao');
     assert.ok(await esperar("document.querySelectorAll('.emoji-painel .emoji-item').length > 20"), 'lista de emojis abre');
+    assert.equal(await ev("(() => { const g = document.querySelector('.emoji-grade'); return g.scrollWidth <= g.clientWidth && g.querySelectorAll('.emoji-grupo').length === 6; })()"), true, 'todos os emojis numa lista, sem rolagem para o lado');
     await ev("document.querySelector('.emoji-painel .emoji-item').click()");
     assert.equal(await ev("document.querySelector('form[data-autosalvar] [name=contato_nome]').value"), 'Oi 😀', 'emoji entra no campo');
     await ev("document.querySelector('h1').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))");
