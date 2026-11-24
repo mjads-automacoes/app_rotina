@@ -81,6 +81,56 @@ final class Rotina
         return ['data' => self::data($data)->format('Y-m-d'), 'gestor_id' => $alvo, 'semana' => $dias];
     }
 
+    /** Cores que o dono pode escolher para os cabecalhos dos blocos da Rotina. */
+    public const CORES_CABECALHO = ['turquesa', 'azul', 'verde', 'amarelo', 'laranja', 'vermelho', 'rosa', 'roxo'];
+    private const CABECALHOS_PADRAO = ['checklist' => ['nome' => 'Checklist do dia', 'cor' => 'turquesa'], 'clientes' => ['nome' => 'Clientes do dia', 'cor' => 'turquesa']];
+
+    /** Nome e cor dos cabecalhos "Checklist do dia" e "Clientes do dia" de quem esta usando (pedido do dono, 24/11/2026). */
+    public function cabecalhos(array $actor): array
+    {
+        $st = $this->pdo->prepare('SELECT valor FROM meta WHERE chave = ?');
+        $st->execute(['cabecalhos:' . (int) $actor['id']]);
+        $salvo = json_decode((string) ($st->fetchColumn() ?: '{}'), true) ?: [];
+        $res = self::CABECALHOS_PADRAO;
+
+        foreach ($res as $bloco => $padrao) {
+            $res[$bloco] = array_merge($padrao, array_intersect_key((array) ($salvo[$bloco] ?? []), $padrao));
+        }
+
+        return $res;
+    }
+
+    public function salvarCabecalho(array $actor, string $bloco, array $d): array
+    {
+        if (!isset(self::CABECALHOS_PADRAO[$bloco])) {
+            throw new InvalidArgumentException('Cabeçalho inválido.');
+        }
+
+        $todos = $this->cabecalhos($actor);
+
+        if (array_key_exists('nome', $d)) {
+            $nome = trim((string) $d['nome']);
+
+            if ($nome === '' || mb_strlen($nome) > 40) {
+                throw new InvalidArgumentException('Escreva o nome do cabeçalho (até 40 caracteres).');
+            }
+
+            $todos[$bloco]['nome'] = $nome;
+        }
+
+        if (array_key_exists('cor', $d)) {
+            if (!in_array($d['cor'], self::CORES_CABECALHO, true)) {
+                throw new InvalidArgumentException('Escolha uma das cores da lista.');
+            }
+
+            $todos[$bloco]['cor'] = $d['cor'];
+        }
+
+        $this->pdo->prepare('INSERT OR REPLACE INTO meta (chave, valor) VALUES (?, ?)')->execute(['cabecalhos:' . (int) $actor['id'], json_encode($todos, JSON_UNESCAPED_UNICODE)]);
+
+        return $todos;
+    }
+
     public function iniciar(array $actor, int $tarefaId): void
     {
         $this->tarefas->moverPorTipo($actor, $tarefaId, 'andamento');

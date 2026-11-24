@@ -78,6 +78,19 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-item-texto|rotina-mais-wrap|rotina-concluir', 'checklist: tres pontinhos antes do concluir');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
     assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
+    // cabecalhos: tres pontinhos para editar o nome e mudar a cor
+    await clicar('[data-cab="menu"][data-bloco="clientes"]');
+    await clicar('[data-cab="editar"][data-bloco="clientes"]');
+    await ev("(() => { const c = document.getElementById('rotinaCabNome'); c.value = 'Meus clientes'; c.dispatchEvent(new Event('input', { bubbles: true })); })()");
+    await clicar('[data-cab="salvar-nome"]');
+    await clicar('[data-cab="menu"][data-bloco="clientes"]');
+    await clicar('[data-cab="cores"]');
+    await clicar('[data-cab="cor"][data-cor="rosa"]');
+    assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h.textContent.includes('Meus clientes') && h.classList.contains('cor-rosa'); })()"), 'nome e cor do cabecalho mudam');
+    await sleep(500);
+    await ir('/');
+    assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h && h.textContent.includes('Meus clientes') && h.classList.contains('cor-rosa'); })()"), 'cabecalho continua depois de recarregar');
+    assert.equal(await ev("getComputedStyle(document.querySelector('#rotinaChecklist .rotina-cabecalho h3'), '::before').display"), 'none', 'sem a barrinha antes do titulo');
     assert.equal(await ev("(() => { const h = document.querySelector('#painelRotina h1').getBoundingClientRect(), d = rotinaDias.getBoundingClientRect(); return d.top < h.bottom && d.bottom > h.top && d.left > h.right; })()"), true, 'barra do dia na mesma linha do titulo Rotina');
     // foco em duas colunas: a direita, depois de uma linha, as tarefas do cliente com o status
     assert.ok(await esperar("document.querySelectorAll('#rotinaFoco .rotina-foco-tarefas .rotina-tarefa .pilula').length > 0 && rotinaFoco.querySelector('.rotina-foco-tarefas').getBoundingClientRect().left > rotinaFoco.querySelector('.rotina-foco-principal').getBoundingClientRect().right - 1"), 'tarefas do cliente ao lado direito do foco, com status');
@@ -149,9 +162,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("document.querySelector('#rotinaDias strong')"));
     assert.equal(await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')"), 'true', 'o check sobrevive ao recarregar');
     // lapis: renomeia o item
-    await clicar('#rotinaChecklist .rotina-mais');
-    assert.equal(await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-menu-op')].map(b => b.textContent).join(',')"), 'Editar,Excluir', 'tres pontinhos: Editar e Excluir');
-    assert.equal(await ev("(() => { const [a, b] = document.querySelectorAll('#rotinaChecklist .rotina-menu-op'); return b.getBoundingClientRect().top >= a.getBoundingClientRect().bottom - 1; })()"), true, 'menu em lista: Excluir abaixo de Editar');
+    await clicar('#rotinaChecklist .rotina-item .rotina-mais');
+    assert.equal(await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-item .rotina-menu-op')].map(b => b.textContent).join(',')"), 'Editar,Excluir', 'tres pontinhos: Editar e Excluir');
+    assert.equal(await ev("(() => { const [a, b] = document.querySelectorAll('#rotinaChecklist .rotina-item .rotina-menu-op'); return b.getBoundingClientRect().top >= a.getBoundingClientRect().bottom - 1; })()"), true, 'menu em lista: Excluir abaixo de Editar');
     await clicar('#rotinaChecklist [data-check="editar"]');
     assert.ok(await esperar("!!document.getElementById('rotinaEditar')"), 'tres pontinhos abrem o campo do nome');
     await ev("(() => { const c = document.getElementById('rotinaEditar'); c.value = 'Item renomeado'; c.dispatchEvent(new Event('input', { bubbles: true })); })()");

@@ -272,6 +272,19 @@ t('conta: trocar a propria senha exige a senha atual', function (): void {
     eq(302, logar($app, new Sessao(), 'ana@exemplo.com', 'outrasenha22')->status, 'senha mudou');
 });
 
+t('cabecalhos da Rotina: cada usuario muda nome e cor dos seus; valores invalidos sao recusados', function (): void {
+    [$app, , , $ana, $beto] = cenario_http();
+    $c = apiget($app, $ana, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos'];
+    eq(['nome' => 'Checklist do dia', 'cor' => 'turquesa'], $c['checklist']);
+    eq('Clientes do dia', $c['clientes']['nome']);
+    api($app, $ana, '/api/rotina/cabecalho', ['bloco' => 'clientes', 'nome' => 'Meus clientes 🚀', 'cor' => 'rosa']);
+    eq(['nome' => 'Meus clientes 🚀', 'cor' => 'rosa'], apiget($app, $ana, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos']['clientes']);
+    eq('Clientes do dia', apiget($app, $beto, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos']['clientes']['nome'], 'outro usuario nao muda');
+    eq(422, api($app, $ana, '/api/rotina/cabecalho', ['bloco' => 'clientes', 'cor' => 'preto'])['status'], 'cor fora da lista');
+    eq(422, api($app, $ana, '/api/rotina/cabecalho', ['bloco' => 'clientes', 'nome' => ''])['status'], 'nome vazio');
+    eq(422, api($app, $ana, '/api/rotina/cabecalho', ['bloco' => 'outro', 'nome' => 'x'])['status'], 'bloco invalido');
+});
+
 t('historico foi apagado de vez (pedido do dono): o endereco nao existe mais', function (): void {
     [$app, , , $ana] = cenario_http();
     eq(404, req($app, $ana, 'GET', '/historico')->status);

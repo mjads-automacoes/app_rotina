@@ -813,3 +813,37 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 :root[data-tema="claro"] #painelRotina .rotina-checklist .contagem { color: #fff; }
 /* cliente selecionado sem a barrinha a esquerda (pedido do dono) */
 .rotina-cliente.is-foco { box-shadow: none; }
+
+/* Cabecalhos "Checklist do dia" / "Clientes do dia": sem a barrinha, com tres pontinhos para nome e cor (pedido do dono, 24/11/2026) */
+.rotina-cabecalho { --cab-cor: var(--acento); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rotina-cabecalho.cor-azul { --cab-cor: #3b82f6; }
+.rotina-cabecalho.cor-verde { --cab-cor: #22c55e; }
+.rotina-cabecalho.cor-amarelo { --cab-cor: #f5a524; }
+.rotina-cabecalho.cor-laranja { --cab-cor: #f97316; }
+.rotina-cabecalho.cor-vermelho { --cab-cor: #ef4444; }
+.rotina-cabecalho.cor-rosa { --cab-cor: #ec4899; }
+.rotina-cabecalho.cor-roxo { --cab-cor: #8b5cf6; }
+.rotina-checklist .cartao-topo h3::before, .rotina-clientes h2::before { display: none; }
+#painelRotina .rotina-clientes > .cartao-topo {
+  position: sticky; top: -18px; z-index: 3; margin: -18px -20px 12px; padding: 15px 20px; border-radius: 18px 18px 0 0;
+}
+#painelRotina .rotina-checklist > .rotina-cabecalho, #painelRotina .rotina-clientes > .rotina-cabecalho {
+  border-bottom: 1px solid color-mix(in srgb, var(--cab-cor) 45%, var(--borda));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cab-cor) 24%, transparent), transparent 85%), var(--panel);
+}
+.rotina-cabecalho h2, .rotina-cabecalho h3 { display: block; margin: 0; padding: 0; border: 0; font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto); overflow-wrap: anywhere; }
+.cab-direita { display: inline-flex; align-items: center; gap: 6px; flex: none; }
+#painelRotina .rotina-cabecalho .contagem { background: var(--cab-cor); }
+.cab-edicao { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.cab-edicao input { flex: 1; min-width: 0; min-height: 34px; font-weight: 700; }
+.cab-menu { min-width: 150px; }
+.cab-cores { display: grid; grid-template-columns: repeat(4, 28px); gap: 8px; padding: 6px; }
+.cab-cor { width: 28px; height: 28px; padding: 0; border: 2px solid transparent; border-radius: 50%; background: var(--cab-cor, var(--acento)); cursor: pointer; }
+.cab-cor.cor-turquesa { background: var(--acento); }
+.cab-cor.cor-azul { background: #3b82f6; } .cab-cor.cor-verde { background: #22c55e; } .cab-cor.cor-amarelo { background: #f5a524; } .cab-cor.cor-laranja { background: #f97316; }
+.cab-cor.cor-vermelho { background: #ef4444; } .cab-cor.cor-rosa { background: #ec4899; } .cab-cor.cor-roxo { background: #8b5cf6; }
+.cab-cor:hover { transform: scale(1.1); }
+.cab-cor.is-escolhida { border-color: var(--texto); box-shadow: 0 0 0 2px var(--panel) inset; }
+/* checklist rola sem mostrar a barra lateral (pedido do dono) */
+#painelRotina .rotina-checklist { scrollbar-width: none; }
+#painelRotina .rotina-checklist::-webkit-scrollbar { display: none; }

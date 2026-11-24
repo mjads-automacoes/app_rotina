@@ -15,7 +15,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, menuItem: null, editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
+  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, menuItem: null, cabMenu: null, cabCores: null, cabEditando: null, cabTexto: "", editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
   const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] }, fechamento: { clientes: [], checklist: [] } } };
@@ -186,10 +186,45 @@
       ])
       : el("button", { class: "btn btn-contorno btn-add", type: "button", "data-check": "abrir-novo", text: "Add +" });
     ui.checklist.replaceChildren(
-      el("div", { class: "cartao-topo" }, [el("h3", { text: "Checklist do dia" }), el("span", { class: "contagem", text: feitas + " de " + todos.length })]),
+      cabecalho("checklist", "h3", el("span", { class: "contagem", text: feitas + " de " + todos.length })),
       ...(grupos.length ? grupos : [el("p", { class: "muted", text: "Sem itens hoje." })]),
       adicionar,
     );
+  }
+
+  // cabecalhos "Checklist do dia" e "Clientes do dia": tres pontinhos para editar o nome e mudar a cor (pedido do dono, 24/11/2026)
+  const CORES = [["turquesa", "Turquesa"], ["azul", "Azul"], ["verde", "Verde"], ["amarelo", "Amarelo"], ["laranja", "Laranja"], ["vermelho", "Vermelho"], ["rosa", "Rosa"], ["roxo", "Roxo"]];
+  const PADRAO_CAB = { checklist: "Checklist do dia", clientes: "Clientes do dia" };
+  function cabecalho(bloco, tag, extra) {
+    const cfg = ((state.dados && state.dados.cabecalhos) || {})[bloco] || { nome: PADRAO_CAB[bloco], cor: "turquesa" };
+    const titulo = state.cabEditando === bloco
+      ? el("span", { class: "cab-edicao" }, [
+        el("input", { type: "text", id: "rotinaCabNome", maxlength: "40", value: state.cabTexto, "aria-label": "Nome do cabeçalho", autocomplete: "off" }),
+        iconeBotao("btn btn-primario btn-mini btn-certo", "", "Salvar nome", '<polyline points="20 6 9 17 4 12"/>'),
+      ])
+      : el(tag, { text: cfg.nome });
+    if (state.cabEditando === bloco) { const b = titulo.querySelector("button"); b.removeAttribute("data-check"); b.dataset.cab = "salvar-nome"; b.dataset.bloco = bloco; }
+    const menu = state.cabMenu === bloco ? el("span", { class: "rotina-menu cab-menu", role: "menu" }, state.cabCores === bloco
+      ? [el("span", { class: "cab-cores" }, CORES.map(([c, nome]) => el("button", { type: "button", class: "cab-cor cor-" + c + (cfg.cor === c ? " is-escolhida" : ""), "data-cab": "cor", "data-bloco": bloco, "data-cor": c, title: nome, "aria-label": nome })))]
+      : [
+        el("button", { class: "rotina-menu-op", type: "button", role: "menuitem", "data-cab": "editar", "data-bloco": bloco, text: "Editar nome" }),
+        el("button", { class: "rotina-menu-op", type: "button", role: "menuitem", "data-cab": "cores", "data-bloco": bloco, text: "Mudar cor" }),
+      ]) : null;
+    const pontos = iconeBotao("rotina-mais", "", "Opções do cabeçalho", '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>');
+    pontos.removeAttribute("data-check"); pontos.dataset.cab = "menu"; pontos.dataset.bloco = bloco;
+    return el("div", { class: "cartao-topo rotina-cabecalho cor-" + cfg.cor, "data-bloco": bloco }, [
+      titulo,
+      el("span", { class: "cab-direita" }, [extra, el("span", { class: "rotina-mais-wrap" }, [pontos, menu].filter(Boolean))].filter(Boolean)),
+    ]);
+  }
+
+  async function salvarCabecalho(bloco, dados) {
+    const antes = JSON.parse(JSON.stringify(state.dados.cabecalhos || {}));
+    state.dados.cabecalhos = state.dados.cabecalhos || {};
+    state.dados.cabecalhos[bloco] = Object.assign({ nome: PADRAO_CAB[bloco], cor: "turquesa" }, state.dados.cabecalhos[bloco], dados);
+    renderizar();
+    try { state.dados.cabecalhos = (await chamar("POST", "/api/rotina/cabecalho", Object.assign({ bloco }, dados))).cabecalhos; }
+    catch (e) { state.dados.cabecalhos = antes; toast(e.message, true); renderizar(); }
   }
 
   // botao so de icone (SVG fixo do codigo, sem conteudo do usuario)
@@ -393,7 +428,7 @@
   }
 
   function clientes() {
-    const partes = [el("h2", { text: "Clientes do dia" })];
+    const partes = [cabecalho("clientes", "h2", null)];
     TURNOS.forEach(([t, rotulo]) => {
       const lista = clientesDo(t);
       partes.push(el("div", { class: "rotina-grupo" }, [
@@ -411,7 +446,7 @@
     if (!state.dados) return;
     escolherFoco();
     // quem estava sendo digitado continua com o cursor depois de redesenhar (a Rotina recarrega a cada minuto)
-    const ativo = document.activeElement && ["rotinaNota", "rotinaEditar", "rotinaAddTexto"].includes(document.activeElement.id) ? document.activeElement.id : null;
+    const ativo = document.activeElement && ["rotinaNota", "rotinaEditar", "rotinaAddTexto", "rotinaCabNome"].includes(document.activeElement.id) ? document.activeElement.id : null;
     topo();
     checklist();
     foco();
@@ -431,6 +466,22 @@
     if (turno) { state.turno = turno.dataset.turno; state.foco = null; return renderizar(); }
     const cli = event.target.closest(".rotina-cliente");
     if (cli) { state.turno = cli.dataset.turno; state.foco = parseInt(cli.dataset.cliente, 10); return renderizar(); }
+    const cab = event.target.closest("[data-cab]");
+    if (cab) {
+      const bloco = cab.dataset.bloco;
+      const tipo = cab.dataset.cab;
+      if (tipo === "menu") { state.cabMenu = state.cabMenu === bloco ? null : bloco; state.cabCores = null; return renderizar(); }
+      if (tipo === "cores") { state.cabCores = bloco; return renderizar(); }
+      state.cabMenu = null; state.cabCores = null;
+      if (tipo === "editar") {
+        state.cabEditando = bloco; state.cabTexto = ((state.dados.cabecalhos || {})[bloco] || {}).nome || PADRAO_CAB[bloco];
+        renderizar(); const c = $("rotinaCabNome"); if (c) { c.focus(); c.select(); } return;
+      }
+      if (tipo === "cor") return salvarCabecalho(bloco, { cor: cab.dataset.cor });
+      if (tipo === "salvar-nome") { const nome = state.cabTexto.trim(); if (!nome) { toast("Escreva o nome do cabeçalho.", true); return; } state.cabEditando = null; return salvarCabecalho(bloco, { nome }); }
+      return;
+    }
+    if (state.cabMenu !== null) { state.cabMenu = null; state.cabCores = null; renderizar(); }
     const check = event.target.closest("[data-check]");
     // clique fora do menu dos tres pontinhos fecha o menu
     if (state.menuItem !== null && (!check || !["menu", "editar", "excluir"].includes(check.dataset.check))) { state.menuItem = null; renderizar(); }
@@ -471,6 +522,12 @@
 
   raiz.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && state.menuItem !== null) { state.menuItem = null; renderizar(); return; }
+    if (event.key === "Escape" && state.cabMenu !== null) { state.cabMenu = null; state.cabCores = null; renderizar(); return; }
+    if (event.target.id === "rotinaCabNome") {
+      if (event.key === "Escape") { state.cabEditando = null; renderizar(); return; }
+      if (event.key === "Enter") { event.preventDefault(); const b = raiz.querySelector('[data-cab="salvar-nome"]'); if (b) b.click(); }
+      return;
+    }
     if (event.target.id === "rotinaEditar" || event.target.id === "rotinaAddTexto") {
       const editar = event.target.id === "rotinaEditar";
       if (event.key === "Escape") { if (editar) state.editando = null; else { state.adicionando = false; state.addTexto = ""; } renderizar(); return; }
@@ -489,6 +546,7 @@
     if (event.target.id === "rotinaNota") state.nota = event.target.value;
     if (event.target.id === "rotinaEditar") state.editTexto = event.target.value;
     if (event.target.id === "rotinaAddTexto") state.addTexto = event.target.value;
+    if (event.target.id === "rotinaCabNome") state.cabTexto = event.target.value;
   });
   raiz.addEventListener("change", (event) => { if (event.target.id === "rotinaAddTurno") state.addTurno = event.target.value; });
   if (ui.atualizar) ui.atualizar.addEventListener("click", () => carregar(false));

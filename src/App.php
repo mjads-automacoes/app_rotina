@@ -426,7 +426,11 @@ final class App
 
         // ---- rotina do dia
         if ($caminho === '/api/rotina' && $get) {
-            return $ok($n->rotina->dia($u, (string) ($r->query['data'] ?? $this->agora()->format('Y-m-d')), isset($r->query['gestor']) ? (int) $r->query['gestor'] : null));
+            return $ok($n->rotina->dia($u, (string) ($r->query['data'] ?? $this->agora()->format('Y-m-d')), isset($r->query['gestor']) ? (int) $r->query['gestor'] : null) + ['cabecalhos' => $n->rotina->cabecalhos($u)]);
+        }
+
+        if ($caminho === '/api/rotina/cabecalho' && $post) {
+            return $ok(['cabecalhos' => $n->rotina->salvarCabecalho($u, (string) ($p['bloco'] ?? ''), array_intersect_key($p, array_flip(['nome', 'cor'])))]);
         }
 
         if ($post && preg_match('#^/api/rotina/(iniciar|concluir|reabrir|gerar)$#', $caminho, $m)) {
