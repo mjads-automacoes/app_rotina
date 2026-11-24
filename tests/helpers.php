@@ -82,7 +82,7 @@ function cenario_auto(): array
         'bill' => $n->clientes->criar($ana, ['nome' => 'BILL BORRACHA', 'dias' => ['segunda', 'quinta'], 'turno' => 'manha']),
         'lav' => $n->clientes->criar($ana, ['nome' => 'LAVANDERIA', 'dias' => ['segunda'], 'turno' => 'tarde']),
         'db' => $n->clientes->criar($beto, ['nome' => 'DB CAMARÕES', 'dias' => ['terca'], 'turno' => 'manha']),
-        'pausado' => $n->clientes->criar($ana, ['nome' => 'PAUSADO', 'dias' => ['segunda'], 'status' => 'pausado']),
+        'pausado' => $n->clientes->criar($ana, ['nome' => 'PAUSADO', 'dias' => ['segunda'], 'status' => 'alerta']),
         'novo' => $n->clientes->criar($ana, ['nome' => 'NOVO', 'dias' => ['segunda'], 'status' => 'novo']),
     ];
 

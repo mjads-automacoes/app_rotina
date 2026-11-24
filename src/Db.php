@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 3;
+    public const VERSAO = 4;
 
     public static function open(string $caminho): PDO
     {
@@ -46,6 +46,8 @@ final class Db
             return;
         }
 
+        // a v4 refaz a tabela clientes: sem as chaves estrangeiras ligadas, o DROP nao apaga em cascata notas e tarefas
+        $pdo->exec('PRAGMA foreign_keys = OFF');
         $pdo->beginTransaction();
 
         try {
@@ -61,11 +63,50 @@ final class Db
                 self::v3($pdo);
             }
 
+            if ($atual < 4) {
+                self::v4($pdo);
+            }
+
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
             $pdo->commit();
         } catch (Throwable $e) {
             $pdo->rollBack();
+            $pdo->exec('PRAGMA foreign_keys = ON');
             throw $e;
+        }
+
+        $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    /**
+     * v4 (24/11/2026, pedido do dono): a situacao do cliente vira um kanban com Novo, Ativo, Alerta e Churn.
+     * "pausado" passa a ser "alerta". O SQLite nao muda um CHECK: a tabela e refeita com o mesmo desenho, so com a lista nova.
+     */
+    private static function v4(PDO $pdo): void
+    {
+        $sql = (string) $pdo->query("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'clientes'")->fetchColumn();
+        $novo = str_replace("CHECK (status IN ('ativo','novo','pausado'))", "CHECK (status IN ('novo','ativo','alerta','churn'))", $sql);
+
+        if ($novo === $sql) {
+            if (str_contains($sql, "'alerta','churn'")) {
+                return; // ja esta no formato novo
+            }
+
+            throw new RuntimeException('v4: nao encontrei a regra de status da tabela clientes.');
+        }
+
+        $indices = $pdo->query("SELECT sql FROM sqlite_master WHERE type = 'index' AND tbl_name = 'clientes' AND sql IS NOT NULL")->fetchAll(PDO::FETCH_COLUMN);
+        $pdo->exec((string) preg_replace('/^CREATE TABLE\s+"?clientes"?/i', 'CREATE TABLE clientes_v4', $novo));
+        // copia ainda com "pausado" (a regra nova so vale depois da troca abaixo)
+        $pdo->exec('PRAGMA ignore_check_constraints = ON');
+        $pdo->exec('INSERT INTO clientes_v4 SELECT * FROM clientes');
+        $pdo->exec("UPDATE clientes_v4 SET status = 'alerta' WHERE status NOT IN ('novo','ativo','alerta','churn')");
+        $pdo->exec('PRAGMA ignore_check_constraints = OFF');
+        $pdo->exec('DROP TABLE clientes');
+        $pdo->exec('ALTER TABLE clientes_v4 RENAME TO clientes');
+
+        foreach ($indices as $indice) {
+            $pdo->exec((string) $indice);
         }
     }
 

@@ -73,11 +73,11 @@ t('gestor nao consegue criar cliente em nome de outro', function (): void {
 t('atualiza e exclui', function (): void {
     [$c, , $ana] = cenario_clientes();
     $id = $c->criar($ana, ['nome' => 'X', 'dias' => ['segunda']]);
-    $c->atualizar($ana, $id, ['nome' => 'Y', 'dias' => ['terca', 'quinta'], 'status' => 'pausado', 'link' => 'https://exemplo.com/cliente']);
+    $c->atualizar($ana, $id, ['nome' => 'Y', 'dias' => ['terca', 'quinta'], 'status' => 'churn', 'link' => 'https://exemplo.com/cliente']);
     $cli = $c->buscar($ana, $id);
     eq('Y', $cli['nome']);
     eq(['terca', 'quinta'], $cli['dias']);
-    eq('pausado', $cli['status']);
+    eq('churn', $cli['status']);
     eq('https://exemplo.com/cliente', $cli['link']);
     $c->excluir($ana, $id);
     eq([], $c->listar($ana));

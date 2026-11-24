@@ -371,7 +371,9 @@ final class Importacao
         }
 
         $limpoStatus = $sem($status);
-        $situacao = preg_match('/\bativos?\b/', $limpoStatus) ? 'ativo' : (preg_match('/\bnov[oa]s?\b/', $limpoStatus) ? 'novo' : 'pausado');
+        // kanban de clientes (24/11/2026): ativo, novo, churn (cancelado/perdido/inativo) e o resto em alerta
+        $situacao = preg_match('/\bativos?\b/', $limpoStatus) ? 'ativo' : (preg_match('/\bnov[oa]s?\b/', $limpoStatus) ? 'novo'
+            : (preg_match('/churn|cancel|perdid|inativ|encerrad/', $limpoStatus) ? 'churn' : 'alerta'));
 
         return [
             'nome' => mb_substr(trim((string) $t['name']), 0, 120),

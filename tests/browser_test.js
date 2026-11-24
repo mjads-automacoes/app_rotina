@@ -238,8 +238,21 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // ---- Clientes e ficha
     await ir('/clientes');
     assert.ok((await n('.cliente-card')) >= 8, 'cards de clientes');
+    // kanban: 4 colunas, sem as iniciais; arrastar muda a situacao; opcao de Lista
+    assert.equal(await ev("[...document.querySelectorAll('.kanban-coluna')].map(c => c.dataset.situacao).join(',')"), 'novo,ativo,alerta,churn', 'quadro com Novo, Ativo, Alerta e Churn');
+    assert.equal(await n('.cliente-card .avatar'), 0, 'sem os icones de iniciais');
+    const idMover = await ev("document.querySelector('.kanban-ativo .cliente-card').dataset.id");
+    await ev(`window.Rotina.moverCliente('${idMover}', 'churn')`);
+    assert.ok(await esperar(`!!document.querySelector('.kanban-churn .cliente-card[data-id="${idMover}"]') && document.querySelector('.kanban-churn [data-qtd]').textContent === '1'`), 'cliente vai para Churn');
+    await ir('/clientes');
+    assert.ok(await esperar(`!!document.querySelector('.kanban-churn .cliente-card[data-id="${idMover}"]')`), 'Churn continua depois de recarregar');
+    await clicar('[data-vista-btn="lista"]');
+    assert.equal(await ev(`document.getElementById('clientesQuadro').hidden && !document.getElementById('clientesTabela').hidden && document.querySelector('#clientesTabela tr[data-id="${idMover}"] [data-selo]').textContent`), 'Churn', 'visualizacao em Lista');
+    await clicar('[data-vista-btn="quadro"]');
+    await ev(`window.Rotina.moverCliente('${idMover}', 'ativo')`);
+    await sleep(400);
     await shot('8-clientes-escuro.png');
-    await ev("document.querySelector('.cliente-card').click()");
+    await ev("document.querySelector('.kanban-ativo .cliente-card').click()");
     assert.ok(await esperar("location.pathname.startsWith('/clientes/') && document.readyState === 'complete' && !!document.querySelector('.nota-form textarea')"), 'ficha do cliente');
     await ev("(() => { const t = document.querySelector('.nota-form textarea'); t.value = 'Nota criada no teste'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("document.body.textContent.includes('Nota criada no teste')"), 'nota salva');
@@ -261,9 +274,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("!document.querySelector('.emoji-painel') && document.querySelector('.emoji-botao').hidden"), 'clicar fora fecha os emojis');
     // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original
     await clicar('select[name=status] + .selecao-botao');
-    assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 3"), 'lista propria do menu abre');
-    await ev("[...document.querySelectorAll('.selecao-lista .selecao-op')].find(b => b.textContent === 'Pausado').click()");
-    assert.equal(await ev("document.querySelector('select[name=status]').value + '|' + document.querySelector('select[name=status] + .selecao-botao').textContent + '|' + !document.querySelector('.selecao-lista')"), 'pausado|Pausado|true', 'escolha vai para o campo e fecha a lista');
+    assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 4"), 'lista propria do menu abre');
+    await ev("[...document.querySelectorAll('.selecao-lista .selecao-op')].find(b => b.textContent === 'Alerta').click()");
+    assert.equal(await ev("document.querySelector('select[name=status]').value + '|' + document.querySelector('select[name=status] + .selecao-botao').textContent + '|' + !document.querySelector('.selecao-lista')"), 'alerta|Alerta|true', 'escolha vai para o campo e fecha a lista');
     assert.equal(await ev("[...document.querySelectorAll('.selecao-original')].every(s => getComputedStyle(s).display === 'none')"), true, 'menu antigo do navegador nunca aparece');
     // barra das observacoes: B, I, U e # aplicam a marcacao no texto selecionado
     assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');

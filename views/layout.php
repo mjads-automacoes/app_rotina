@@ -19,7 +19,7 @@ if ($usuario !== null && $usuario['papel'] === 'admin') {
 }
 
 $ativoMenu = $ativo === 'cliente' ? 'clientes' : $ativo;
-$scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['automacoes.js']][$ativo] ?? [];
+$scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['automacoes.js'], 'clientes' => ['clientes.js']][$ativo] ?? [];
 ?><!doctype html>
 <html lang="pt-BR" data-tema="escuro">
 <head>

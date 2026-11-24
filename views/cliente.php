@@ -63,7 +63,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <select name="turno"><?php foreach ($rotuloTurno as $chave => $rotulo): ?><option value="<?= e($chave) ?>" <?= $c['turno'] === $chave ? 'selected' : '' ?>><?= e($rotulo) ?></option><?php endforeach; ?></select>
       </label>
       <label>Situação
-        <select name="status"><?php foreach (['ativo' => 'Ativo', 'novo' => 'Novo', 'pausado' => 'Pausado'] as $chave => $rotulo): ?><option value="<?= e($chave) ?>" <?= $c['status'] === $chave ? 'selected' : '' ?>><?= e($rotulo) ?></option><?php endforeach; ?></select>
+        <select name="status"><?php foreach (Clientes::SITUACAO_NOME as $chave => $rotulo): ?><option value="<?= e($chave) ?>" <?= $c['status'] === $chave ? 'selected' : '' ?>><?= e($rotulo) ?></option><?php endforeach; ?></select>
       </label>
 
       <?php $temObs = trim((string) $c['observacoes']) !== ''; ?>

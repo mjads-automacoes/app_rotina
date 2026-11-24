@@ -98,3 +98,25 @@ t('listar traz todos sem o hash e conta usuarios', function (): void {
     eq(2, count($lista));
     ok(!isset($lista[0]['senha_hash']));
 });
+
+t('migracao v4: kanban de clientes (pausado vira alerta) sem apagar notas nem tarefas', function (): void {
+    $pdo = Db::open(':memory:');
+    $passo = static function (string $v) use ($pdo): void { $m = new ReflectionMethod(Db::class, $v); $m->setAccessible(true); $m->invoke(null, $pdo); };
+    $pdo->beginTransaction();
+    $passo('v1'); $passo('v2'); $passo('v3');
+    $pdo->exec('PRAGMA user_version = 3');
+    $pdo->commit();
+    $agora = date(DATE_ATOM);
+    $pdo->prepare("INSERT INTO usuarios (nome, email, senha_hash, papel, ativo, criado_em) VALUES ('A', 'a@x.com', 'x', 'admin', 1, ?)")->execute([$agora]);
+    $pdo->prepare("INSERT INTO clientes (gestor_id, nome, status, criado_em, atualizado_em) VALUES (1, 'P', 'pausado', ?, ?)")->execute([$agora, $agora]);
+    $pdo->prepare("INSERT INTO cliente_notas (cliente_id, texto, criado_em) VALUES (1, 'nota', ?)")->execute([$agora]);
+    Db::migrate($pdo);
+    eq(4, (int) $pdo->query('PRAGMA user_version')->fetchColumn());
+    eq('alerta', $pdo->query('SELECT status FROM clientes WHERE id = 1')->fetchColumn());
+    eq(1, (int) $pdo->query('SELECT COUNT(*) FROM cliente_notas')->fetchColumn(), 'nota continua');
+    eq(1, (int) $pdo->query('PRAGMA foreign_keys')->fetchColumn(), 'chaves estrangeiras ligadas de novo');
+    lanca(fn () => $pdo->exec("UPDATE clientes SET status = 'pausado'"), 'CHECK');
+    $pdo->exec("UPDATE clientes SET status = 'churn'");
+    $pdo->exec('DELETE FROM clientes');
+    eq(0, (int) $pdo->query('SELECT COUNT(*) FROM cliente_notas')->fetchColumn(), 'cascata continua valendo');
+});

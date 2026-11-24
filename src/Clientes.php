@@ -7,6 +7,9 @@ final class Clientes
     public const PLATAFORMAS = ['google', 'meta', 'tiktok', 'linkedin', 'outros'];
     /** Observacoes guardam a descricao inteira do ClickUp (documento de onboarding), por isso o limite e alto. */
     public const OBSERVACOES_MAX = 20000;
+    /** Colunas do kanban de clientes, na ordem (pedido do dono, 24/11/2026). So "ativo" entra na rotina automatica. */
+    public const SITUACOES = ['novo', 'ativo', 'alerta', 'churn'];
+    public const SITUACAO_NOME = ['novo' => 'Novo', 'ativo' => 'Ativo', 'alerta' => 'Alerta', 'churn' => 'Churn'];
     /** Notas espelham os comentarios do ClickUp, que podem ser longos (planos de acao). */
     public const NOTA_MAX = 20000;
 
@@ -180,7 +183,7 @@ final class Clientes
 
         $status = (string) ($d['status'] ?? 'ativo');
 
-        if (!in_array($status, ['ativo', 'novo', 'pausado'], true)) {
+        if (!in_array($status, self::SITUACOES, true)) {
             throw new InvalidArgumentException('Escolha um status válido.');
         }
 

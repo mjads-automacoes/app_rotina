@@ -11,6 +11,12 @@ $admin = $usuario['papel'] === 'admin';
     <p class="muted">Ficha de cada cliente. Só clientes <strong>ativos</strong> com dia marcado entram na rotina automática.</p>
   </div>
   <div class="topo-acoes">
+    <?php if ($lista !== []): ?>
+      <div class="segmentado" role="tablist" aria-label="Visualização">
+        <button type="button" class="seg is-ativo" data-vista-btn="quadro" role="tab">Quadro</button>
+        <button type="button" class="seg" data-vista-btn="lista" role="tab">Lista</button>
+      </div>
+    <?php endif; ?>
     <label class="busca"><?= icone('busca') ?><input type="search" id="clientesBusca" placeholder="Buscar cliente" autocomplete="off"></label>
   </div>
 </header>
@@ -37,20 +43,63 @@ $admin = $usuario['papel'] === 'admin';
 <?php if ($lista === []): ?>
   <p class="muted">Nenhum cliente ainda. Cadastre acima ou traga do ClickUp em <a href="/integracoes">Integrações</a>.</p>
 <?php else: ?>
-  <div class="cards-clientes" id="clientesLista">
-    <?php foreach ($lista as $c): ?>
-      <a class="cartao cliente-card" href="/clientes/<?= (int) $c['id'] ?>" data-nome="<?= e(mb_strtolower($c['nome'] . ' ' . $c['empresa'] . ' ' . $c['contato_nome'])) ?>">
-        <span class="cliente-card-topo">
-          <span class="avatar avatar-md"><?= e(mb_strtoupper(mb_substr((string) $c['nome'], 0, 2))) ?></span>
-          <span class="selo selo-<?= e((string) $c['status']) ?>"><?= e(ucfirst((string) $c['status'])) ?></span>
-        </span>
-        <strong class="cliente-nome"><?= e((string) $c['nome']) ?></strong>
-        <span class="muted"><?= e($c['contato_nome'] !== '' ? $c['contato_nome'] : ($c['descricao'] !== '' ? $c['descricao'] : 'Sem contato')) ?></span>
-        <span class="cliente-card-rodape">
-          <span class="rodape-linha"><span><?= $c['dias'] === [] ? 'sem dia' : e(implode(' · ', array_map(static fn ($d) => $rotuloDia[$d] ?? $d, $c['dias']))) ?></span><span><?= e($rotuloTurno[$c['turno']] ?? '') ?></span></span>
-          <span class="rodape-linha"><span><?= e((string) ($nomes[$c['gestor_id']] ?? '')) ?></span><span class="plats"><?php foreach (['google', 'meta'] as $pl): ?><?php if (in_array($pl, $c['plataformas'], true)): ?><?= logo_plataforma($pl) ?><?php endif; ?><?php endforeach; ?></span></span>
-        </span>
-      </a>
-    <?php endforeach; ?>
+  <?php
+  // kanban de clientes (pedido do dono, 24/11/2026): Novo, Ativo, Alerta e Churn; arrastar muda a situacao
+  $porSituacao = array_fill_keys(Clientes::SITUACOES, []);
+  foreach ($lista as $c) {
+      $porSituacao[$c['status']][] = $c;
+  }
+  $diasDe = static fn (array $c): string => $c['dias'] === [] ? 'sem dia' : implode(' · ', array_map(static fn ($d) => $rotuloDia[$d] ?? $d, $c['dias']));
+  $plataformas = static function (array $c): string {
+      $h = '';
+      foreach (['google', 'meta'] as $pl) {
+          if (in_array($pl, $c['plataformas'], true)) {
+              $h .= logo_plataforma($pl);
+          }
+      }
+
+      return $h;
+  };
+  ?>
+  <div id="clientesLista" data-csrf="<?= e($csrf) ?>">
+    <div class="kanban" id="clientesQuadro" data-vista="quadro">
+      <?php foreach (Clientes::SITUACAO_NOME as $sit => $nomeSit): ?>
+        <section class="kanban-coluna kanban-<?= e($sit) ?>" data-situacao="<?= e($sit) ?>" aria-label="<?= e($nomeSit) ?>">
+          <header class="kanban-topo"><span class="kanban-ponto"></span><strong><?= e($nomeSit) ?></strong><span class="kanban-qtd" data-qtd><?= count($porSituacao[$sit]) ?></span></header>
+          <div class="kanban-cartoes" data-soltar>
+            <?php foreach ($porSituacao[$sit] as $c): ?>
+              <a class="cartao cliente-card" href="/clientes/<?= (int) $c['id'] ?>" draggable="true" data-id="<?= (int) $c['id'] ?>" data-nome="<?= e(mb_strtolower($c['nome'] . ' ' . $c['empresa'] . ' ' . $c['contato_nome'])) ?>">
+                <strong class="cliente-nome"><?= e((string) $c['nome']) ?></strong>
+                <span class="muted"><?= e($c['contato_nome'] !== '' ? $c['contato_nome'] : 'Sem contato') ?></span>
+                <span class="cliente-card-rodape">
+                  <span class="rodape-linha"><span><?= e($diasDe($c)) ?></span><span><?= e($rotuloTurno[$c['turno']] ?? '') ?></span></span>
+                  <span class="rodape-linha"><span><?= e((string) ($nomes[$c['gestor_id']] ?? '')) ?></span><span class="plats"><?= $plataformas($c) ?></span></span>
+                </span>
+              </a>
+            <?php endforeach; ?>
+            <p class="kanban-vazio muted">Arraste um cliente para cá</p>
+          </div>
+        </section>
+      <?php endforeach; ?>
+    </div>
+
+    <div class="tabela-clientes-caixa cartao" id="clientesTabela" data-vista="lista" hidden>
+      <table class="tabela tabela-clientes">
+        <thead><tr><th>Cliente</th><th>Contato</th><th>Situação</th><th>Dias</th><th>Turno</th><th>Responsável</th><th>Plataformas</th></tr></thead>
+        <tbody>
+          <?php foreach ($lista as $c): ?>
+            <tr data-id="<?= (int) $c['id'] ?>" data-nome="<?= e(mb_strtolower($c['nome'] . ' ' . $c['empresa'] . ' ' . $c['contato_nome'])) ?>">
+              <td><a class="tabela-cliente" href="/clientes/<?= (int) $c['id'] ?>"><?= e((string) $c['nome']) ?></a></td>
+              <td class="muted"><?= e($c['contato_nome'] !== '' ? $c['contato_nome'] : '—') ?></td>
+              <td><span class="selo selo-<?= e((string) $c['status']) ?>" data-selo><?= e(Clientes::SITUACAO_NOME[$c['status']] ?? $c['status']) ?></span></td>
+              <td><?= e($diasDe($c)) ?></td>
+              <td><?= e($rotuloTurno[$c['turno']] ?? '') ?></td>
+              <td><?= e((string) ($nomes[$c['gestor_id']] ?? '')) ?></td>
+              <td><span class="plats"><?= $plataformas($c) ?></span></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
   </div>
 <?php endif; ?>

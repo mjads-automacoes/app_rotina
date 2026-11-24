@@ -179,6 +179,7 @@
     busca.addEventListener("input", () => {
       const termo = busca.value.trim().toLowerCase();
       document.querySelectorAll("#clientesLista [data-nome]").forEach((c) => { c.hidden = termo !== "" && !c.dataset.nome.includes(termo); });
+      document.dispatchEvent(new Event("clientes-filtrados"));
     });
   }
 
