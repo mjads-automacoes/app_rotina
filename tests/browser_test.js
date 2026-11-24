@@ -231,6 +231,15 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const min = document.querySelector('[data-calendario]').dataset.min; return [...document.querySelectorAll('.cal-dia')].every(b => b.disabled === (b.dataset.dia < min)); })()"), true, 'dias antes de hoje bloqueados');
     await ev("[...document.querySelectorAll('.cal-atalho')].find(b => b.textContent === 'Amanhã').click()");
     assert.equal(await ev("(() => { const v = document.querySelector('[data-calendario] input[name=prazo]').value; const t = document.querySelector('[data-cal-texto]').textContent; return /^\\d{4}-\\d{2}-\\d{2}$/.test(v) && t === v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4) && !document.querySelector('.cal-painel'); })()"), true, 'Amanha preenche o prazo e fecha');
+    // emojis: ao focar um campo de texto aparece o 😊; ele abre a lista e o emoji entra no cursor
+    await ev("(() => { const c = document.querySelector('form[data-autosalvar] [name=contato_nome]'); c.value = 'Oi '; c.focus(); c.setSelectionRange(3, 3); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); })()");
+    assert.ok(await esperar("(() => { const b = document.querySelector('.emoji-botao'); return b && !b.hidden; })()"), 'botao de emoji aparece no campo');
+    await clicar('.emoji-botao');
+    assert.ok(await esperar("document.querySelectorAll('.emoji-painel .emoji-item').length > 20"), 'lista de emojis abre');
+    await ev("document.querySelector('.emoji-painel .emoji-item').click()");
+    assert.equal(await ev("document.querySelector('form[data-autosalvar] [name=contato_nome]').value"), 'Oi 😀', 'emoji entra no campo');
+    await ev("document.querySelector('h1').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))");
+    assert.ok(await esperar("!document.querySelector('.emoji-painel') && document.querySelector('.emoji-botao').hidden"), 'clicar fora fecha os emojis');
     // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original
     await clicar('select[name=status] + .selecao-botao');
     assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 3"), 'lista propria do menu abre');

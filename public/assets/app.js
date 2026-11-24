@@ -409,5 +409,93 @@
     }
   }).observe(document.body, { childList: true, subtree: true });
 
+  // ---- emojis (pedido do dono, 24/11/2026, opcao A: os emojis do proprio aparelho).
+  // Ao clicar num campo de texto aparece um 😊 no canto dele; ele abre a lista e o emoji entra onde estava o cursor.
+  const EMOJIS = [
+    ["😀", "Carinhas", "😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😋 😛 😜 🤪 😎 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👻 💀 🤖 💩"],
+    ["👍", "Gestos", "👍 👎 👌 🤌 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ ✋ 🤚 🖐️ 🖖 👋 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💪 🫶 👀 🧠 🗣️ 👤 👥 🙋 🙆 🙅 🤷 🤦 🧑‍💻 👨‍💼 👩‍💼"],
+    ["❤️", "Corações", "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 ✨ 🔥 💯 💥 💫 ⭐ 🌟"],
+    ["💼", "Trabalho", "💼 📈 📉 📊 💰 💵 💸 💳 🧾 🏷️ 🛒 🛍️ 📦 📣 📢 📱 💻 🖥️ ⌨️ 🖱️ 📷 🎥 🎬 📞 ☎️ 📧 📩 📨 💬 🗨️ 📝 ✏️ 🖊️ 📌 📍 📎 🗂️ 📁 📅 📆 🗓️ ⏰ ⏳ ⌛ 🔍 🔑 🔒 🔓 🔔 🔕 💡 🛠️ ⚙️ 🧩 🚀 🎯 🏆 🥇 🎉 🎊 🎁"],
+    ["✅", "Símbolos", "✅ ☑️ ✔️ ❌ ❎ ⚠️ 🚫 ⛔ ❗ ❓ ‼️ ⁉️ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟥 🟧 🟨 🟩 🟦 🟪 ⬆️ ⬇️ ➡️ ⬅️ 🔁 🔄 ➕ ➖ ✖️ ➗ 🆕 🆗 🆙 🔝 🔜 💲 #️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣"],
+    ["🍕", "Outros", "☀️ 🌤️ ⛅ 🌧️ ⛈️ ❄️ 🌈 🌙 🌎 🏠 🏢 🏪 🏥 🏫 🚗 🚚 ✈️ 🍕 🍔 🍟 🍰 ☕ 🍺 🥂 🍎 🍀 🌱 🌻 🐶 🐱 ⚽ 🏀 🎮 🎵 🎧 📚 🎓 🙏🏻"],
+  ];
+  const campoComEmoji = (n) => n && ((n.tagName === "TEXTAREA") || (n.tagName === "INPUT" && (!n.getAttribute("type") || n.type === "text"))) && !n.readOnly && !n.disabled;
+  let emojiCampo = null;
+  let emojiBotao = null;
+  let emojiPainel = null;
+  const emojiFecharPainel = () => { if (emojiPainel) { emojiPainel.remove(); emojiPainel = null; } };
+  const emojiPosicionar = () => {
+    if (!emojiBotao || !emojiCampo) return;
+    if (!emojiCampo.isConnected) { emojiEsconder(); return; }
+    const r = emojiCampo.getBoundingClientRect();
+    emojiBotao.style.top = (emojiCampo.tagName === "TEXTAREA" ? r.top + 6 : r.top + (r.height - 28) / 2) + "px";
+    emojiBotao.style.left = (r.right - 34) + "px";
+    if (emojiPainel) {
+      const alto = emojiPainel.offsetHeight || 300;
+      const largura = emojiPainel.offsetWidth || 320;
+      const cima = r.bottom + alto + 8 > window.innerHeight && r.top - alto - 8 > 0;
+      emojiPainel.style.top = (cima ? r.top - alto - 6 : Math.min(r.bottom + 6, window.innerHeight - alto - 8)) + "px";
+      emojiPainel.style.left = Math.max(8, Math.min(r.right - largura, window.innerWidth - largura - 8)) + "px";
+    }
+  };
+  function emojiEsconder() { emojiFecharPainel(); if (emojiBotao) emojiBotao.hidden = true; if (emojiCampo) emojiCampo.classList.remove("com-emoji"); emojiCampo = null; }
+  const emojiInserir = (emoji) => {
+    const c = emojiCampo;
+    if (!c) return;
+    const ini = c.selectionStart == null ? c.value.length : c.selectionStart;
+    const fim = c.selectionEnd == null ? c.value.length : c.selectionEnd;
+    const max = parseInt(c.getAttribute("maxlength") || "0", 10);
+    if (max && c.value.length - (fim - ini) + emoji.length > max) { toast("O campo chegou ao limite de caracteres.", true); return; }
+    c.setRangeText(emoji, ini, fim, "end");
+    c.focus();
+    c.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const emojiAbrirPainel = () => {
+    if (emojiPainel) { emojiFecharPainel(); return; }
+    const grade = el("div", { class: "emoji-grade" });
+    const abas = el("div", { class: "emoji-abas", role: "tablist" });
+    const mostrarAba = (i) => {
+      grade.replaceChildren(...EMOJIS[i][2].split(" ").map((e) => el("button", { type: "button", class: "emoji-item", "data-emoji": e, title: e, text: e })));
+      [...abas.children].forEach((b, j) => b.classList.toggle("is-ativa", i === j));
+      grade.scrollTop = 0;
+    };
+    EMOJIS.forEach(([icone, nome], i) => abas.append(el("button", { type: "button", class: "emoji-aba", title: nome, "aria-label": nome, "data-aba": i, text: icone })));
+    emojiPainel = el("div", { class: "emoji-painel", role: "dialog", "aria-label": "Emojis" }, [abas, grade]);
+    emojiPainel.addEventListener("mousedown", (ev) => ev.preventDefault()); // o campo continua com o cursor
+    emojiPainel.addEventListener("click", (ev) => {
+      const aba = ev.target.closest("[data-aba]");
+      if (aba) return mostrarAba(Number(aba.dataset.aba));
+      const item = ev.target.closest("[data-emoji]");
+      if (item) emojiInserir(item.dataset.emoji);
+    });
+    document.body.append(emojiPainel);
+    mostrarAba(0);
+    emojiPosicionar();
+  };
+  document.addEventListener("focusin", (ev) => {
+    const c = ev.target;
+    if (emojiPainel && emojiPainel.contains(c)) return;
+    if (!campoComEmoji(c)) { if (c !== emojiBotao) emojiEsconder(); return; }
+    if (emojiCampo && emojiCampo !== c) { emojiFecharPainel(); emojiCampo.classList.remove("com-emoji"); }
+    emojiCampo = c;
+    c.classList.add("com-emoji");
+    if (!emojiBotao) {
+      emojiBotao = el("button", { type: "button", class: "emoji-botao", title: "Emojis", "aria-label": "Inserir emoji", text: "😊" });
+      emojiBotao.addEventListener("mousedown", (e) => e.preventDefault());
+      emojiBotao.addEventListener("click", emojiAbrirPainel);
+      document.body.append(emojiBotao);
+    }
+    emojiBotao.hidden = false;
+    emojiPosicionar();
+  });
+  document.addEventListener("mousedown", (ev) => {
+    if (!emojiCampo) return;
+    if (ev.target === emojiCampo || ev.target === emojiBotao || (emojiPainel && emojiPainel.contains(ev.target))) return;
+    if (!campoComEmoji(ev.target)) emojiEsconder();
+  });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && emojiPainel) { ev.stopPropagation(); emojiFecharPainel(); } }, true);
+  window.addEventListener("scroll", emojiPosicionar, true);
+  window.addEventListener("resize", emojiPosicionar);
+
   window.Rotina = { el, toast, chamar, dataBR, iniciais, confirmar, selecao };
 })();
