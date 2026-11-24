@@ -256,6 +256,14 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("location.pathname.startsWith('/clientes/') && document.readyState === 'complete' && !!document.querySelector('.nota-form textarea')"), 'ficha do cliente');
     await ev("(() => { const t = document.querySelector('.nota-form textarea'); t.value = 'Nota criada no teste'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("document.body.textContent.includes('Nota criada no teste')"), 'nota salva');
+    // editar e excluir a propria nota (lapis e lixeira)
+    await ev("[...document.querySelectorAll('[data-nota]')].find(n => n.textContent.includes('Nota criada no teste')).querySelector('[data-nota-editar]').click()");
+    await ev("(() => { const f = [...document.querySelectorAll('[data-nota-form]')].find(x => !x.hidden); f.querySelector('textarea').value = 'Nota editada no teste'; f.requestSubmit(); })()");
+    assert.ok(await esperar("document.readyState === 'complete' && document.body.textContent.includes('Nota editada no teste') && !!document.querySelector('[data-nota]')"), 'nota editada');
+    await ev("[...document.querySelectorAll('[data-nota]')].find(n => n.textContent.includes('Nota editada no teste')).querySelector('.nota-btn-excluir').click()");
+    assert.ok(await esperar("!!document.querySelector('[data-confirmar-ok]')"), 'confirma antes de excluir a nota');
+    await clicar('[data-confirmar-ok]');
+    assert.ok(await esperar("document.readyState === 'complete' && !document.body.textContent.includes('Nota editada no teste') && !!document.querySelector('.nota-form')"), 'nota excluida');
     // calendario proprio do prazo: dias passados bloqueados, escolher preenche o campo
     await clicar('[data-cal-abrir]');
     assert.ok(await esperar("!!document.querySelector('.cal-painel')"), 'calendario abre');

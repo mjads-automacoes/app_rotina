@@ -219,10 +219,57 @@ final class Clientes
     public function notas(array $actor, int $id): array
     {
         $this->buscar($actor, $id);
-        $st = $this->pdo->prepare('SELECT id, autor, texto, origem, criado_em FROM cliente_notas WHERE cliente_id = ? ORDER BY id DESC');
+        $st = $this->pdo->prepare('SELECT id, autor, texto, origem, criado_em FROM cliente_notas WHERE cliente_id = ? AND excluida = 0 ORDER BY id DESC');
         $st->execute([$id]);
+        $notas = $st->fetchAll();
 
-        return $st->fetchAll();
+        foreach ($notas as &$n) {
+            $n['minha'] = $this->podeMexerNaNota($actor, $n);
+        }
+
+        return $notas;
+    }
+
+    /** Quem escreveu a nota (ou o administrador) pode editar e excluir. Pedido do dono, 24/11/2026. */
+    private function podeMexerNaNota(array $actor, array $nota): bool
+    {
+        return $actor['papel'] === 'admin' || ((string) $nota['autor'] !== '' && (string) $nota['autor'] === (string) ($actor['nome'] ?? ''));
+    }
+
+    private function notaDoCliente(array $actor, int $clienteId, int $notaId): array
+    {
+        $this->buscar($actor, $clienteId);
+        $st = $this->pdo->prepare('SELECT id, autor, texto, origem FROM cliente_notas WHERE id = ? AND cliente_id = ? AND excluida = 0');
+        $st->execute([$notaId, $clienteId]);
+        $nota = $st->fetch();
+
+        if ($nota === false) {
+            throw new RuntimeException('Nota não encontrada.');
+        }
+
+        if (!$this->podeMexerNaNota($actor, $nota)) {
+            throw new AcessoNegado('Só quem escreveu a nota pode mudar ou excluir.');
+        }
+
+        return $nota;
+    }
+
+    public function notaEditar(array $actor, int $clienteId, int $notaId, string $texto): void
+    {
+        $this->notaDoCliente($actor, $clienteId, $notaId);
+        $texto = trim($texto);
+
+        if ($texto === '' || mb_strlen($texto) > self::NOTA_MAX) {
+            throw new InvalidArgumentException('Escreva a nota (até ' . self::NOTA_MAX . ' caracteres).');
+        }
+
+        $this->pdo->prepare('UPDATE cliente_notas SET texto = ? WHERE id = ?')->execute([$texto, $notaId]);
+    }
+
+    public function notaExcluir(array $actor, int $clienteId, int $notaId): void
+    {
+        $this->notaDoCliente($actor, $clienteId, $notaId);
+        $this->pdo->prepare('UPDATE cliente_notas SET excluida = 1 WHERE id = ?')->execute([$notaId]);
     }
 
     public function notaAdicionar(array $actor, int $id, string $texto): void

@@ -209,6 +209,19 @@ final class App
             return $this->tela($r, $u, 'clientes', ['lista' => $this->n->clientes->listar($u), 'gestores' => $admin ? $this->gestores() : [], 'nomes' => array_column($this->n->auth->listar(), 'nome', 'id')]);
         }
 
+        // editar ou excluir uma nota da ficha (pedido do dono, 24/11/2026)
+        if ($r->metodo === 'POST' && preg_match('#^/clientes/(\d+)/notas/(\d+)(/excluir)?$#', $caminho, $m)) {
+            if (($m[3] ?? '') !== '') {
+                $this->n->clientes->notaExcluir($u, (int) $m[1], (int) $m[2]);
+                $this->flash($r, 'ok', 'Nota excluída.');
+            } else {
+                $this->n->clientes->notaEditar($u, (int) $m[1], (int) $m[2], (string) ($r->post['texto'] ?? ''));
+                $this->flash($r, 'ok', 'Nota atualizada.');
+            }
+
+            return Response::redirect('/clientes/' . (int) $m[1]);
+        }
+
         if (preg_match('#^/clientes/(\d+)(?:/(excluir|notas|tarefas)|/tarefas/(\d+)/(excluir))?$#', $caminho, $m)) {
             $id = (int) $m[1];
             $acao = ($m[4] ?? '') !== '' ? 'tarefa-excluir' : ($m[2] ?? '');

@@ -70,3 +70,24 @@ t('observacoes aceitam a descricao inteira do ClickUp (ate 20000)', function ():
     eq(20000, mb_strlen($n->clientes->buscar($ana, $id)['observacoes']));
     lanca(fn () => $n->clientes->criar($ana, ['nome' => 'X', 'observacoes' => str_repeat('a', 20001)]), 'observações');
 });
+
+t('notas: quem escreveu edita e exclui; outro gestor nao; a excluida nao volta pela sincronizacao', function (): void {
+    [$n, $admin, $ana] = nucleo_teste();
+    $c = $n->clientes;
+    $id = $c->criar($ana, ['nome' => 'X']);
+    $c->notaAdicionar($ana, $id, 'Primeira');
+    $nota = $c->notas($ana, $id)[0];
+    ok($nota['minha'], 'a autora pode mexer');
+    $c->notaEditar($ana, $id, (int) $nota['id'], 'Primeira (corrigida)');
+    eq('Primeira (corrigida)', $c->notas($ana, $id)[0]['texto']);
+    lanca(fn () => $c->notaEditar($ana, $id, (int) $nota['id'], '  '), 'nota');
+    $c->notaImportada($id, 'Outra pessoa', 'Do ClickUp', 'clickup', 'cmt-1', date(DATE_ATOM));
+    $doClickup = $c->notas($ana, $id)[0];
+    eq(false, $doClickup['minha'], 'nota de outra pessoa nao e minha');
+    lanca(fn () => $c->notaExcluir($ana, $id, (int) $doClickup['id']), 'Só quem escreveu');
+    $c->notaExcluir($admin, $id, (int) $doClickup['id']);
+    $c->notaImportada($id, 'Outra pessoa', 'Do ClickUp', 'clickup', 'cmt-1', date(DATE_ATOM));
+    eq(['Primeira (corrigida)'], array_column($c->notas($ana, $id), 'texto'), 'excluida nao volta pela sincronizacao');
+    $c->notaExcluir($ana, $id, (int) $nota['id']);
+    eq([], $c->notas($ana, $id));
+});

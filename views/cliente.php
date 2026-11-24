@@ -146,9 +146,30 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <button class="btn btn-primario" type="submit">Add +</button>
       </form>
       <?php foreach ($notas as $nota): ?>
-        <article class="nota">
-          <header><strong><?= e((string) $nota['autor']) ?></strong> <span class="muted"><?= e(date('d/m/Y H:i', (int) strtotime((string) $nota['criado_em']))) ?><?= $nota['origem'] === 'clickup' ? ' · do ClickUp' : '' ?></span></header>
-          <div class="texto-rico"><?= texto_rico((string) $nota['texto']) ?></div>
+        <article class="nota" data-nota>
+          <header class="nota-topo">
+            <span><strong><?= e((string) $nota['autor']) ?></strong> <span class="muted"><?= e(date('d/m/Y H:i', (int) strtotime((string) $nota['criado_em']))) ?><?= $nota['origem'] === 'clickup' ? ' · do ClickUp' : '' ?></span></span>
+            <?php if ($nota['minha']): ?>
+              <span class="nota-acoes">
+                <button type="button" class="btn btn-icone nota-btn" data-nota-editar title="Editar nota" aria-label="Editar nota"><?= icone('lapis') ?></button>
+                <form method="post" action="/clientes/<?= (int) $c['id'] ?>/notas/<?= (int) $nota['id'] ?>/excluir">
+                  <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+                  <button type="submit" class="btn btn-icone nota-btn nota-btn-excluir" data-confirmar="Excluir esta nota?" title="Excluir nota" aria-label="Excluir nota"><?= icone('lixeira') ?></button>
+                </form>
+              </span>
+            <?php endif; ?>
+          </header>
+          <div class="texto-rico" data-nota-texto><?= texto_rico((string) $nota['texto']) ?></div>
+          <?php if ($nota['minha']): ?>
+            <form method="post" action="/clientes/<?= (int) $c['id'] ?>/notas/<?= (int) $nota['id'] ?>" class="nota-edicao" data-nota-form hidden>
+              <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+              <textarea name="texto" rows="3" maxlength="<?= Clientes::NOTA_MAX ?>" required><?= e((string) $nota['texto']) ?></textarea>
+              <span class="nota-edicao-botoes">
+                <button type="button" class="btn btn-contorno btn-mini" data-nota-cancelar>Cancelar</button>
+                <button type="submit" class="btn btn-primario btn-mini">Salvar</button>
+              </span>
+            </form>
+          <?php endif; ?>
         </article>
       <?php endforeach; ?>
     </section>

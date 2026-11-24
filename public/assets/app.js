@@ -110,6 +110,18 @@
     campo.querySelector("textarea").focus();
   });
 
+  // ---- notas da ficha: lapis abre a edicao no lugar do texto; cancelar volta (pedido do dono, 24/11/2026)
+  document.addEventListener("click", (event) => {
+    const editar = event.target.closest("[data-nota-editar]");
+    const cancelar = event.target.closest("[data-nota-cancelar]");
+    const nota = (editar || cancelar) && (editar || cancelar).closest("[data-nota]");
+    if (!nota) return;
+    const form = nota.querySelector("[data-nota-form]");
+    nota.querySelector("[data-nota-texto]").hidden = !!editar;
+    form.hidden = !editar;
+    if (editar) { const t = form.querySelector("textarea"); t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
+  });
+
   // ---- barra das observacoes: # titulo, B negrito, I italico, U sublinhado (marcacao em texto, salva sozinha)
   document.addEventListener("mousedown", (event) => { if (event.target.closest("[data-formato]")) event.preventDefault(); });
   document.addEventListener("click", (event) => {

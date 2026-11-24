@@ -959,3 +959,15 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .entregavel-botao { padding-right: 44px; }
 .entregavel-botao [data-entregavel-atual] { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; }
 .entregavel-botao .etiqueta { display: block; width: max-content; max-width: 100%; }
+
+/* Notas: lapis e lixeira em cada nota de quem escreveu; edicao no lugar (pedido do dono, 24/11/2026) */
+.nota-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.nota-acoes { display: inline-flex; gap: 4px; flex: none; }
+.nota-acoes form { margin: 0; }
+.nota-btn { width: 30px; height: 30px; min-height: 30px; padding: 0; border: 0; color: var(--muted); background: transparent; }
+.nota-btn .ic { width: 15px; height: 15px; }
+.nota-btn:hover { background: var(--panel-2); color: var(--texto); }
+.nota-btn-excluir:hover { color: var(--vermelho); }
+.nota-edicao { display: grid; gap: 8px; margin-top: 6px; }
+.nota-edicao[hidden] { display: none; }
+.nota-edicao-botoes { display: flex; justify-content: flex-end; gap: 8px; }
