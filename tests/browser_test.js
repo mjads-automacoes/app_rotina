@@ -86,10 +86,10 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await clicar('[data-cab="menu"][data-bloco="clientes"]');
     await clicar('[data-cab="cores"]');
     await clicar('[data-cab="cor"][data-cor="rosa"]');
-    assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h.textContent.includes('Meus clientes') && h.classList.contains('cor-rosa'); })()"), 'nome e cor do cabecalho mudam');
+    assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h.textContent.includes('Meus clientes') && rotinaClientes.classList.contains('cor-rosa') && [...rotinaClientes.querySelectorAll('.rotina-grupo-topo')].every(g => getComputedStyle(g).borderLeftColor === 'rgb(236, 72, 153)'); })()"), 'nome e cor mudam, e os cabecalhos de turno acompanham');
     await sleep(500);
     await ir('/');
-    assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h && h.textContent.includes('Meus clientes') && h.classList.contains('cor-rosa'); })()"), 'cabecalho continua depois de recarregar');
+    assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h && h.textContent.includes('Meus clientes') && rotinaClientes.classList.contains('cor-rosa'); })()"), 'cabecalho continua depois de recarregar');
     assert.equal(await ev("getComputedStyle(document.querySelector('#rotinaChecklist .rotina-cabecalho h3'), '::before').display"), 'none', 'sem a barrinha antes do titulo');
     assert.equal(await ev("(() => { const h = document.querySelector('#painelRotina h1').getBoundingClientRect(), d = rotinaDias.getBoundingClientRect(); return d.top < h.bottom && d.bottom > h.top && d.left > h.right; })()"), true, 'barra do dia na mesma linha do titulo Rotina');
     // foco em duas colunas: a direita, depois de uma linha, as tarefas do cliente com o status

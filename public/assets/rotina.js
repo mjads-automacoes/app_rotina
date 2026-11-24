@@ -212,7 +212,10 @@
       ]) : null;
     const pontos = iconeBotao("rotina-mais", "", "Opções do cabeçalho", '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>');
     pontos.removeAttribute("data-check"); pontos.dataset.cab = "menu"; pontos.dataset.bloco = bloco;
-    return el("div", { class: "cartao-topo rotina-cabecalho cor-" + cfg.cor, "data-bloco": bloco }, [
+    // a cor vale para o bloco inteiro: os cabecalhos de turno (Manha, Tarde, Fechamento) acompanham a do principal
+    const cartao = bloco === "checklist" ? ui.checklist : ui.clientes;
+    CORES.forEach(([c]) => cartao.classList.toggle("cor-" + c, c === cfg.cor));
+    return el("div", { class: "cartao-topo rotina-cabecalho", "data-bloco": bloco }, [
       titulo,
       el("span", { class: "cab-direita" }, [extra, el("span", { class: "rotina-mais-wrap" }, [pontos, menu].filter(Boolean))].filter(Boolean)),
     ]);

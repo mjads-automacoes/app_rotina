@@ -1,13 +1,13 @@
 /* ============ Tokens: tema escuro (padrao) e claro ============ */
 :root {
-  --bg: #0a1620;
-  --bg-menu: #0d1b26;
-  --panel: #102230;
-  --panel-2: #16303f;
-  --borda: #1d3647;
-  --borda-forte: #2a4a5e;
-  --texto: #e6f1f5;
-  --muted: #8aa3b3;
+  --bg: #1f2226;
+  --bg-menu: #25292d;
+  --panel: #2a2e33;
+  --panel-2: #33383e;
+  --borda: #3a4047;
+  --borda-forte: #4b525a;
+  --texto: #eef1f3;
+  --muted: #a3abb3;
   --acento: #14d2c0;
   --acento-2: #22b8e6;
   --acento-fundo: rgba(20, 210, 192, 0.16);
@@ -15,7 +15,7 @@
   --verde: #22c55e;
   --amarelo: #f5a524;
   --vermelho: #f0545a;
-  --campo: #0b1923;
+  --campo: #212428;
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
   --raio: 14px;
   --gradiente: linear-gradient(135deg, #0fbfae 0%, #14d2c0 100%);
@@ -715,7 +715,7 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-foco-tarefas h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
 
 /* Itens selecionados (cliente em foco) com tom mais escuro que os cabecalhos (pedido do dono, 23/11/2026) */
-:root { --selecionado: #0b2c33; }
+:root { --selecionado: #1d3b3b; }
 :root[data-tema="claro"] { --selecionado: #d3f3ef; }
 .rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(20, 210, 192, 0.55); }
 .rotina-cliente.is-foco:hover, .rotina-tarefa.is-foco:hover { background: var(--selecionado); }
@@ -803,26 +803,27 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .emoji-item:hover { background: var(--panel-2); }
 
 /* ===== Tema principal azul-petroleo/turquesa (pedido do dono, 24/11/2026) ===== */
-/* turnos com cor propria: Manha azul, Tarde ambar, Fechamento anil */
-:root { --turno-manha: #0e4359; --turno-manha-texto: #4fd8ec; --turno-tarde: #5b3b14; --turno-tarde-texto: #ffd04d; --turno-fech: #1b3461; --turno-fech-texto: #a8bfff; }
-:root[data-tema="claro"] { --turno-manha: #dcf3fa; --turno-manha-texto: #0e7490; --turno-tarde: #fdf0d3; --turno-tarde-texto: #a16207; --turno-fech: #e3e9ff; --turno-fech-texto: #3b4fb8; }
-.rotina-subtitulo[data-turno=manha], .rotina-grupo-topo[data-turno=manha] { background: var(--turno-manha); color: var(--turno-manha-texto); border-left-color: var(--turno-manha-texto); }
-.rotina-subtitulo[data-turno=tarde], .rotina-grupo-topo[data-turno=tarde] { background: var(--turno-tarde); color: var(--turno-tarde-texto); border-left-color: var(--turno-tarde-texto); }
-.rotina-subtitulo[data-turno=fechamento], .rotina-grupo-topo[data-turno=fechamento] { background: var(--turno-fech); color: var(--turno-fech-texto); border-left-color: var(--turno-fech-texto); }
+/* cabecalhos de turno (Manha, Tarde, Fechamento) acompanham a cor do cabecalho principal de cada bloco (pedido do dono, 24/11/2026) */
+#painelRotina .rotina-subtitulo, #painelRotina .rotina-grupo-topo {
+  border-left-color: var(--cab-cor);
+  background: color-mix(in srgb, var(--cab-cor) 26%, var(--panel));
+  color: color-mix(in srgb, var(--cab-cor) 72%, var(--texto));
+}
 #painelRotina .rotina-checklist .contagem { color: #06231f; }
 :root[data-tema="claro"] #painelRotina .rotina-checklist .contagem { color: #fff; }
 /* cliente selecionado sem a barrinha a esquerda (pedido do dono) */
 .rotina-cliente.is-foco { box-shadow: none; }
 
 /* Cabecalhos "Checklist do dia" / "Clientes do dia": sem a barrinha, com tres pontinhos para nome e cor (pedido do dono, 24/11/2026) */
-.rotina-cabecalho { --cab-cor: var(--acento); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.rotina-cabecalho.cor-azul { --cab-cor: #3b82f6; }
-.rotina-cabecalho.cor-verde { --cab-cor: #22c55e; }
-.rotina-cabecalho.cor-amarelo { --cab-cor: #f5a524; }
-.rotina-cabecalho.cor-laranja { --cab-cor: #f97316; }
-.rotina-cabecalho.cor-vermelho { --cab-cor: #ef4444; }
-.rotina-cabecalho.cor-rosa { --cab-cor: #ec4899; }
-.rotina-cabecalho.cor-roxo { --cab-cor: #8b5cf6; }
+.rotina-checklist, .rotina-clientes { --cab-cor: var(--acento); }
+.rotina-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rotina-cabecalho.cor-azul, .rotina-checklist.cor-azul, .rotina-clientes.cor-azul { --cab-cor: #3b82f6; }
+.rotina-cabecalho.cor-verde, .rotina-checklist.cor-verde, .rotina-clientes.cor-verde { --cab-cor: #22c55e; }
+.rotina-cabecalho.cor-amarelo, .rotina-checklist.cor-amarelo, .rotina-clientes.cor-amarelo { --cab-cor: #f5a524; }
+.rotina-cabecalho.cor-laranja, .rotina-checklist.cor-laranja, .rotina-clientes.cor-laranja { --cab-cor: #f97316; }
+.rotina-cabecalho.cor-vermelho, .rotina-checklist.cor-vermelho, .rotina-clientes.cor-vermelho { --cab-cor: #ef4444; }
+.rotina-cabecalho.cor-rosa, .rotina-checklist.cor-rosa, .rotina-clientes.cor-rosa { --cab-cor: #ec4899; }
+.rotina-cabecalho.cor-roxo, .rotina-checklist.cor-roxo, .rotina-clientes.cor-roxo { --cab-cor: #8b5cf6; }
 .rotina-checklist .cartao-topo h3::before, .rotina-clientes h2::before { display: none; }
 #painelRotina .rotina-clientes > .cartao-topo {
   position: sticky; top: -18px; z-index: 3; margin: -18px -20px 12px; padding: 15px 20px; border-radius: 18px 18px 0 0;
