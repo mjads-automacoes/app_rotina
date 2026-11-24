@@ -106,7 +106,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
   </section>
 
   <div class="coluna">
-    <section class="cartao">
+    <section class="cartao" data-ao-vivo="tarefas">
       <h2>Tarefas deste cliente</h2>
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas" class="tarefa-nova">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
@@ -152,7 +152,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <?php endif; ?>
     </section>
 
-    <section class="cartao">
+    <section class="cartao" data-ao-vivo="notas">
       <h2>Notas</h2>
       <form method="post" action="/clientes/<?= (int) $c['id'] ?>/notas" class="nota-form">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">

@@ -313,8 +313,10 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const d = document.querySelector('.lista-simples [data-tarefa-detalhes]'); return !d.hidden && d.textContent.includes('Status') && d.textContent.includes('Prazo'); })()"), true, 'detalhes da tarefa aparecem ao clicar');
     await clicar('.lista-simples [data-tarefa-abrir]');
     // tarefas do cliente: adicionar pela ficha e excluir com confirmacao
+    await ev("window.__semRecarregar = 1");
     await ev("(() => { const f = document.querySelector('.tarefa-nova'); f.querySelector('[name=titulo]').value = 'Tarefa criada na ficha'; f.querySelector('[name=prazo]').value = document.querySelector('[data-calendario]').dataset.min; f.requestSubmit(); })()");
     assert.ok(await esperar("[...document.querySelectorAll('.lista-simples li')].some(li => li.textContent.includes('Tarefa criada na ficha') && /\\d{2}\\/\\d{2}/.test(li.textContent))"), 'tarefa adicionada na ficha');
+    assert.equal(await ev("window.__semRecarregar === 1"), true, 'ao vivo: a pagina nao recarregou');
     await ev("[...document.querySelectorAll('.lista-simples li')].find(li => li.textContent.includes('Tarefa criada na ficha')).querySelector('.btn-excluir-tarefa').click()");
     assert.ok(await esperar("!!document.querySelector('[data-confirmar-ok]')"), 'confirmacao da ficha abre');
     await clicar('[data-confirmar-ok]');

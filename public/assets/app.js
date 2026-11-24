@@ -53,6 +53,7 @@
       try {
         const r = await chamar("POST", form.dataset.autosalvar, dados());
         mostrar("✓ Salvo", "is-salvo");
+        avisarRotina();
         const nome = r.cliente && r.cliente.nome;
         if (nome) {
           document.querySelectorAll("[data-cliente-nome]").forEach((n) => { n.textContent = nome; });
@@ -113,11 +114,12 @@
   // ---- notas da ficha: a coluna da direita nao passa do fim de "Dados do cliente"; o resto das notas rola por dentro
   // (barra de rolagem escondida). Pedido do dono, 24/11/2026.
   (function () {
-    const lista = document.querySelector("[data-notas-lista]");
     const esquerda = document.querySelector(".ficha-grade > .cartao");
-    const direita = lista && lista.closest(".coluna");
-    if (!lista || !esquerda || !direita) return;
+    if (!esquerda || !document.querySelector("[data-notas-lista]")) return;
     const ajustar = () => {
+      const lista = document.querySelector("[data-notas-lista]"); // o bloco de notas e trocado ao vivo: busca de novo
+      const direita = lista && lista.closest(".coluna");
+      if (!lista || !direita) return;
       lista.style.maxHeight = "";
       if (getComputedStyle(esquerda.parentElement).gridTemplateColumns.split(" ").length < 2) return; // celular: uma coluna so
       const sobra = direita.getBoundingClientRect().bottom - esquerda.getBoundingClientRect().bottom;
@@ -127,6 +129,7 @@
     window.addEventListener("resize", ajustar);
     if (window.ResizeObserver) new ResizeObserver(ajustar).observe(esquerda);
     document.addEventListener("click", () => setTimeout(ajustar, 0));
+    document.addEventListener("ficha-atualizada", ajustar);
   })();
 
   // ---- tarefas da ficha: clicar na tarefa abre/fecha os detalhes dela
@@ -303,7 +306,7 @@
   const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
   const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   const deIso = (s) => { const [a, m, d] = s.split("-").map(Number); return new Date(a, m - 1, d); };
-  document.querySelectorAll("[data-calendario]").forEach((caixa) => {
+  function iniciarCalendario(caixa) {
     const campo = caixa.querySelector("input[type=hidden]");
     const botao = caixa.querySelector("[data-cal-abrir]");
     const texto = caixa.querySelector("[data-cal-texto]");
@@ -364,7 +367,8 @@
     document.addEventListener("click", (ev) => { if (painel && !caixa.contains(ev.target)) fechar(); });
     document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && painel) { fechar(); botao.focus(); } });
     // ao adicionar a tarefa, o formulario recarrega a pagina; nada a limpar aqui
-  });
+  }
+  document.querySelectorAll("[data-calendario]").forEach(iniciarCalendario);
 
   // Pop-up de confirmacao simples, sempre no meio da tela. Na ficha em janela (iframe), abre na tela principal.
   function confirmar(mensagem, acao) {
@@ -559,6 +563,44 @@
   document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && emojiPainel) { ev.stopPropagation(); emojiFecharPainel(); } }, true);
   window.addEventListener("scroll", emojiPosicionar, true);
   window.addEventListener("resize", emojiPosicionar);
+
+  // ---- ficha ao vivo (pedido do dono, 24/11/2026): adicionar/excluir tarefa e adicionar/editar/excluir nota
+  // atualizam so o bloco, sem recarregar a pagina. O formulario vai pelo fetch; da resposta (a ficha nova)
+  // troca-se cada bloco [data-ao-vivo] e o aviso vira notificacao.
+  // ficha aberta em janela sobre a Rotina: a Rotina atras se atualiza na hora
+  function avisarRotina() {
+    try { if (window.parent !== window && window.parent.Rotina && window.parent.Rotina.recarregarRotina) window.parent.Rotina.recarregarRotina(); } catch (e) { /* outra origem */ }
+  }
+  window.Rotina = window.Rotina || {};
+  function prepararTrecho(raizTrecho) {
+    raizTrecho.querySelectorAll("[data-cor]").forEach((n) => { n.style.background = n.dataset.cor; });
+    raizTrecho.querySelectorAll("[data-calendario]").forEach(iniciarCalendario);
+  }
+  document.addEventListener("submit", async (ev) => {
+    const form = ev.target;
+    if (!form.closest || !form.closest("[data-ao-vivo]") || ev.defaultPrevented) return;
+    ev.preventDefault();
+    const botoes = form.querySelectorAll("button");
+    botoes.forEach((b) => { b.disabled = true; });
+    try {
+      const resp = await fetch(form.action, { method: "POST", body: new URLSearchParams(new FormData(form)), credentials: "same-origin", headers: { Accept: "text/html" } });
+      if (resp.url.includes("/login")) { window.location.href = "/login"; return; }
+      const novo = new DOMParser().parseFromString(await resp.text(), "text/html");
+      document.querySelectorAll("[data-ao-vivo]").forEach((bloco) => {
+        const troca = novo.querySelector('[data-ao-vivo="' + bloco.dataset.aoVivo + '"]');
+        if (!troca) return;
+        const importado = document.importNode(troca, true);
+        bloco.replaceWith(importado);
+        prepararTrecho(importado);
+      });
+      novo.querySelectorAll("[data-notificacao]").forEach((n) => toast(n.textContent.trim(), n.dataset.notificacao === "erro"));
+      document.dispatchEvent(new Event("ficha-atualizada"));
+      avisarRotina();
+    } catch (e) {
+      toast("Não foi possível salvar: " + e.message, true);
+      botoes.forEach((b) => { b.disabled = false; });
+    }
+  });
 
   window.Rotina = { el, toast, chamar, dataBR, iniciais, confirmar, selecao };
 })();

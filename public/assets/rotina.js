@@ -569,5 +569,9 @@
   if (ui.gestor) ui.gestor.addEventListener("change", () => { state.dados = null; state.foco = null; carregar(false); });
 
   carregar(false);
-  setInterval(() => { if (!document.hidden) carregar(true); }, 60000);
+  // "tudo em tempo real" (pedido do dono, 24/11/2026): busca as mudancas a cada 15 segundos e na hora em que a ficha
+  // aberta em janela salva algo; ao voltar para a aba, atualiza tambem
+  setInterval(() => { if (!document.hidden) carregar(true); }, 15000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) carregar(true); });
+  window.Rotina.recarregarRotina = () => carregar(true);
 })();
