@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 5;
+    public const VERSAO = 6;
 
     public static function open(string $caminho): PDO
     {
@@ -71,6 +71,10 @@ final class Db
                 self::v5($pdo);
             }
 
+            if ($atual < 6) {
+                self::v6($pdo);
+            }
+
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
             $pdo->commit();
         } catch (Throwable $e) {
@@ -80,6 +84,14 @@ final class Db
         }
 
         $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    /** v6 (24/11/2026, pedido do dono): entregaveis de cada cliente (lista separada por virgula). */
+    private static function v6(PDO $pdo): void
+    {
+        if (!in_array('entregaveis', array_column($pdo->query('PRAGMA table_info(clientes)')->fetchAll(), 'name'), true)) {
+            $pdo->exec("ALTER TABLE clientes ADD COLUMN entregaveis TEXT NOT NULL DEFAULT ''");
+        }
     }
 
     /** v5 (24/11/2026, pedido do dono): CNPJ, cidade e estado do cliente (no lugar do "Site do Cliente" na ficha). */

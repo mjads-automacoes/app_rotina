@@ -580,7 +580,11 @@ final class App
             $post['plataformas'] = [];
         }
 
-        return array_intersect_key($post, array_flip(['nome', 'empresa', 'descricao', 'link', 'cnpj', 'cidade', 'estado', 'dias', 'turno', 'status', 'gestor_id', 'contato_nome', 'contato_telefone', 'contato_email', 'plataformas', 'orcamento', 'observacoes']));
+        if (isset($post['entregaveis_enviado']) && !isset($post['entregaveis'])) {
+            $post['entregaveis'] = [];
+        }
+
+        return array_intersect_key($post, array_flip(['nome', 'empresa', 'descricao', 'link', 'cnpj', 'cidade', 'estado', 'entregaveis', 'dias', 'turno', 'status', 'gestor_id', 'contato_nome', 'contato_telefone', 'contato_email', 'plataformas', 'orcamento', 'observacoes']));
     }
 
     private function gestores(): array

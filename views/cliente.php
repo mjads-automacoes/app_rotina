@@ -51,15 +51,34 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <select name="estado"><option value="">—</option><?php foreach (Clientes::UFS as $uf): ?><option value="<?= e($uf) ?>" <?= $c['estado'] === $uf ? 'selected' : '' ?>><?= e($uf) ?></option><?php endforeach; ?></select>
       </label>
 
-      <h3 class="form-secao largo">Plataformas</h3>
-      <div class="plataformas largo">
-        <input type="hidden" name="plataformas_enviado" value="1">
-        <?php foreach ($plataformas as $chave => $rotulo): ?>
-          <label class="plat">
-            <input type="checkbox" name="plataformas[]" value="<?= e($chave) ?>" <?= in_array($chave, $c['plataformas'], true) ? 'checked' : '' ?>>
-            <span class="plat-cartao"><?= logo_plataforma($chave) ?><span><?= e($rotulo) ?></span></span>
-          </label>
-        <?php endforeach; ?>
+      <?php // Plataformas | Entregaveis, separados por uma linha (pedido do dono, 24/11/2026)
+      $entregaveisMarcados = array_values(array_filter(array_keys(Clientes::ENTREGAVEIS), static fn (string $x): bool => in_array($x, $c['entregaveis'], true)));
+      $rotuloEntregaveis = $entregaveisMarcados === [] ? 'Selecione os entregáveis' : implode(', ', array_map(static fn (string $x): string => Clientes::ENTREGAVEIS[$x], $entregaveisMarcados)); ?>
+      <div class="largo plat-entregas">
+        <div class="plat-entregas-col">
+          <h3 class="form-secao">Plataformas</h3>
+          <div class="plataformas">
+            <input type="hidden" name="plataformas_enviado" value="1">
+            <?php foreach ($plataformas as $chave => $rotulo): ?>
+              <label class="plat">
+                <input type="checkbox" name="plataformas[]" value="<?= e($chave) ?>" <?= in_array($chave, $c['plataformas'], true) ? 'checked' : '' ?>>
+                <span class="plat-cartao"><?= logo_plataforma($chave) ?><span><?= e($rotulo) ?></span></span>
+              </label>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <div class="plat-entregas-col plat-entregas-dir">
+          <h3 class="form-secao">Entregáveis</h3>
+          <details class="multi" data-multi data-multi-vazio="Selecione os entregáveis">
+            <summary><span data-multi-rotulo><?= e($rotuloEntregaveis) ?></span></summary>
+            <div class="multi-lista">
+              <input type="hidden" name="entregaveis_enviado" value="1">
+              <?php foreach (Clientes::ENTREGAVEIS as $chave => $rotulo): ?>
+                <label class="check"><input type="checkbox" name="entregaveis[]" value="<?= e($chave) ?>" data-curto="<?= e($rotulo) ?>" <?= in_array($chave, $entregaveisMarcados, true) ? 'checked' : '' ?>> <?= e($rotulo) ?></label>
+              <?php endforeach; ?>
+            </div>
+          </details>
+        </div>
       </div>
 
       <h3 class="form-secao largo">Rotina</h3>

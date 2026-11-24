@@ -276,6 +276,12 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("!document.querySelector('form[data-autosalvar] [name=link]') && !!document.querySelector('[name=cnpj]') && !!document.querySelector('[name=cidade]') && document.querySelectorAll('select[name=estado] option').length === 28"), true, 'CNPJ, Cidade e Estado no lugar do site');
     assert.equal(await ev("(() => { const c = document.querySelector('[name=cnpj]'); c.value = '12345678000199'; c.dispatchEvent(new Event('input', { bubbles: true })); return c.value; })()"), '12.345.678/0001-99', 'CNPJ formatado');
     assert.equal(await ev("(() => { const c = document.querySelector('[name=cidade]'); c.focus(); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); const b = document.querySelector('.emoji-botao'); return !b || b.hidden; })()"), true, 'sem emoji nos campos de empresa e contato');
+    // Entregaveis: menu de varias escolhas ao lado das plataformas, separado por uma linha
+    await ev("document.querySelector('.plat-entregas-dir summary').click()");
+    await ev("(() => { const c = document.querySelector('input[name=\"entregaveis[]\"][value=criativos]'); c.click(); })()");
+    assert.equal(await ev("document.querySelector('.plat-entregas-dir [data-multi-rotulo]').textContent"), 'Criativos', 'entregavel marcado aparece no menu');
+    assert.equal(await ev("(() => { const p = document.querySelector('.plataformas').getBoundingClientRect(), e = document.querySelector('.plat-entregas-dir').getBoundingClientRect(); return e.left > p.right && getComputedStyle(document.querySelector('.plat-entregas-dir')).borderLeftStyle === 'solid'; })()"), true, 'entregaveis a direita, com linha divisoria');
+    await ev("document.querySelector('h1').click()");
     // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original
     await clicar('select[name=status] + .selecao-botao');
     assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 4"), 'lista propria do menu abre');
@@ -299,13 +305,13 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("document.querySelectorAll('#notificacoes .notificacao').length"), 0, 'notificacao some em 5 segundos');
     await shot('9-cliente-ficha-escuro.png');
     // menu de selecao dos dias: abre, marca, atualiza o rotulo e fecha ao clicar fora
-    await ev("document.querySelector('[data-multi] summary').click()");
-    assert.ok(await esperar("document.querySelector('[data-multi]').open"), 'menu de dias abre');
-    await ev("(() => { const i = document.querySelector('[data-multi] input[value=quarta]'); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); })()");
-    assert.ok(await esperar("document.querySelector('[data-multi-rotulo]').textContent.includes('Qua')"), 'rotulo mostra os dias marcados');
+    await ev("document.querySelector('.campo-multi [data-multi] summary').click()");
+    assert.ok(await esperar("document.querySelector('.campo-multi [data-multi]').open"), 'menu de dias abre');
+    await ev("(() => { const i = document.querySelector('.campo-multi [data-multi] input[value=quarta]'); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); })()");
+    assert.ok(await esperar("document.querySelector('.campo-multi [data-multi-rotulo]').textContent.includes('Qua')"), 'rotulo mostra os dias marcados');
     await shot('9b-dias-menu-aberto.png');
     await ev("document.querySelector('h1').click()");
-    assert.ok(await esperar("!document.querySelector('[data-multi]').open"), 'menu de dias fecha ao clicar fora');
+    assert.ok(await esperar("!document.querySelector('.campo-multi [data-multi]').open"), 'menu de dias fecha ao clicar fora');
     // salva sozinha: sem botao Salvar e sem o aviso "Salva sozinha"; muda um campo, recarrega e o valor continua
     assert.equal(await ev("[...document.querySelectorAll('form[data-autosalvar] button')].some(b => b.textContent.trim() === 'Salvar')"), false, 'sem botao Salvar');
     await ev("(() => { const i = document.querySelector('form[data-autosalvar] [name=contato_nome]'); i.value = 'Contato salvo sozinho'; i.dispatchEvent(new Event('input', { bubbles: true })); })()");

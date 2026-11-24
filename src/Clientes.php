@@ -9,6 +9,12 @@ final class Clientes
     public const OBSERVACOES_MAX = 20000;
     /** Colunas do kanban de clientes, na ordem (pedido do dono, 24/11/2026). Ativo, Alerta e Churn entram na rotina automatica; Novo fica de fora. */
     public const SITUACOES = ['novo', 'ativo', 'alerta', 'churn'];
+    /** Entregaveis que o cliente contratou (menu da ficha, varios ao mesmo tempo). Pedido do dono, 24/11/2026. */
+    public const ENTREGAVEIS = [
+        'trafego' => 'Gestão de Tráfego', 'criativos' => 'Criativos', 'relatorio' => 'Relatório Mensal', 'landing' => 'Landing Page',
+        'social' => 'Social Media', 'google_meu_negocio' => 'Google Meu Negócio', 'whatsapp' => 'Automação de WhatsApp', 'consultoria' => 'Consultoria',
+    ];
+
     /** Estados do Brasil para o campo "Estado" da ficha. */
     public const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
     public const SITUACAO_NOME = ['novo' => 'Novo', 'ativo' => 'Ativo', 'alerta' => 'Alerta', 'churn' => 'Churn'];
@@ -71,10 +77,10 @@ final class Clientes
         }
 
         $agora = date(DATE_ATOM);
-        $this->pdo->prepare('INSERT INTO clientes (gestor_id, nome, empresa, descricao, link, dias, turno, status, contato_nome, contato_telefone, contato_email, plataformas, orcamento, observacoes, clickup_id, clickup_dados, criado_em, atualizado_em, cnpj, cidade, estado)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        $this->pdo->prepare('INSERT INTO clientes (gestor_id, nome, empresa, descricao, link, dias, turno, status, contato_nome, contato_telefone, contato_email, plataformas, orcamento, observacoes, clickup_id, clickup_dados, criado_em, atualizado_em, cnpj, cidade, estado, entregaveis)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
             ->execute([$gestorId, $v['nome'], $v['empresa'], $v['descricao'], $v['link'], implode(',', $v['dias']), $v['turno'], $v['status'], $v['contato_nome'], $v['contato_telefone'],
-                $v['contato_email'], implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], $dados['clickup_id'] ?? null, $dados['clickup_dados'] ?? null, $agora, $agora, $v['cnpj'], $v['cidade'], $v['estado']]);
+                $v['contato_email'], implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], $dados['clickup_id'] ?? null, $dados['clickup_dados'] ?? null, $agora, $agora, $v['cnpj'], $v['cidade'], $v['estado'], implode(',', $v['entregaveis'])]);
 
         return (int) $this->pdo->lastInsertId();
     }
@@ -90,9 +96,9 @@ final class Clientes
         }
 
         $this->pdo->prepare('UPDATE clientes SET gestor_id = ?, nome = ?, empresa = ?, descricao = ?, link = ?, dias = ?, turno = ?, status = ?, contato_nome = ?, contato_telefone = ?, contato_email = ?,
-            plataformas = ?, orcamento = ?, observacoes = ?, clickup_dados = ?, atualizado_em = ?, cnpj = ?, cidade = ?, estado = ? WHERE id = ?')
+            plataformas = ?, orcamento = ?, observacoes = ?, clickup_dados = ?, atualizado_em = ?, cnpj = ?, cidade = ?, estado = ?, entregaveis = ? WHERE id = ?')
             ->execute([$gestorId, $v['nome'], $v['empresa'], $v['descricao'], $v['link'], implode(',', $v['dias']), $v['turno'], $v['status'], $v['contato_nome'], $v['contato_telefone'], $v['contato_email'],
-                implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], array_key_exists('clickup_dados', $dados) ? $dados['clickup_dados'] : $atual['clickup_dados'], date(DATE_ATOM), $v['cnpj'], $v['cidade'], $v['estado'], $id]);
+                implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], array_key_exists('clickup_dados', $dados) ? $dados['clickup_dados'] : $atual['clickup_dados'], date(DATE_ATOM), $v['cnpj'], $v['cidade'], $v['estado'], implode(',', $v['entregaveis']), $id]);
     }
 
     /** O responsavel do cliente precisa ser um usuario ativo da equipe. */
@@ -212,6 +218,17 @@ final class Clientes
 
         $plataformas = array_values(array_intersect(self::PLATAFORMAS, $plataformas));
 
+        $entregaveis = $d['entregaveis'] ?? [];
+        $entregaveis = is_string($entregaveis) ? array_filter(explode(',', $entregaveis), 'strlen') : (array) $entregaveis;
+
+        foreach ($entregaveis as $x) {
+            if (!isset(self::ENTREGAVEIS[$x])) {
+                throw new InvalidArgumentException('O entregável "' . $x . '" não é válido.');
+            }
+        }
+
+        $entregaveis = array_values(array_intersect(array_keys(self::ENTREGAVEIS), $entregaveis));
+
         $curtos = [];
 
         foreach (['empresa' => 120, 'descricao' => 500, 'contato_nome' => 120, 'contato_telefone' => 30, 'orcamento' => 60] as $campo => $max) {
@@ -250,7 +267,7 @@ final class Clientes
             throw new InvalidArgumentException('Escolha um estado válido.');
         }
 
-        return ['cnpj' => $cnpj, 'cidade' => $cidade, 'estado' => $estado, 'nome' => $nome, 'link' => $link, 'dias' => $dias, 'turno' => $turno, 'status' => $status, 'contato_email' => $email, 'plataformas' => $plataformas, 'observacoes' => $observacoes] + $curtos;
+        return ['entregaveis' => $entregaveis, 'cnpj' => $cnpj, 'cidade' => $cidade, 'estado' => $estado, 'nome' => $nome, 'link' => $link, 'dias' => $dias, 'turno' => $turno, 'status' => $status, 'contato_email' => $email, 'plataformas' => $plataformas, 'observacoes' => $observacoes] + $curtos;
     }
 
     private function formatar(array $c): array
@@ -259,6 +276,7 @@ final class Clientes
         $c['gestor_id'] = (int) $c['gestor_id'];
         $c['dias'] = $c['dias'] === '' ? [] : explode(',', (string) $c['dias']);
         $c['plataformas'] = $c['plataformas'] === '' ? [] : explode(',', (string) $c['plataformas']);
+        $c['entregaveis'] = ($c['entregaveis'] ?? '') === '' ? [] : explode(',', (string) $c['entregaveis']);
 
         return $c;
     }

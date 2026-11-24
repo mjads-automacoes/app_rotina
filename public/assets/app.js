@@ -149,7 +149,8 @@
     const menu = event.target.closest("[data-multi]");
     if (!menu) return;
     const marcados = [...menu.querySelectorAll("input[type=checkbox]:checked")].map((i) => i.dataset.curto);
-    menu.querySelector("[data-multi-rotulo]").textContent = marcados.length === 0 ? "Selecione os dias" : marcados.length === 5 ? "Segunda a sexta" : marcados.join(", ");
+    const dias = !menu.dataset.multiVazio; // o menu dos dias tem "Segunda a sexta"; os outros so listam o que foi marcado
+    menu.querySelector("[data-multi-rotulo]").textContent = marcados.length === 0 ? (menu.dataset.multiVazio || "Selecione os dias") : dias && marcados.length === 5 ? "Segunda a sexta" : marcados.join(", ");
   });
   document.addEventListener("click", (event) => {
     document.querySelectorAll("[data-multi][open]").forEach((m) => { if (!m.contains(event.target)) m.open = false; });

@@ -94,3 +94,14 @@ t('ficha: CNPJ (14 numeros, guardado formatado), cidade e estado', function (): 
     lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'cnpj' => '123']), '14 números');
     lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'estado' => 'XX']), 'estado');
 });
+
+t('ficha: entregaveis do cliente (varios, so da lista)', function (): void {
+    [$n, , $ana] = nucleo_teste();
+    $id = $n->clientes->criar($ana, ['nome' => 'X', 'entregaveis' => ['relatorio', 'trafego']]);
+    eq(['trafego', 'relatorio'], $n->clientes->buscar($ana, $id)['entregaveis'], 'na ordem da lista');
+    $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'cidade' => 'Santos']);
+    eq(['trafego', 'relatorio'], $n->clientes->buscar($ana, $id)['entregaveis'], 'salvar outro campo nao apaga');
+    $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'entregaveis' => []]);
+    eq([], $n->clientes->buscar($ana, $id)['entregaveis']);
+    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'entregaveis' => ['inventado']]), 'não é válido');
+});

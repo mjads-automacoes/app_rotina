@@ -913,3 +913,16 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .plataformas { gap: 8px; }
 .plat-cartao { min-width: 0; padding: 7px 14px; gap: 8px; border-radius: 10px; font-size: 0.88rem; }
 .plat-cartao svg, .plat-cartao img { width: 16px; height: 16px; }
+
+/* Ficha: Plataformas | Entregaveis lado a lado, com linha divisoria (pedido do dono, 24/11/2026) */
+.plat-entregas { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--borda); }
+.plat-entregas .form-secao { margin: 0 0 10px; padding: 0; border: 0; }
+.plat-entregas-col { min-width: 0; }
+.plat-entregas-dir { margin-left: 24px; padding-left: 24px; border-left: 1px solid var(--borda-forte); }
+.plat-entregas .multi summary { min-height: 40px; }
+.plat-entregas .multi-lista { max-height: 300px; overflow-y: auto; }
+.multi summary [data-multi-rotulo] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 700px) {
+  .plat-entregas { grid-template-columns: minmax(0, 1fr); }
+  .plat-entregas-dir { margin: 14px 0 0; padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--borda); }
+}
