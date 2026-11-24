@@ -989,3 +989,7 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .notas-lista::-webkit-scrollbar { display: none; }
 body.embutido, html:has(body.embutido) { scrollbar-width: none; }
 body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { display: none; }
+/* tarefa com titulo longo quebra o texto dentro dela, sem empurrar o X para a linha de baixo (pedido do dono, 24/11/2026) */
+.tarefa-item .tarefa-abrir { flex: 1 1 0; min-width: 0; }
+.tarefa-item .tarefa-abrir > span { overflow-wrap: anywhere; }
+.tarefa-item .tarefa-excluir { flex: none; }

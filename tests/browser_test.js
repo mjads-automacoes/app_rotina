@@ -307,6 +307,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // barra das observacoes: B, I, U e # aplicam a marcacao no texto selecionado
     assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');
     assert.equal(await ev("[...document.querySelectorAll('[data-obs-barra] .obs-fmt')].map(b => b.textContent).join('')"), '#BIU', 'botoes #, B, I, U');
+    assert.equal(await ev("[...document.querySelectorAll('.lista-simples .tarefa-item')].every(li => { const t = li.querySelector('.tarefa-abrir').getBoundingClientRect(), x = li.querySelector('.tarefa-excluir').getBoundingClientRect(); return x.top < t.bottom && x.left >= t.right - 1; })"), true, 'X sempre na mesma linha da tarefa');
     // clicar numa tarefa da ficha mostra os detalhes dela
     await clicar('.lista-simples [data-tarefa-abrir]');
     assert.equal(await ev("(() => { const d = document.querySelector('.lista-simples [data-tarefa-detalhes]'); return !d.hidden && d.textContent.includes('Status') && d.textContent.includes('Prazo'); })()"), true, 'detalhes da tarefa aparecem ao clicar');
