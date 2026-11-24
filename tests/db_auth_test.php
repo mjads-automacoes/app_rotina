@@ -111,7 +111,7 @@ t('migracao v4: kanban de clientes (pausado vira alerta) sem apagar notas nem ta
     $pdo->prepare("INSERT INTO clientes (gestor_id, nome, status, criado_em, atualizado_em) VALUES (1, 'P', 'pausado', ?, ?)")->execute([$agora, $agora]);
     $pdo->prepare("INSERT INTO cliente_notas (cliente_id, texto, criado_em) VALUES (1, 'nota', ?)")->execute([$agora]);
     Db::migrate($pdo);
-    eq(4, (int) $pdo->query('PRAGMA user_version')->fetchColumn());
+    eq(Db::VERSAO, (int) $pdo->query('PRAGMA user_version')->fetchColumn());
     eq('alerta', $pdo->query('SELECT status FROM clientes WHERE id = 1')->fetchColumn());
     eq(1, (int) $pdo->query('SELECT COUNT(*) FROM cliente_notas')->fetchColumn(), 'nota continua');
     eq(1, (int) $pdo->query('PRAGMA foreign_keys')->fetchColumn(), 'chaves estrangeiras ligadas de novo');

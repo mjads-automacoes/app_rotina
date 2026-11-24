@@ -173,6 +173,20 @@
     if (location.hash === "#tarefas") mostrar("tarefas");
   })();
 
+  // ---- CNPJ: formata enquanto digita (00.000.000/0000-00)
+  document.addEventListener("input", (ev) => {
+    const c = ev.target;
+    if (!c.matches || !c.matches("input[data-cnpj]")) return;
+    const n = c.value.replace(/\D/g, "").slice(0, 14);
+    const partes = [n.slice(0, 2), n.slice(2, 5), n.slice(5, 8), n.slice(8, 12), n.slice(12, 14)];
+    let v = partes[0];
+    if (n.length > 2) v += "." + partes[1];
+    if (n.length > 5) v += "." + partes[2];
+    if (n.length > 8) v += "/" + partes[3];
+    if (n.length > 12) v += "-" + partes[4];
+    c.value = v;
+  }, true);
+
   // ---- busca de clientes (pagina Clientes)
   const busca = document.getElementById("clientesBusca");
   if (busca) {

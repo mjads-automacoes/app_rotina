@@ -44,7 +44,12 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <label>Telefone <input type="text" name="contato_telefone" value="<?= e((string) $c['contato_telefone']) ?>" maxlength="30"></label>
       <label>E-mail <input type="email" name="contato_email" value="<?= e((string) $c['contato_email']) ?>"></label>
       <label>Orçamento para Anúncios <input type="text" name="orcamento" value="<?= e((string) $c['orcamento']) ?>" maxlength="60" placeholder="Ex.: R$ 3.000/mês"></label>
-      <label class="largo">Site do Cliente <input type="url" name="link" value="<?= e((string) $c['link']) ?>" maxlength="500" placeholder="https://"></label>
+      <?php /* "Site do Cliente" trocado por CNPJ | Cidade | Estado (pedido do dono, 24/11/2026); o site antigo continua guardado no banco */ ?>
+      <label>CNPJ <input type="text" name="cnpj" value="<?= e((string) $c['cnpj']) ?>" maxlength="18" inputmode="numeric" placeholder="00.000.000/0000-00" data-cnpj autocomplete="off"></label>
+      <label>Cidade <input type="text" name="cidade" value="<?= e((string) $c['cidade']) ?>" maxlength="80" placeholder="Ex.: Santos"></label>
+      <label>Estado
+        <select name="estado"><option value="">—</option><?php foreach (Clientes::UFS as $uf): ?><option value="<?= e($uf) ?>" <?= $c['estado'] === $uf ? 'selected' : '' ?>><?= e($uf) ?></option><?php endforeach; ?></select>
+      </label>
 
       <h3 class="form-secao largo">Plataformas</h3>
       <div class="plataformas largo">

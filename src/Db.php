@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 4;
+    public const VERSAO = 5;
 
     public static function open(string $caminho): PDO
     {
@@ -67,6 +67,10 @@ final class Db
                 self::v4($pdo);
             }
 
+            if ($atual < 5) {
+                self::v5($pdo);
+            }
+
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
             $pdo->commit();
         } catch (Throwable $e) {
@@ -76,6 +80,18 @@ final class Db
         }
 
         $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    /** v5 (24/11/2026, pedido do dono): CNPJ, cidade e estado do cliente (no lugar do "Site do Cliente" na ficha). */
+    private static function v5(PDO $pdo): void
+    {
+        $colunas = array_column($pdo->query('PRAGMA table_info(clientes)')->fetchAll(), 'name');
+
+        foreach (['cnpj', 'cidade', 'estado'] as $coluna) {
+            if (!in_array($coluna, $colunas, true)) {
+                $pdo->exec("ALTER TABLE clientes ADD COLUMN {$coluna} TEXT NOT NULL DEFAULT ''");
+            }
+        }
     }
 
     /**

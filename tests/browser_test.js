@@ -272,6 +272,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("document.querySelector('form[data-autosalvar] [name=contato_nome]').value"), 'Oi 😀', 'emoji entra no campo');
     await ev("document.querySelector('h1').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))");
     assert.ok(await esperar("!document.querySelector('.emoji-painel') && document.querySelector('.emoji-botao').hidden"), 'clicar fora fecha os emojis');
+    // CNPJ | Cidade | Estado no lugar do Site do Cliente; o CNPJ se formata enquanto digita
+    assert.equal(await ev("!document.querySelector('form[data-autosalvar] [name=link]') && !!document.querySelector('[name=cnpj]') && !!document.querySelector('[name=cidade]') && document.querySelectorAll('select[name=estado] option').length === 28"), true, 'CNPJ, Cidade e Estado no lugar do site');
+    assert.equal(await ev("(() => { const c = document.querySelector('[name=cnpj]'); c.value = '12345678000199'; c.dispatchEvent(new Event('input', { bubbles: true })); return c.value; })()"), '12.345.678/0001-99', 'CNPJ formatado');
     // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original
     await clicar('select[name=status] + .selecao-botao');
     assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 4"), 'lista propria do menu abre');

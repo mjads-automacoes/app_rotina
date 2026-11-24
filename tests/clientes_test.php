@@ -82,3 +82,15 @@ t('atualiza e exclui', function (): void {
     $c->excluir($ana, $id);
     eq([], $c->listar($ana));
 });
+
+t('ficha: CNPJ (14 numeros, guardado formatado), cidade e estado', function (): void {
+    [$n, , $ana] = nucleo_teste();
+    $id = $n->clientes->criar($ana, ['nome' => 'X', 'cnpj' => '12345678000199', 'cidade' => 'Santos', 'estado' => 'sp']);
+    $c = $n->clientes->buscar($ana, $id);
+    eq(['12.345.678/0001-99', 'Santos', 'SP'], [$c['cnpj'], $c['cidade'], $c['estado']]);
+    $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'cnpj' => '', 'estado' => 'RJ']);
+    $c = $n->clientes->buscar($ana, $id);
+    eq(['', 'Santos', 'RJ'], [$c['cnpj'], $c['cidade'], $c['estado']]);
+    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'cnpj' => '123']), '14 números');
+    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'estado' => 'XX']), 'estado');
+});
