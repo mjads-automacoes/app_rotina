@@ -56,6 +56,7 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
       </a>
       <div class="menu-acoes">
         <button class="btn btn-suave btn-icone" type="button" data-theme-toggle title="Trocar tema" aria-label="Trocar tema"><span class="so-escuro"><?= icone('sol') ?> Claro</span><span class="so-claro"><?= icone('lua') ?> Escuro</span></button>
+        <button class="btn btn-suave btn-icone btn-visual" type="button" data-visual-toggle title="Trocar entre o visual novo (Premium) e o de antes (Clássico)"><span class="so-premium">✨ Premium</span><span class="so-classico">Clássico</span></button>
         <form method="post" action="/logout">
           <input type="hidden" name="csrf" value="<?= e((string) $r->sessao->d['csrf']) ?>">
           <button class="btn btn-suave btn-icone" type="submit" title="Sair" aria-label="Sair"><?= icone('sair') ?> Sair</button>

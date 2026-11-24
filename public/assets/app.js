@@ -14,6 +14,12 @@
       try { window.localStorage.setItem("rotina_tema", novo); } catch (e) { /* sem armazenamento: so vale nesta visita */ }
     }
     if (event.target.closest("[data-menu-toggle]")) document.body.classList.toggle("menu-aberto");
+    if (event.target.closest("[data-visual-toggle]")) {
+      const novo = raiz.dataset.visual === "classico" ? "premium" : "classico";
+      raiz.dataset.visual = novo;
+      try { window.localStorage.setItem("rotina_visual", novo); } catch (e) { /* so nesta visita */ }
+      toast(novo === "premium" ? "Visual Premium ligado." : "Visual Clássico (o de antes) ligado.");
+    }
     // confirmacao propria, no meio da tela (pedido do dono, 23/11/2026); depois do "sim" o clique segue normalmente
     const botao = event.target.closest("[data-confirmar]");
     if (botao) {

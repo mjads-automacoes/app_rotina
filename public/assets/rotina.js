@@ -144,7 +144,25 @@
     const feitas = TURNOS_CHECK.reduce((s, [t]) => s + clientesDo(t, d).filter((c) => c.status_tipo === "fechado").length + checklistDo(t, d).filter((c) => c.status_tipo === "fechado").length, 0);
     const total = TURNOS_CHECK.reduce((s, [t]) => s + clientesDo(t, d).length + checklistDo(t, d).length, 0);
     const nome = { segunda: "Segunda-feira", terca: "Terça-feira", quarta: "Quarta-feira", quinta: "Quinta-feira", sexta: "Sexta-feira" }[d.dia] || "Hoje";
-    ui.dias.replaceChildren(...[el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }), total ? el("span", { class: "rotina-data-sep", text: "|", "aria-hidden": "true" }) : null, total ? el("small", { text: feitas + " de " + total + " concluídos" }) : null].filter(Boolean));
+    // visual Premium (gamificado): anel de progresso, XP do dia e frase de incentivo; cliente vale 50 XP, item do checklist 10
+    const xpDe = (lista, valor) => lista.filter((x) => x.status_tipo === "fechado").length * valor;
+    const xp = TURNOS_CHECK.reduce((s, [t]) => s + xpDe(clientesDo(t, d), 50) + xpDe(checklistDo(t, d), 10), 0);
+    const pct = total ? Math.round((feitas / total) * 100) : 0;
+    const frase = !total ? "" : pct >= 100 ? "Dia completo 🏆" : pct >= 75 ? "Quase lá 💪" : pct >= 40 ? "Em ritmo 🔥" : pct > 0 ? "Aquecendo ⚡" : "Bora começar 🚀";
+    const anel = el("span", { class: "gamer gamer-anel", title: pct + "% do dia", "aria-label": pct + "% do dia" });
+    anel.innerHTML = '<svg viewBox="0 0 36 36" aria-hidden="true"><circle class="anel-fundo" cx="18" cy="18" r="15.5"/><circle class="anel-valor" cx="18" cy="18" r="15.5" stroke-dasharray="' + (pct * 0.974).toFixed(1) + ' 100"/></svg>';
+    anel.append(el("b", { text: pct + "%" }));
+    const ganhou = state.xpAnterior != null && xp > state.xpAnterior ? xp - state.xpAnterior : 0;
+    state.xpAnterior = xp;
+    ui.dias.replaceChildren(...[
+      total ? anel : null,
+      el("strong", { text: nome }), el("span", { class: "muted", text: state.data.slice(8, 10) + "/" + state.data.slice(5, 7) }),
+      total ? el("span", { class: "rotina-data-sep", text: "|", "aria-hidden": "true" }) : null, total ? el("small", { text: feitas + " de " + total + " concluídos" }) : null,
+      total ? el("span", { class: "gamer gamer-xp", title: "Pontos do dia" }, [el("b", { text: "⚡ " + xp }), el("span", { text: " XP" })]) : null,
+      frase ? el("span", { class: "gamer gamer-frase", text: frase }) : null,
+      ganhou ? el("span", { class: "gamer gamer-ganho", "aria-hidden": "true", text: "+" + ganhou + " XP" }) : null,
+    ].filter(Boolean));
+    if (ganhou && pct >= 100) toast("🏆 Dia completo! Mandou bem.");
   }
 
   function checklist() {
