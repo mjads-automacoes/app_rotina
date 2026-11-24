@@ -307,7 +307,7 @@ final class Automacoes
             if ($dia !== null) {
                 // gestor desativado nao recebe tarefas: o cliente dele fica de fora ate ser reatribuido
                 $st = $this->pdo->prepare("SELECT c.id, c.nome, c.gestor_id, c.turno FROM clientes c JOIN usuarios u ON u.id = c.gestor_id AND u.ativo = 1
-                    WHERE c.status = 'ativo' AND (',' || c.dias || ',') LIKE ? ORDER BY c.nome COLLATE NOCASE, c.id");
+                    WHERE c.status IN ('ativo', 'alerta', 'churn') AND (',' || c.dias || ',') LIKE ? ORDER BY c.nome COLLATE NOCASE, c.id");
                 $st->execute(['%,' . $dia . ',%']);
 
                 foreach ($st->fetchAll() as $c) {

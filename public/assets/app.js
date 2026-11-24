@@ -435,7 +435,7 @@
     ["🍕", "Outros", "☀️ 🌤️ ⛅ 🌧️ ⛈️ ❄️ 🌈 🌙 🌎 🏠 🏢 🏪 🏥 🏫 🚗 🚚 ✈️ 🍕 🍔 🍟 🍰 ☕ 🍺 🥂 🍎 🍀 🌱 🌻 🐶 🐱 ⚽ 🏀 🎮 🎵 🎧 📚 🎓 🙏🏻"],
   ];
   // fora do login e da primeira configuracao (telas sem menu), pedido do dono
-  const campoComEmoji = (n) => !document.body.classList.contains("sem-menu") && n && ((n.tagName === "TEXTAREA") || (n.tagName === "INPUT" && (!n.getAttribute("type") || n.type === "text"))) && !n.readOnly && !n.disabled;
+  const campoComEmoji = (n) => !document.body.classList.contains("sem-menu") && n && !n.hasAttribute("data-sem-emoji") && ((n.tagName === "TEXTAREA") || (n.tagName === "INPUT" && (!n.getAttribute("type") || n.type === "text"))) && !n.readOnly && !n.disabled;
   let emojiCampo = null;
   let emojiBotao = null;
   let emojiPainel = null;

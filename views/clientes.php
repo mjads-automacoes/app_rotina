@@ -8,7 +8,7 @@ $admin = $usuario['papel'] === 'admin';
 <header class="pagina-topo">
   <div>
     <h1>Clientes</h1>
-    <p class="muted">Ficha de cada cliente. Só clientes <strong>ativos</strong> com dia marcado entram na rotina automática.</p>
+    <p class="muted">Ficha de cada cliente. Clientes com dia marcado entram na rotina automática, menos os <strong>Novos</strong>.</p>
   </div>
   <div class="topo-acoes">
     <?php if ($lista !== []): ?>

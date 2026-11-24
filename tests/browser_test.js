@@ -263,18 +263,19 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await ev("[...document.querySelectorAll('.cal-atalho')].find(b => b.textContent === 'Amanhã').click()");
     assert.equal(await ev("(() => { const v = document.querySelector('[data-calendario] input[name=prazo]').value; const t = document.querySelector('[data-cal-texto]').textContent; return /^\\d{4}-\\d{2}-\\d{2}$/.test(v) && t === v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4) && !document.querySelector('.cal-painel'); })()"), true, 'Amanha preenche o prazo e fecha');
     // emojis: ao focar um campo de texto aparece o 😊; ele abre a lista e o emoji entra no cursor
-    await ev("(() => { const c = document.querySelector('form[data-autosalvar] [name=contato_nome]'); c.value = 'Oi '; c.focus(); c.setSelectionRange(3, 3); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); })()");
+    await ev("(() => { const c = document.querySelector('.nota-form textarea'); c.value = 'Oi '; c.focus(); c.setSelectionRange(3, 3); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); })()");
     assert.ok(await esperar("(() => { const b = document.querySelector('.emoji-botao'); return b && !b.hidden; })()"), 'botao de emoji aparece no campo');
     await clicar('.emoji-botao');
     assert.ok(await esperar("document.querySelectorAll('.emoji-painel .emoji-item').length > 20"), 'lista de emojis abre');
     assert.equal(await ev("(() => { const g = document.querySelector('.emoji-grade'); return g.scrollWidth <= g.clientWidth && g.querySelectorAll('.emoji-grupo').length === 6; })()"), true, 'todos os emojis numa lista, sem rolagem para o lado');
     await ev("document.querySelector('.emoji-painel .emoji-item').click()");
-    assert.equal(await ev("document.querySelector('form[data-autosalvar] [name=contato_nome]').value"), 'Oi 😀', 'emoji entra no campo');
+    assert.equal(await ev("document.querySelector('.nota-form textarea').value"), 'Oi 😀', 'emoji entra no campo');
     await ev("document.querySelector('h1').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))");
     assert.ok(await esperar("!document.querySelector('.emoji-painel') && document.querySelector('.emoji-botao').hidden"), 'clicar fora fecha os emojis');
     // CNPJ | Cidade | Estado no lugar do Site do Cliente; o CNPJ se formata enquanto digita
     assert.equal(await ev("!document.querySelector('form[data-autosalvar] [name=link]') && !!document.querySelector('[name=cnpj]') && !!document.querySelector('[name=cidade]') && document.querySelectorAll('select[name=estado] option').length === 28"), true, 'CNPJ, Cidade e Estado no lugar do site');
     assert.equal(await ev("(() => { const c = document.querySelector('[name=cnpj]'); c.value = '12345678000199'; c.dispatchEvent(new Event('input', { bubbles: true })); return c.value; })()"), '12.345.678/0001-99', 'CNPJ formatado');
+    assert.equal(await ev("(() => { const c = document.querySelector('[name=cidade]'); c.focus(); c.dispatchEvent(new FocusEvent('focusin', { bubbles: true })); const b = document.querySelector('.emoji-botao'); return !b || b.hidden; })()"), true, 'sem emoji nos campos de empresa e contato');
     // menus de selecao proprios: a lista abre no visual do sistema e a escolha vai para o campo original
     await clicar('select[name=status] + .selecao-botao');
     assert.ok(await esperar("document.querySelectorAll('.selecao-lista .selecao-op').length === 4"), 'lista propria do menu abre');

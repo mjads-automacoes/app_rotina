@@ -16,6 +16,16 @@ t('segunda 06h: a rotina diaria cria uma analise por cliente ativo agendado, com
     ok($r['tarefas_criadas'] >= 2);
 });
 
+t('rotina diaria: clientes em Alerta e Churn tambem entram; so Novo fica de fora (pedido do dono)', function (): void {
+    [$n, , $ana] = cenario_auto();
+    $n->clientes->criar($ana, ['nome' => 'EM ALERTA', 'dias' => ['segunda'], 'status' => 'alerta']);
+    $n->clientes->criar($ana, ['nome' => 'EM CHURN', 'dias' => ['segunda'], 'status' => 'churn']);
+    $n->automacoes->tick(new DateTimeImmutable(SEGUNDA_6H));
+    $titulos = array_column(tarefas_de_origem($n, 't.cliente_id IS NOT NULL'), 'titulo');
+    ok(in_array('Analisar EM ALERTA', $titulos, true) && in_array('Analisar EM CHURN', $titulos, true), 'alerta e churn entram');
+    ok(!in_array('Analisar PAUSADO', $titulos, true) && !in_array('Analisar NOVO', $titulos, true), 'novo fica de fora');
+});
+
 t('o checklist do turno nasce para cada usuario ativo (admin e gestores), sem cliente', function (): void {
     [$n, $admin, $ana, $beto] = cenario_auto();
     $n->automacoes->tick(new DateTimeImmutable(SEGUNDA_6H));

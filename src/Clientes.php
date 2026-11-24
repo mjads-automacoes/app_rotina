@@ -7,7 +7,7 @@ final class Clientes
     public const PLATAFORMAS = ['google', 'meta', 'tiktok', 'linkedin', 'outros'];
     /** Observacoes guardam a descricao inteira do ClickUp (documento de onboarding), por isso o limite e alto. */
     public const OBSERVACOES_MAX = 20000;
-    /** Colunas do kanban de clientes, na ordem (pedido do dono, 24/11/2026). So "ativo" entra na rotina automatica. */
+    /** Colunas do kanban de clientes, na ordem (pedido do dono, 24/11/2026). Ativo, Alerta e Churn entram na rotina automatica; Novo fica de fora. */
     public const SITUACOES = ['novo', 'ativo', 'alerta', 'churn'];
     /** Estados do Brasil para o campo "Estado" da ficha. */
     public const UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
