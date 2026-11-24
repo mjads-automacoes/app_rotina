@@ -955,3 +955,7 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .etiqueta-acoes { display: flex; justify-content: flex-end; gap: 8px; }
 .etiqueta-excluir { margin-right: auto; color: var(--vermelho); }
 .etiquetas-painel { left: auto; right: 0; min-width: 340px; }
+/* etiqueta escolhida nunca passa por cima da seta do menu: corta com "…" (pedido do dono, 24/11/2026) */
+.entregavel-botao { padding-right: 44px; }
+.entregavel-botao [data-entregavel-atual] { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; }
+.entregavel-botao .etiqueta { display: block; width: max-content; max-width: 100%; }

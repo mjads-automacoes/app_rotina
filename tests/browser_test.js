@@ -281,6 +281,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("document.querySelectorAll('.etiquetas-painel .etiqueta').length === 12"), 'lista de entregaveis abre com as etiquetas');
     await clicar('.etiquetas-painel [data-escolher="trafego"]');
     assert.equal(await ev("document.querySelector('[data-entregavel-atual] .etiqueta').textContent + '|' + document.querySelector('input[name=entregaveis]').value + '|' + !document.querySelector('.etiquetas-painel')"), 'Tráfego|trafego|true', 'escolher uma etiqueta');
+    assert.equal(await ev("(() => { const c = document.querySelector('.entregavel'); c.style.width = '200px'; document.querySelector('input[name=entregaveis]').value = 'trafego_video_social'; window.Rotina.entregaveis.escolher('trafego_video_social'); const b = document.querySelector('.entregavel-botao').getBoundingClientRect(), e = document.querySelector('.entregavel-botao .etiqueta').getBoundingClientRect(); c.style.width = ''; return b.right - e.right >= 36; })()"), true, 'etiqueta longa nao passa por cima da seta');
     await clicar('[data-entregavel-abrir]');
     await clicar('.etiquetas-painel [data-editar-etiqueta="bot_disparos"]');
     await ev("(() => { const i = document.querySelector('.etiqueta-edicao .etiqueta-nome'); i.value = 'Bot de Disparos'; })()");
