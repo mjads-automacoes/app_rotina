@@ -24,10 +24,16 @@
   mostrar(salva === "lista" ? "lista" : "quadro");
 
   // ---- contagem de cada coluna (respeita a busca)
-  const contar = () => quadro.querySelectorAll(".kanban-coluna").forEach((col) => {
-    col.querySelector("[data-qtd]").textContent = col.querySelectorAll(".cliente-card:not([hidden])").length;
-  });
+  const contar = () => {
+    quadro.querySelectorAll(".kanban-coluna").forEach((col) => { col.querySelector("[data-qtd]").textContent = col.querySelectorAll(".cliente-card:not([hidden])").length; });
+    tabela.querySelectorAll(".lista-grupo").forEach((g) => {
+      const n = g.querySelectorAll("tr[data-id]:not([hidden])").length;
+      g.querySelector("[data-qtd]").textContent = n;
+      g.querySelector(".lista-vazio").hidden = n > 0;
+    });
+  };
   document.addEventListener("clientes-filtrados", contar);
+  contar();
 
   // poe o cartao na coluna em ordem alfabetica
   const colocar = (cartao, area) => {
@@ -78,9 +84,19 @@
   async function mover(cartao, area, destino, origem) {
     colocar(cartao, area);
     contar();
-    const linha = tabela.querySelector('tr[data-id="' + cartao.dataset.id + '"] [data-selo]');
+    const linha = tabela.querySelector('tr[data-id="' + cartao.dataset.id + '"]');
     const antes = origem.closest(".kanban-coluna").dataset.situacao;
-    const marcar = (sit) => { if (linha) { linha.className = "selo selo-" + sit; linha.textContent = NOMES[sit]; } };
+    // na Lista, a linha muda de grupo (em ordem alfabetica) e o selo muda de cor
+    const marcar = (sit) => {
+      if (!linha) return;
+      const selo = linha.querySelector("[data-selo]");
+      selo.className = "selo selo-" + sit; selo.textContent = NOMES[sit];
+      const grupo = tabela.querySelector('.lista-grupo[data-situacao="' + sit + '"]');
+      const nome = linha.querySelector(".tabela-cliente").textContent.toLocaleLowerCase("pt-BR");
+      const depois = [...grupo.querySelectorAll("tr[data-id]")].find((r) => r !== linha && r.querySelector(".tabela-cliente").textContent.toLocaleLowerCase("pt-BR").localeCompare(nome, "pt-BR") > 0);
+      grupo.insertBefore(linha, depois || grupo.querySelector(".lista-vazio"));
+      contar();
+    };
     marcar(destino);
     try {
       await chamar("POST", "/api/clientes/" + cartao.dataset.id, { status: destino });

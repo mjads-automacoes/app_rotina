@@ -86,19 +86,23 @@ $admin = $usuario['papel'] === 'admin';
     <div class="tabela-clientes-caixa cartao" id="clientesTabela" data-vista="lista" hidden>
       <table class="tabela tabela-clientes">
         <thead><tr><th>Cliente</th><th>Contato</th><th>Situação</th><th>Dias</th><th>Turno</th><th>Responsável</th><th>Plataformas</th></tr></thead>
-        <tbody>
-          <?php foreach ($lista as $c): ?>
-            <tr data-id="<?= (int) $c['id'] ?>" data-nome="<?= e(mb_strtolower($c['nome'] . ' ' . $c['empresa'] . ' ' . $c['contato_nome'])) ?>">
-              <td><a class="tabela-cliente" href="/clientes/<?= (int) $c['id'] ?>"><?= e((string) $c['nome']) ?></a></td>
-              <td class="muted"><?= e($c['contato_nome'] !== '' ? $c['contato_nome'] : '—') ?></td>
-              <td><span class="selo selo-<?= e((string) $c['status']) ?>" data-selo><?= e(Clientes::SITUACAO_NOME[$c['status']] ?? $c['status']) ?></span></td>
-              <td><?= e($diasDe($c)) ?></td>
-              <td><?= e($rotuloTurno[$c['turno']] ?? '') ?></td>
-              <td><?= e((string) ($nomes[$c['gestor_id']] ?? '')) ?></td>
-              <td><span class="plats"><?= $plataformas($c) ?></span></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
+        <?php foreach (Clientes::SITUACAO_NOME as $sit => $nomeSit): ?>
+          <tbody class="lista-grupo lista-<?= e($sit) ?>" data-situacao="<?= e($sit) ?>">
+            <tr class="lista-grupo-topo"><th colspan="7"><span class="kanban-ponto"></span><?= e($nomeSit) ?><span class="kanban-qtd" data-qtd><?= count($porSituacao[$sit]) ?></span></th></tr>
+            <?php foreach ($porSituacao[$sit] as $c): ?>
+              <tr data-id="<?= (int) $c['id'] ?>" data-nome="<?= e(mb_strtolower($c['nome'] . ' ' . $c['empresa'] . ' ' . $c['contato_nome'])) ?>">
+                <td><a class="tabela-cliente" href="/clientes/<?= (int) $c['id'] ?>"><?= e((string) $c['nome']) ?></a></td>
+                <td class="muted"><?= e($c['contato_nome'] !== '' ? $c['contato_nome'] : '—') ?></td>
+                <td><span class="selo selo-<?= e((string) $c['status']) ?>" data-selo><?= e(Clientes::SITUACAO_NOME[$c['status']] ?? $c['status']) ?></span></td>
+                <td><?= e($diasDe($c)) ?></td>
+                <td><?= e($rotuloTurno[$c['turno']] ?? '') ?></td>
+                <td><?= e((string) ($nomes[$c['gestor_id']] ?? '')) ?></td>
+                <td><span class="plats"><?= $plataformas($c) ?></span></td>
+              </tr>
+            <?php endforeach; ?>
+            <tr class="lista-vazio"><td colspan="7" class="muted">Nenhum cliente</td></tr>
+          </tbody>
+        <?php endforeach; ?>
       </table>
     </div>
   </div>

@@ -247,7 +247,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await ir('/clientes');
     assert.ok(await esperar(`!!document.querySelector('.kanban-churn .cliente-card[data-id="${idMover}"]')`), 'Churn continua depois de recarregar');
     await clicar('[data-vista-btn="lista"]');
-    assert.equal(await ev(`document.getElementById('clientesQuadro').hidden && !document.getElementById('clientesTabela').hidden && document.querySelector('#clientesTabela tr[data-id="${idMover}"] [data-selo]').textContent`), 'Churn', 'visualizacao em Lista');
+    assert.equal(await ev(`document.getElementById('clientesQuadro').hidden && !document.getElementById('clientesTabela').hidden && document.querySelector('#clientesTabela tr[data-id="${idMover}"] [data-selo]').textContent + '|' + document.querySelector('#clientesTabela tr[data-id="${idMover}"]').closest('tbody').dataset.situacao + '|' + [...document.querySelectorAll('#clientesTabela .lista-grupo')].map(g => g.dataset.situacao).join(',')`), 'Churn|churn|novo,ativo,alerta,churn', 'Lista separada por situacao');
     await clicar('[data-vista-btn="quadro"]');
     await ev(`window.Rotina.moverCliente('${idMover}', 'ativo')`);
     await sleep(400);
