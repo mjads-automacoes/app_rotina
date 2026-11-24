@@ -110,6 +110,25 @@
     campo.querySelector("textarea").focus();
   });
 
+  // ---- notas da ficha: a coluna da direita nao passa do fim de "Dados do cliente"; o resto das notas rola por dentro
+  // (barra de rolagem escondida). Pedido do dono, 24/11/2026.
+  (function () {
+    const lista = document.querySelector("[data-notas-lista]");
+    const esquerda = document.querySelector(".ficha-grade > .cartao");
+    const direita = lista && lista.closest(".coluna");
+    if (!lista || !esquerda || !direita) return;
+    const ajustar = () => {
+      lista.style.maxHeight = "";
+      if (getComputedStyle(esquerda.parentElement).gridTemplateColumns.split(" ").length < 2) return; // celular: uma coluna so
+      const sobra = direita.getBoundingClientRect().bottom - esquerda.getBoundingClientRect().bottom;
+      if (sobra > 0) lista.style.maxHeight = Math.max(160, lista.scrollHeight - sobra) + "px";
+    };
+    ajustar();
+    window.addEventListener("resize", ajustar);
+    if (window.ResizeObserver) new ResizeObserver(ajustar).observe(esquerda);
+    document.addEventListener("click", () => setTimeout(ajustar, 0));
+  })();
+
   // ---- tarefas da ficha: clicar na tarefa abre/fecha os detalhes dela
   document.addEventListener("click", (event) => {
     const abrir = event.target.closest("[data-tarefa-abrir]");

@@ -159,6 +159,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <textarea name="texto" rows="2" maxlength="<?= Clientes::NOTA_MAX ?>" placeholder="<?= empty($c['clickup_id']) ? 'Anote algo sobre o cliente…' : 'Anote algo sobre o cliente (vai também para os comentários do ClickUp)…' ?>" required></textarea>
         <button class="btn btn-primario" type="submit">Add +</button>
       </form>
+      <div class="notas-lista" data-notas-lista>
       <?php foreach ($notas as $nota): ?>
         <article class="nota" data-nota>
           <header class="nota-topo">
@@ -186,6 +187,7 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
           <?php endif; ?>
         </article>
       <?php endforeach; ?>
+      </div>
     </section>
 
     <?php if ($clickup): ?>

@@ -983,3 +983,9 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .tarefa-dados { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 8px 0 0; font-size: 0.84rem; }
 .tarefa-dados dt { color: var(--muted); }
 .tarefa-dados dd { margin: 0; }
+
+/* Notas: rolam por dentro, sem barra visivel; a janela da ficha tambem rola sem barra (pedido do dono, 24/11/2026) */
+.notas-lista { overflow-y: auto; scrollbar-width: none; }
+.notas-lista::-webkit-scrollbar { display: none; }
+body.embutido, html:has(body.embutido) { scrollbar-width: none; }
+body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { display: none; }

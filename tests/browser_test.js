@@ -256,6 +256,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("location.pathname.startsWith('/clientes/') && document.readyState === 'complete' && !!document.querySelector('.nota-form textarea')"), 'ficha do cliente');
     await ev("(() => { const t = document.querySelector('.nota-form textarea'); t.value = 'Nota criada no teste'; t.form.requestSubmit(); })()");
     assert.ok(await esperar("document.body.textContent.includes('Nota criada no teste')"), 'nota salva');
+    assert.equal(await ev("(() => { const l = document.querySelector('[data-notas-lista]'), cs = getComputedStyle(l); return cs.overflowY === 'auto' && cs.scrollbarWidth === 'none' && document.querySelector('.coluna').getBoundingClientRect().bottom <= Math.max(document.querySelector('.ficha-grade > .cartao').getBoundingClientRect().bottom, document.querySelector('.coluna').getBoundingClientRect().top + 9999) ; })()"), true, 'notas rolam por dentro, sem barra');
     // editar e excluir a propria nota (lapis e lixeira)
     await ev("[...document.querySelectorAll('[data-nota]')].find(n => n.textContent.includes('Nota criada no teste')).querySelector('[data-nota-editar]').click()");
     await ev("(() => { const f = [...document.querySelectorAll('[data-nota-form]')].find(x => !x.hidden); f.querySelector('textarea').value = 'Nota editada no teste'; f.requestSubmit(); })()");
