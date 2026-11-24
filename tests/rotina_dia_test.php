@@ -96,3 +96,17 @@ t('cliente so conta como concluido quando todas as tarefas dele do dia terminam'
     eq(['fechado', false], [$d['turnos']['manha']['clientes'][0]['status_tipo'], $d['turnos']['manha']['clientes'][0]['analise_feita']]);
     eq(1, $d['feitas']);
 });
+
+t('tempo de execucao do cliente: do Iniciar ate a ultima tarefa do dia concluida', function (): void {
+    [$n, , $ana] = cenario_dia();
+    $item = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes'][0];
+    eq(null, $item['tempo_seg'], 'sem iniciar, sem tempo');
+    $n->rotina->iniciar($ana, $item['id']);
+    $n->pdo->prepare("UPDATE tarefas SET iniciada_em = '2026-11-09T08:00:00-03:00' WHERE id = ?")->execute([$item['id']]);
+    $n->rotina->concluir($ana, $item['id']);
+    $n->pdo->prepare("UPDATE tarefas SET concluida_em = '2026-11-09T08:42:00-03:00' WHERE id = ?")->execute([$item['id']]);
+    $c = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes'][0];
+    eq(['fechado', 42 * 60], [$c['status_tipo'], $c['tempo_seg']]);
+    $n->rotina->reabrir($ana, $item['id']);
+    eq(null, $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes'][0]['tempo_seg'], 'reabrir zera');
+});

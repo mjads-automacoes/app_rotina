@@ -993,3 +993,8 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 .tarefa-item .tarefa-abrir { flex: 1 1 0; min-width: 0; }
 .tarefa-item .tarefa-abrir > span { overflow-wrap: anywhere; }
 .tarefa-item .tarefa-excluir { flex: none; }
+
+/* Clientes do dia: tempo de execucao entre o nome e o status (pedido do dono, 24/11/2026) */
+.rotina-cliente-nome { flex: 1 1 auto; }
+.rotina-cliente-tempo { flex: none; margin-right: 6px; font-size: 0.8rem; font-weight: 600; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rotina-cliente-tempo.is-ok { color: color-mix(in srgb, var(--verde) 75%, var(--texto)); }

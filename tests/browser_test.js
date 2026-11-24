@@ -154,7 +154,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     }
     assert.notEqual(await texto('#rotinaDias small'), antes, 'o progresso andou na hora');
     assert.notEqual(await texto('.rotina-foco-nome'), nome1, 'o proximo cliente entra em foco');
-    assert.ok(await esperar("[...document.querySelectorAll('#rotinaClientes .rotina-cliente.is-concluido')].some(b => b.textContent.includes('Concluído'))"), 'cliente concluido grifado de verde');
+    assert.ok(await esperar("[...document.querySelectorAll('#rotinaClientes .rotina-cliente.is-concluido')].some(b => b.querySelector('.rotina-cliente-status').textContent === 'OK' && /⏱/.test(b.textContent))"), 'cliente concluido: verde, OK e tempo de execucao');
     assert.equal(await ev(semNull), true, 'sem null depois de concluir');
     await sleep(700);
     await clicar('#rotinaChecklist .rotina-concluir');

@@ -51,6 +51,15 @@ final class Rotina
             $abertas[$cli . '|' . $prazo] = (int) $qtd;
         }
 
+        // fim do cliente no dia = a ultima tarefa dele concluida naquele dia (tempo de execucao, pedido do dono 24/11/2026)
+        $fim = [];
+        $st = $this->pdo->prepare('SELECT cliente_id, prazo, MAX(concluida_em) FROM tarefas WHERE cliente_id IS NOT NULL AND prazo BETWEEN ? AND ? AND concluida_em IS NOT NULL GROUP BY cliente_id, prazo');
+        $st->execute([array_key_first($semana), array_key_last($semana)]);
+
+        foreach ($st->fetchAll(PDO::FETCH_NUM) as [$cli, $prazo, $quando]) {
+            $fim[$cli . '|' . $prazo] = (string) $quando;
+        }
+
         foreach ($tarefas as $t) {
             if ($t['turno'] === null || !isset($dias[$t['prazo']])) {
                 continue;
@@ -71,6 +80,18 @@ final class Rotina
                 $item['analise_feita'] = true;
                 $item['status_tipo'] = 'andamento';
                 $item['status_nome'] = 'Em andamento';
+            }
+
+            // tempo de execucao do cliente: do "Iniciar" ate a ultima tarefa do dia concluida (em andamento: ate agora)
+            $item['tempo_seg'] = null;
+            $inicio = $t['iniciada_em'] ?? null;
+
+            if ($t['cliente_id'] !== null && $inicio) {
+                $ate = $item['status_tipo'] === 'fechado' ? ($fim[$t['cliente_id'] . '|' . $t['prazo']] ?? $t['concluida_em']) : ($item['status_tipo'] === 'andamento' ? date(DATE_ATOM) : null);
+
+                if ($ate) {
+                    $item['tempo_seg'] = max(0, (int) strtotime((string) $ate) - (int) strtotime((string) $inicio));
+                }
             }
 
             $dias[$t['prazo']]['turnos'][$t['turno']][$t['cliente_id'] === null ? 'checklist' : 'clientes'][] = $item;

@@ -135,7 +135,7 @@
       tarefa.status_nome = STATUS[anterior];
       toast(e.message, true);
       renderizar();
-    } finally { state.pendentes--; }
+    } finally { state.pendentes--; carregar(true); } // busca de novo: traz o tempo de execucao atualizado
   }
 
   // ---------- desenho ----------
@@ -443,6 +443,14 @@
     if (lado.isConnected) desenhar(state.tarefasCliente[id].lista);
   }
 
+  // 75 -> "1 min", 3900 -> "1h 05min"
+  const duracao = (seg) => {
+    const min = Math.max(0, Math.round(seg / 60));
+    if (min < 1) return "< 1 min";
+    if (min < 60) return min + " min";
+    return Math.floor(min / 60) + "h " + String(min % 60).padStart(2, "0") + "min";
+  };
+
   function clientes() {
     const partes = [cabecalho("clientes", "h2", null)];
     TURNOS.forEach(([t, rotulo]) => {
@@ -451,7 +459,9 @@
         el("div", { class: "rotina-grupo-topo", "data-turno": t, text: rotulo }),
         ...(lista.length ? lista.map((c) => el("button", { class: "rotina-cliente" + (c.id === state.foco && t === state.turno ? " is-foco" : "") + (c.status_tipo === "fechado" ? " is-concluido" : ""), type: "button", "data-cliente": c.id, "data-turno": t }, [
           el("span", { class: "rotina-cliente-nome", text: c.cliente_nome || c.titulo }),
-          el("span", { class: "rotina-cliente-status" }, [el("i", { class: "ponto", cor: c.status_tipo === "fechado" ? "var(--verde)" : c.status_tipo === "andamento" ? "var(--acento-2)" : "var(--muted)" }), el("span", { text: STATUS[c.status_tipo] })]),
+          // tempo de execucao (do Iniciar ate concluir; em andamento conta ate agora) e "OK" no lugar de "Concluido" (pedido do dono, 24/11/2026)
+          c.tempo_seg != null ? el("span", { class: "rotina-cliente-tempo" + (c.status_tipo === "fechado" ? " is-ok" : ""), title: c.status_tipo === "fechado" ? "Tempo de execução" : "Em execução há", text: "⏱ " + duracao(c.tempo_seg) }) : null,
+          el("span", { class: "rotina-cliente-status" }, [el("i", { class: "ponto", cor: c.status_tipo === "fechado" ? "var(--verde)" : c.status_tipo === "andamento" ? "var(--acento-2)" : "var(--muted)" }), el("span", { text: c.status_tipo === "fechado" ? "OK" : STATUS[c.status_tipo] })]),
         ])) : [el("p", { class: "rotina-cliente-vazio", text: "Sem clientes" })]),
       ]));
     });

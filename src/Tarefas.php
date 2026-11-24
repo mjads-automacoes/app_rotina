@@ -264,8 +264,10 @@ final class Tarefas
         $this->pdo->beginTransaction();
 
         try {
-            $this->pdo->prepare('UPDATE tarefas SET status_id = ?, concluida_em = ?, atualizado_em = ? WHERE id = ?')
-                ->execute([$statusId, $novo['tipo'] === 'fechado' ? $agora : null, $agora, $id]);
+            // iniciada_em: guarda o primeiro "iniciar" (tempo de execucao); voltar para "a fazer" zera
+            $this->pdo->prepare("UPDATE tarefas SET status_id = ?, concluida_em = ?, atualizado_em = ?,
+                iniciada_em = CASE WHEN ? = 'aberto' THEN NULL WHEN ? = 'andamento' THEN COALESCE(iniciada_em, ?) ELSE COALESCE(iniciada_em, ?) END WHERE id = ?")
+                ->execute([$statusId, $novo['tipo'] === 'fechado' ? $agora : null, $agora, $novo['tipo'], $novo['tipo'], $agora, $agora, $id]);
             $this->log($id, $actor, 'status', $t['status_nome'] . ' → ' . $novo['nome']);
             $this->pdo->commit();
         } catch (Throwable $e) {

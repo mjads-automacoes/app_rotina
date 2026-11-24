@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 7;
+    public const VERSAO = 8;
 
     public static function open(string $caminho): PDO
     {
@@ -79,6 +79,10 @@ final class Db
                 self::v7($pdo);
             }
 
+            if ($atual < 8) {
+                self::v8($pdo);
+            }
+
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
             $pdo->commit();
         } catch (Throwable $e) {
@@ -88,6 +92,22 @@ final class Db
         }
 
         $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    /**
+     * v8 (24/11/2026, pedido do dono): hora em que a tarefa foi iniciada, para o tempo de execucao de cada cliente.
+     * Tarefas antigas: usa o primeiro registro de mudanca para um status "em andamento".
+     */
+    private static function v8(PDO $pdo): void
+    {
+        if (!in_array('iniciada_em', array_column($pdo->query('PRAGMA table_info(tarefas)')->fetchAll(), 'name'), true)) {
+            $pdo->exec('ALTER TABLE tarefas ADD COLUMN iniciada_em TEXT');
+        }
+
+        $pdo->exec("UPDATE tarefas SET iniciada_em = (
+            SELECT MIN(a.criado_em) FROM tarefa_atividades a JOIN status s ON s.lista_id = tarefas.lista_id AND s.tipo = 'andamento'
+            WHERE a.tarefa_id = tarefas.id AND a.tipo = 'status' AND a.texto LIKE '% → ' || s.nome
+        ) WHERE iniciada_em IS NULL");
     }
 
     /**
