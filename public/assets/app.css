@@ -1,11 +1,11 @@
 /* ============ Tokens: tema escuro (padrao) e claro ============ */
 :root {
-  --bg: #1f2226;
-  --bg-menu: #25292d;
-  --panel: #2a2e33;
-  --panel-2: #33383e;
-  --borda: #3a4047;
-  --borda-forte: #4b525a;
+  --bg: #141619;
+  --bg-menu: #181a1e;
+  --panel: #1d2024;
+  --panel-2: #25292e;
+  --borda: #2c3036;
+  --borda-forte: #3a3f46;
   --texto: #eef1f3;
   --muted: #a3abb3;
   --acento: #14d2c0;
@@ -15,7 +15,7 @@
   --verde: #22c55e;
   --amarelo: #f5a524;
   --vermelho: #f0545a;
-  --campo: #212428;
+  --campo: #16181b;
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
   --raio: 14px;
   --gradiente: linear-gradient(135deg, #0fbfae 0%, #14d2c0 100%);
@@ -715,7 +715,7 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-foco-tarefas h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
 
 /* Itens selecionados (cliente em foco) com tom mais escuro que os cabecalhos (pedido do dono, 23/11/2026) */
-:root { --selecionado: #1d3b3b; }
+:root { --selecionado: #17302f; }
 :root[data-tema="claro"] { --selecionado: #d3f3ef; }
 .rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(20, 210, 192, 0.55); }
 .rotina-cliente.is-foco:hover, .rotina-tarefa.is-foco:hover { background: var(--selecionado); }
