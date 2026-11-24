@@ -856,3 +856,9 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 #painelRotina .rotina-foco::before { background: linear-gradient(90deg, var(--cab-cor), color-mix(in srgb, var(--cab-cor) 60%, var(--acento-2))); }
 .rotina-foco .rotina-selo:not(.is-ok) { background: color-mix(in srgb, var(--cab-cor) 18%, transparent); color: color-mix(in srgb, var(--cab-cor) 75%, var(--texto)); }
 .rotina-foco .rotina-foco-tarefas h3 { border-left-color: var(--cab-cor); background: color-mix(in srgb, var(--cab-cor) 22%, var(--panel)); color: color-mix(in srgb, var(--cab-cor) 75%, var(--texto)); }
+
+/* Botao + das tarefas do cliente: icone desenhado, centralizado, em quadrado suave (pedido do dono, 24/11/2026) */
+.rotina-tarefa-mais { width: 30px; height: 30px; border-radius: 9px; background: color-mix(in srgb, var(--cab-cor, var(--acento)) 14%, transparent); color: color-mix(in srgb, var(--cab-cor, var(--acento)) 85%, var(--texto)); font-size: 0; }
+.rotina-tarefa-mais .ic { display: block; width: 16px; height: 16px; }
+.rotina-tarefa-mais:hover { background: var(--cab-cor, var(--acento)); color: #0e1114; }
+.rotina-tarefa-fim { align-items: center; }

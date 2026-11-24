@@ -407,7 +407,8 @@
               disabled: feita || !liberado, title: feita ? "Concluída" : liberado ? "Concluir tarefa" : "Clique em Iniciar para liberar", "aria-label": feita ? "Concluída" : "Concluir tarefa" });
             certo.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
             // botao de mais: detalhes da tarefa (guardados na descricao), pedido do dono 23/11/2026
-            const mais = el("button", { class: "rotina-tarefa-mais", type: "button", "data-acao": "detalhe-tarefa", "data-tarefa": t.id, title: t.descricao ? "Editar detalhes" : "Adicionar detalhes", "aria-label": t.descricao ? "Editar detalhes" : "Adicionar detalhes", text: "+" });
+            const mais = el("button", { class: "rotina-tarefa-mais", type: "button", "data-acao": "detalhe-tarefa", "data-tarefa": t.id, title: t.descricao ? "Editar detalhes" : "Adicionar detalhes", "aria-label": t.descricao ? "Editar detalhes" : "Adicionar detalhes" });
+            mais.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="6" x2="12" y2="18"/><line x1="6" y1="12" x2="18" y2="12"/></svg>';
             return el("li", { class: "rotina-tarefa" + (t.id === cliente.id ? " is-foco" : "") + (feita ? " is-feita" : "") }, [
               el("span", { class: "rotina-tarefa-texto" }, [
                 el("span", { text: t.titulo }),
