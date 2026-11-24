@@ -194,7 +194,7 @@
 
   // cabecalhos "Checklist do dia" e "Clientes do dia": tres pontinhos para editar o nome e mudar a cor (pedido do dono, 24/11/2026)
   const CORES = [["turquesa", "Turquesa"], ["azul", "Azul"], ["verde", "Verde"], ["amarelo", "Amarelo"], ["laranja", "Laranja"], ["vermelho", "Vermelho"], ["rosa", "Rosa"], ["roxo", "Roxo"]];
-  const PADRAO_CAB = { checklist: "Checklist do dia", clientes: "Clientes do dia" };
+  const PADRAO_CAB = { checklist: "Checklist do dia", clientes: "Clientes do dia", foco: "Em foco" };
   function cabecalho(bloco, tag, extra) {
     const cfg = ((state.dados && state.dados.cabecalhos) || {})[bloco] || { nome: PADRAO_CAB[bloco], cor: "turquesa" };
     const titulo = state.cabEditando === bloco
@@ -219,6 +219,17 @@
       titulo,
       el("span", { class: "cab-direita" }, [extra, el("span", { class: "rotina-mais-wrap" }, [pontos, menu].filter(Boolean))].filter(Boolean)),
     ]);
+  }
+
+  // bloco "Em foco": tres pontinhos so com as cores (pedido do dono, 24/11/2026)
+  function pontosFoco() {
+    const cfg = ((state.dados && state.dados.cabecalhos) || {}).foco || { cor: "turquesa" };
+    CORES.forEach(([c]) => ui.foco.classList.toggle("cor-" + c, c === cfg.cor));
+    const pontos = iconeBotao("rotina-mais", "", "Mudar cor do bloco", '<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>');
+    pontos.removeAttribute("data-check"); pontos.dataset.cab = "menu"; pontos.dataset.bloco = "foco";
+    const menu = state.cabMenu === "foco" ? el("span", { class: "rotina-menu cab-menu", role: "menu" }, [el("span", { class: "cab-cores" },
+      CORES.map(([c, nome]) => el("button", { type: "button", class: "cab-cor cor-" + c + (cfg.cor === c ? " is-escolhida" : ""), "data-cab": "cor", "data-bloco": "foco", "data-cor": c, title: nome, "aria-label": nome })))]) : null;
+    return el("span", { class: "rotina-mais-wrap foco-pontos" }, [pontos, menu].filter(Boolean));
   }
 
   async function salvarCabecalho(bloco, dados) {
@@ -374,6 +385,7 @@
       ]),
     ].filter(Boolean));
     const lado = el("aside", { class: "rotina-foco-tarefas", "aria-label": "Tarefas do cliente" });
+    principal.append(pontosFoco());
     ui.foco.replaceChildren(el("div", { class: "rotina-foco-corpo" }, [principal, lado]));
     tarefasDoCliente(cliente, lado);
   }
@@ -473,7 +485,7 @@
     if (cab) {
       const bloco = cab.dataset.bloco;
       const tipo = cab.dataset.cab;
-      if (tipo === "menu") { state.cabMenu = state.cabMenu === bloco ? null : bloco; state.cabCores = null; return renderizar(); }
+      if (tipo === "menu") { state.cabMenu = state.cabMenu === bloco ? null : bloco; state.cabCores = bloco === "foco" ? "foco" : null; return renderizar(); }
       if (tipo === "cores") { state.cabCores = bloco; return renderizar(); }
       state.cabMenu = null; state.cabCores = null;
       if (tipo === "editar") {

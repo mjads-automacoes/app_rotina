@@ -83,7 +83,7 @@ final class Rotina
 
     /** Cores que o dono pode escolher para os cabecalhos dos blocos da Rotina. */
     public const CORES_CABECALHO = ['turquesa', 'azul', 'verde', 'amarelo', 'laranja', 'vermelho', 'rosa', 'roxo'];
-    private const CABECALHOS_PADRAO = ['checklist' => ['nome' => 'Checklist do dia', 'cor' => 'turquesa'], 'clientes' => ['nome' => 'Clientes do dia', 'cor' => 'turquesa']];
+    private const CABECALHOS_PADRAO = ['checklist' => ['nome' => 'Checklist do dia', 'cor' => 'turquesa'], 'clientes' => ['nome' => 'Clientes do dia', 'cor' => 'turquesa'], 'foco' => ['nome' => 'Em foco', 'cor' => 'turquesa']];
 
     /** Nome e cor dos cabecalhos "Checklist do dia" e "Clientes do dia" de quem esta usando (pedido do dono, 24/11/2026). */
     public function cabecalhos(array $actor): array

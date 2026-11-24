@@ -277,6 +277,9 @@ t('cabecalhos da Rotina: cada usuario muda nome e cor dos seus; valores invalido
     $c = apiget($app, $ana, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos'];
     eq(['nome' => 'Checklist do dia', 'cor' => 'turquesa'], $c['checklist']);
     eq('Clientes do dia', $c['clientes']['nome']);
+    eq('turquesa', $c['foco']['cor']);
+    api($app, $ana, '/api/rotina/cabecalho', ['bloco' => 'foco', 'cor' => 'laranja']);
+    eq('laranja', apiget($app, $ana, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos']['foco']['cor'], 'cor do bloco Em foco');
     api($app, $ana, '/api/rotina/cabecalho', ['bloco' => 'clientes', 'nome' => 'Meus clientes 🚀', 'cor' => 'rosa']);
     eq(['nome' => 'Meus clientes 🚀', 'cor' => 'rosa'], apiget($app, $ana, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos']['clientes']);
     eq('Clientes do dia', apiget($app, $beto, '/api/rotina', ['data' => '2026-11-09'])['cabecalhos']['clientes']['nome'], 'outro usuario nao muda');

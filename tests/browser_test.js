@@ -91,6 +91,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await ir('/');
     assert.ok(await esperar("(() => { const h = document.querySelector('#rotinaClientes .rotina-cabecalho'); return h && h.textContent.includes('Meus clientes') && rotinaClientes.classList.contains('cor-rosa'); })()"), 'cabecalho continua depois de recarregar');
     assert.equal(await ev("getComputedStyle(document.querySelector('#rotinaChecklist .rotina-cabecalho h3'), '::before').display"), 'none', 'sem a barrinha antes do titulo');
+    await clicar('[data-cab="menu"][data-bloco="foco"]');
+    await clicar('[data-cab="cor"][data-bloco="foco"][data-cor="laranja"]');
+    assert.ok(await esperar("rotinaFoco.classList.contains('cor-laranja') && getComputedStyle(rotinaFoco.querySelector('.rotina-foco-tarefas h3')).borderLeftColor === 'rgb(249, 115, 22)'"), 'tres pontinhos do Em foco mudam a cor do bloco');
     assert.equal(await ev("(() => { const h = document.querySelector('#painelRotina h1').getBoundingClientRect(), d = rotinaDias.getBoundingClientRect(); return d.top < h.bottom && d.bottom > h.top && d.left > h.right; })()"), true, 'barra do dia na mesma linha do titulo Rotina');
     // foco em duas colunas: a direita, depois de uma linha, as tarefas do cliente com o status
     assert.ok(await esperar("document.querySelectorAll('#rotinaFoco .rotina-foco-tarefas .rotina-tarefa .pilula').length > 0 && rotinaFoco.querySelector('.rotina-foco-tarefas').getBoundingClientRect().left > rotinaFoco.querySelector('.rotina-foco-principal').getBoundingClientRect().right - 1"), 'tarefas do cliente ao lado direito do foco, com status');
@@ -100,7 +103,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev(semNull), true, 'a tela da Rotina nao mostra null nem undefined');
     await shot('1-rotina-escuro.png');
     // foco no formato fixo: selo, nome, status, nova tarefa (sem subtitulo)
-    assert.equal(await ev("(() => { const f = rotinaFoco.querySelector('.rotina-foco-principal'); return [...f.children].map(c => c.className.split(' ')[0]).join(','); })()"), 'rotina-selo,rotina-foco-nome,rotina-foco-status,rotina-foco-nota,rotina-foco-acoes', 'formato fixo do foco');
+    assert.equal(await ev("(() => { const f = rotinaFoco.querySelector('.rotina-foco-principal'); return [...f.children].map(c => c.className.split(' ')[0]).join(','); })()"), 'rotina-selo,rotina-foco-nome,rotina-foco-status,rotina-foco-nota,rotina-foco-acoes,rotina-mais-wrap', 'formato fixo do foco (com os tres pontinhos de cor)');
     assert.equal(await ev("(() => { const b = rotinaFoco.querySelector('[data-acao=\"abrir-cliente\"]').getBoundingClientRect(), p = rotinaFoco.querySelector('.rotina-foco-principal').getBoundingClientRect(), i = rotinaFoco.querySelector('[data-acao=\"iniciar\"]').getBoundingClientRect(); return b.left - p.left < 4 && i.right > p.right - 30; })()"), true, 'Ver informacoes a esquerda, Iniciar a direita');
     const tarefasAntes = await ev("document.querySelectorAll('#rotinaFoco .rotina-tarefa').length");
     await ev("document.getElementById('rotinaNota').value = 'Tarefa nova pelo foco'; document.getElementById('rotinaNota').dispatchEvent(new Event('input', { bubbles: true }))");

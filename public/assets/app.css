@@ -815,15 +815,15 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .rotina-cliente.is-foco { box-shadow: none; }
 
 /* Cabecalhos "Checklist do dia" / "Clientes do dia": sem a barrinha, com tres pontinhos para nome e cor (pedido do dono, 24/11/2026) */
-.rotina-checklist, .rotina-clientes { --cab-cor: var(--acento); }
+.rotina-checklist, .rotina-clientes, .rotina-foco { --cab-cor: var(--acento); }
 .rotina-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.rotina-cabecalho.cor-azul, .rotina-checklist.cor-azul, .rotina-clientes.cor-azul { --cab-cor: #3b82f6; }
-.rotina-cabecalho.cor-verde, .rotina-checklist.cor-verde, .rotina-clientes.cor-verde { --cab-cor: #22c55e; }
-.rotina-cabecalho.cor-amarelo, .rotina-checklist.cor-amarelo, .rotina-clientes.cor-amarelo { --cab-cor: #f5a524; }
-.rotina-cabecalho.cor-laranja, .rotina-checklist.cor-laranja, .rotina-clientes.cor-laranja { --cab-cor: #f97316; }
-.rotina-cabecalho.cor-vermelho, .rotina-checklist.cor-vermelho, .rotina-clientes.cor-vermelho { --cab-cor: #ef4444; }
-.rotina-cabecalho.cor-rosa, .rotina-checklist.cor-rosa, .rotina-clientes.cor-rosa { --cab-cor: #ec4899; }
-.rotina-cabecalho.cor-roxo, .rotina-checklist.cor-roxo, .rotina-clientes.cor-roxo { --cab-cor: #8b5cf6; }
+.rotina-cabecalho.cor-azul, .rotina-checklist.cor-azul, .rotina-clientes.cor-azul, .rotina-foco.cor-azul { --cab-cor: #3b82f6; }
+.rotina-cabecalho.cor-verde, .rotina-checklist.cor-verde, .rotina-clientes.cor-verde, .rotina-foco.cor-verde { --cab-cor: #22c55e; }
+.rotina-cabecalho.cor-amarelo, .rotina-checklist.cor-amarelo, .rotina-clientes.cor-amarelo, .rotina-foco.cor-amarelo { --cab-cor: #f5a524; }
+.rotina-cabecalho.cor-laranja, .rotina-checklist.cor-laranja, .rotina-clientes.cor-laranja, .rotina-foco.cor-laranja { --cab-cor: #f97316; }
+.rotina-cabecalho.cor-vermelho, .rotina-checklist.cor-vermelho, .rotina-clientes.cor-vermelho, .rotina-foco.cor-vermelho { --cab-cor: #ef4444; }
+.rotina-cabecalho.cor-rosa, .rotina-checklist.cor-rosa, .rotina-clientes.cor-rosa, .rotina-foco.cor-rosa { --cab-cor: #ec4899; }
+.rotina-cabecalho.cor-roxo, .rotina-checklist.cor-roxo, .rotina-clientes.cor-roxo, .rotina-foco.cor-roxo { --cab-cor: #8b5cf6; }
 .rotina-checklist .cartao-topo h3::before, .rotina-clientes h2::before { display: none; }
 #painelRotina .rotina-clientes > .cartao-topo {
   position: sticky; top: -18px; z-index: 3; margin: -18px -20px 12px; padding: 15px 20px; border-radius: 18px 18px 0 0;
@@ -848,3 +848,11 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 /* checklist rola sem mostrar a barra lateral (pedido do dono) */
 #painelRotina .rotina-checklist { scrollbar-width: none; }
 #painelRotina .rotina-checklist::-webkit-scrollbar { display: none; }
+
+/* Bloco "Em foco": a cor escolhida nos tres pontinhos pinta a faixa do topo, o brilho, o selo e "Tarefas do cliente" (pedido do dono, 24/11/2026) */
+.rotina-foco-principal { position: relative; }
+.foco-pontos { position: absolute; top: 0; right: 12px; }
+#painelRotina .rotina-foco { background: radial-gradient(520px 200px at 0% 0%, color-mix(in srgb, var(--cab-cor) 16%, transparent), transparent 70%), var(--panel); }
+#painelRotina .rotina-foco::before { background: linear-gradient(90deg, var(--cab-cor), color-mix(in srgb, var(--cab-cor) 60%, var(--acento-2))); }
+.rotina-foco .rotina-selo:not(.is-ok) { background: color-mix(in srgb, var(--cab-cor) 18%, transparent); color: color-mix(in srgb, var(--cab-cor) 75%, var(--texto)); }
+.rotina-foco .rotina-foco-tarefas h3 { border-left-color: var(--cab-cor); background: color-mix(in srgb, var(--cab-cor) 22%, var(--panel)); color: color-mix(in srgb, var(--cab-cor) 75%, var(--texto)); }
