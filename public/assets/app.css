@@ -1,26 +1,26 @@
 /* ============ Tokens: tema escuro (padrao) e claro ============ */
 :root {
-  --bg: #0a0d14;
-  --bg-menu: #0e121b;
-  --panel: #131824;
-  --panel-2: #1a2132;
-  --borda: #232c3f;
-  --borda-forte: #2f3a52;
-  --texto: #e8ecf5;
-  --muted: #8c97ad;
-  --acento: #7c5cff;
-  --acento-2: #3b82f6;
-  --acento-fundo: rgba(124, 92, 255, 0.16);
-  --acento-texto: #b3a1ff;
+  --bg: #0a1620;
+  --bg-menu: #0d1b26;
+  --panel: #102230;
+  --panel-2: #16303f;
+  --borda: #1d3647;
+  --borda-forte: #2a4a5e;
+  --texto: #e6f1f5;
+  --muted: #8aa3b3;
+  --acento: #14d2c0;
+  --acento-2: #22b8e6;
+  --acento-fundo: rgba(20, 210, 192, 0.16);
+  --acento-texto: #5eead4;
   --verde: #22c55e;
   --amarelo: #f5a524;
   --vermelho: #f0545a;
-  --campo: #0d111a;
+  --campo: #0b1923;
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
   --raio: 14px;
-  --gradiente: linear-gradient(135deg, #7c5cff 0%, #4f8cff 100%);
-  --brilho: rgba(124, 92, 255, 0.13);
-  --seta: #8c97ad;
+  --gradiente: linear-gradient(135deg, #0fbfae 0%, #14d2c0 100%);
+  --brilho: rgba(20, 210, 192, 0.10);
+  --seta: #8aa3b3;
   color-scheme: dark;
 }
 
@@ -33,14 +33,14 @@
   --borda-forte: #cfd7e6;
   --texto: #131a2a;
   --muted: #5d6b85;
-  --acento: #6a4bf0;
-  --acento-2: #2f6fe8;
-  --acento-fundo: rgba(106, 75, 240, 0.1);
-  --acento-texto: #5a3fe0;
+  --acento: #0d9488;
+  --acento-2: #0891b2;
+  --acento-fundo: rgba(13, 148, 136, 0.1);
+  --acento-texto: #0f766e;
   --campo: #ffffff;
   --sombra: 0 8px 24px rgba(30, 41, 80, 0.08);
-  --gradiente: linear-gradient(135deg, #6a4bf0 0%, #3b7bf0 100%);
-  --brilho: rgba(106, 75, 240, 0.09);
+  --gradiente: linear-gradient(135deg, #0d9488 0%, #0fa5a0 100%);
+  --brilho: rgba(13, 148, 136, 0.08);
   --seta: #5d6b85;
   color-scheme: light;
 }
@@ -611,7 +611,7 @@ select, .multi summary {
 select:hover, .multi summary:hover { border-color: var(--acento); }
 select:focus, .multi[open] summary {
   border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-fundo);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%237c5cff' fill-opacity='0.22'/%3E%3Cpath d='M7 12.5l4-4 4 4' fill='none' stroke='%237c5cff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%2314d2c0' fill-opacity='0.22'/%3E%3Cpath d='M7 12.5l4-4 4 4' fill='none' stroke='%2314d2c0' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 .multi summary { cursor: pointer; }
 select option, select optgroup { background: var(--panel); color: var(--texto); font-weight: 500; }
@@ -678,7 +678,7 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-foco-tarefas { border-left-color: var(--borda); }
 .rotina-tarefa { margin-bottom: 4px; border: 1px solid transparent; border-bottom-color: var(--borda); transition: background 0.15s, border-color 0.15s; }
 .rotina-tarefa:hover { background: var(--panel-2); }
-.rotina-tarefa.is-foco { border-color: rgba(124, 92, 255, 0.35); }
+.rotina-tarefa.is-foco { border-color: rgba(20, 210, 192, 0.35); }
 /* titulos dos blocos com um marcador de cor */
 .rotina-checklist .cartao-topo h3, .rotina-clientes h2 { display: inline-flex; align-items: center; gap: 10px; letter-spacing: 0.06em; font-size: 0.92rem; }
 .rotina-checklist .cartao-topo h3::before, .rotina-clientes h2::before { content: ""; width: 4px; height: 16px; border-radius: 4px; background: linear-gradient(180deg, var(--acento), var(--acento-2)); }
@@ -715,9 +715,9 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-foco-tarefas h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
 
 /* Itens selecionados (cliente em foco) com tom mais escuro que os cabecalhos (pedido do dono, 23/11/2026) */
-:root { --selecionado: #0f0c26; }
-:root[data-tema="claro"] { --selecionado: #e4ddff; }
-.rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(124, 92, 255, 0.55); }
+:root { --selecionado: #0b2c33; }
+:root[data-tema="claro"] { --selecionado: #d3f3ef; }
+.rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(20, 210, 192, 0.55); }
 .rotina-cliente.is-foco:hover, .rotina-tarefa.is-foco:hover { background: var(--selecionado); }
 
 /* Pop-up de confirmacao proprio: simples e no meio da tela (pedido do dono, 23/11/2026) */
@@ -742,7 +742,7 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .selecao-botao:hover:not(:disabled) { border-color: var(--acento); }
 .selecao-botao[aria-expanded=true] {
   border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-fundo);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%237c5cff' fill-opacity='0.22'/%3E%3Cpath d='M7 12.5l4-4 4 4' fill='none' stroke='%237c5cff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Ccircle cx='11' cy='11' r='11' fill='%2314d2c0' fill-opacity='0.22'/%3E%3Cpath d='M7 12.5l4-4 4 4' fill='none' stroke='%2314d2c0' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 .selecao-botao:disabled { opacity: 0.6; cursor: not-allowed; }
 .selecao-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -801,3 +801,15 @@ input.com-emoji, textarea.com-emoji { padding-right: 40px; }
 .emoji-itens { display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 2px; }
 .emoji-item { min-width: 0; height: 34px; padding: 0; overflow: hidden; border: 0; border-radius: 8px; background: transparent; font-size: 1.3rem; line-height: 1; cursor: pointer; }
 .emoji-item:hover { background: var(--panel-2); }
+
+/* ===== Tema principal azul-petroleo/turquesa (pedido do dono, 24/11/2026) ===== */
+/* turnos com cor propria: Manha azul, Tarde ambar, Fechamento anil */
+:root { --turno-manha: #0e4359; --turno-manha-texto: #4fd8ec; --turno-tarde: #5b3b14; --turno-tarde-texto: #ffd04d; --turno-fech: #1b3461; --turno-fech-texto: #a8bfff; }
+:root[data-tema="claro"] { --turno-manha: #dcf3fa; --turno-manha-texto: #0e7490; --turno-tarde: #fdf0d3; --turno-tarde-texto: #a16207; --turno-fech: #e3e9ff; --turno-fech-texto: #3b4fb8; }
+.rotina-subtitulo[data-turno=manha], .rotina-grupo-topo[data-turno=manha] { background: var(--turno-manha); color: var(--turno-manha-texto); border-left-color: var(--turno-manha-texto); }
+.rotina-subtitulo[data-turno=tarde], .rotina-grupo-topo[data-turno=tarde] { background: var(--turno-tarde); color: var(--turno-tarde-texto); border-left-color: var(--turno-tarde-texto); }
+.rotina-subtitulo[data-turno=fechamento], .rotina-grupo-topo[data-turno=fechamento] { background: var(--turno-fech); color: var(--turno-fech-texto); border-left-color: var(--turno-fech-texto); }
+#painelRotina .rotina-checklist .contagem { color: #06231f; }
+:root[data-tema="claro"] #painelRotina .rotina-checklist .contagem { color: #fff; }
+/* cliente selecionado sem a barrinha a esquerda (pedido do dono) */
+.rotina-cliente.is-foco { box-shadow: none; }

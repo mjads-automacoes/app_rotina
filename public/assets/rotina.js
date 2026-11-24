@@ -151,7 +151,7 @@
     const todos = TURNOS_CHECK.flatMap(([t]) => checklistDo(t));
     const feitas = todos.filter((i) => i.status_tipo === "fechado").length;
     const grupos = TURNOS_CHECK.filter(([t]) => checklistDo(t).length > 0).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
-      el("p", { class: "rotina-subtitulo", text: rotulo }),
+      el("p", { class: "rotina-subtitulo", "data-turno": t, text: rotulo }),
       el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).map((i) => {
         const feito = i.status_tipo === "fechado";
         // pedido do dono: tres pontinhos (editar o nome) logo antes do botao de concluir, a direita
@@ -397,7 +397,7 @@
     TURNOS.forEach(([t, rotulo]) => {
       const lista = clientesDo(t);
       partes.push(el("div", { class: "rotina-grupo" }, [
-        el("div", { class: "rotina-grupo-topo", text: rotulo }),
+        el("div", { class: "rotina-grupo-topo", "data-turno": t, text: rotulo }),
         ...(lista.length ? lista.map((c) => el("button", { class: "rotina-cliente" + (c.id === state.foco && t === state.turno ? " is-foco" : "") + (c.status_tipo === "fechado" ? " is-concluido" : ""), type: "button", "data-cliente": c.id, "data-turno": t }, [
           el("span", { class: "rotina-cliente-nome", text: c.cliente_nome || c.titulo }),
           el("span", { class: "rotina-cliente-status" }, [el("i", { class: "ponto", cor: c.status_tipo === "fechado" ? "var(--verde)" : c.status_tipo === "andamento" ? "var(--acento-2)" : "var(--muted)" }), el("span", { text: STATUS[c.status_tipo] })]),
