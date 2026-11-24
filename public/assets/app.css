@@ -715,7 +715,7 @@ select option:checked { background: var(--acento-fundo); color: var(--acento-tex
 .rotina-foco-tarefas h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid var(--acento); border-radius: 8px; background: var(--acento-fundo); color: var(--acento-texto); font-size: 0.8rem; }
 
 /* Itens selecionados (cliente em foco) com tom mais escuro que os cabecalhos (pedido do dono, 23/11/2026) */
-:root { --selecionado: #17302f; }
+:root { --selecionado: #111316; }
 :root[data-tema="claro"] { --selecionado: #d3f3ef; }
 .rotina-cliente.is-foco, .rotina-tarefa.is-foco { background: var(--selecionado); border-color: rgba(20, 210, 192, 0.55); }
 .rotina-cliente.is-foco:hover, .rotina-tarefa.is-foco:hover { background: var(--selecionado); }
