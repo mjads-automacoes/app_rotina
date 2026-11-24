@@ -122,16 +122,30 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
       <?php else: ?>
         <ul class="lista-simples">
           <?php foreach (array_slice($tarefas, 0, 12) as $t): ?>
-            <li>
+            <li class="tarefa-item">
               <span class="ponto" data-cor="<?= e((string) $t['status_cor']) ?>"></span>
-              <span class="grow tarefa-texto">
+              <?php // clicar na tarefa mostra os detalhes dela (pedido do dono, 24/11/2026) ?>
+              <button type="button" class="grow tarefa-texto tarefa-abrir" data-tarefa-abrir aria-expanded="false">
                 <span><?= e((string) $t['titulo']) ?></span>
                 <small class="muted"><?= e((string) $t['status_nome']) ?><?= $t['prazo'] ? ' · ' . e(date('d/m', (int) strtotime((string) $t['prazo']))) : '' ?></small>
-              </span>
+              </button>
               <form method="post" action="/clientes/<?= (int) $c['id'] ?>/tarefas/<?= (int) $t['id'] ?>/excluir" class="tarefa-excluir">
                 <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
                 <button class="btn btn-icone btn-excluir-tarefa" type="submit" data-confirmar="Excluir a tarefa &quot;<?= e((string) $t['titulo']) ?>&quot;?" aria-label="Excluir tarefa" title="Excluir tarefa">✕</button>
               </form>
+              <div class="tarefa-detalhes" data-tarefa-detalhes hidden>
+                <?php if (trim((string) $t['descricao']) !== ''): ?>
+                  <div class="texto-rico"><?= texto_rico((string) $t['descricao']) ?></div>
+                <?php else: ?>
+                  <p class="muted">Sem detalhes escritos para esta tarefa.</p>
+                <?php endif; ?>
+                <dl class="tarefa-dados">
+                  <dt>Status</dt><dd><?= e((string) $t['status_nome']) ?></dd>
+                  <dt>Prazo</dt><dd><?= $t['prazo'] ? e(date('d/m/Y', (int) strtotime((string) $t['prazo']))) : 'Sem prazo' ?></dd>
+                  <dt>Responsável</dt><dd><?= e((string) ($t['responsavel_nome'] ?? '') ?: '—') ?></dd>
+                  <dt>Lista</dt><dd><?= e((string) ($t['lista_nome'] ?? '')) ?></dd>
+                </dl>
+              </div>
             </li>
           <?php endforeach; ?>
         </ul>

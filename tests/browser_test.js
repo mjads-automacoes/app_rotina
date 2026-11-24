@@ -306,6 +306,10 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     // barra das observacoes: B, I, U e # aplicam a marcacao no texto selecionado
     assert.equal(await ev("(() => { const e = document.querySelector('[data-obs-editar]'); if (e) e.click(); const t = document.querySelector('textarea[name=observacoes]'); const fmt = (f, a, b) => { t.setSelectionRange(a, b); document.querySelector('[data-formato=' + f + ']').click(); }; t.value = 'abc def'; fmt('negrito', 0, 3); fmt('sublinhado', 2, 5); t.setSelectionRange(0, 0); document.querySelector('[data-formato=titulo]').click(); return t.value; })()"), '# **++abc++** def', 'barra: negrito, sublinhado e titulo');
     assert.equal(await ev("[...document.querySelectorAll('[data-obs-barra] .obs-fmt')].map(b => b.textContent).join('')"), '#BIU', 'botoes #, B, I, U');
+    // clicar numa tarefa da ficha mostra os detalhes dela
+    await clicar('.lista-simples [data-tarefa-abrir]');
+    assert.equal(await ev("(() => { const d = document.querySelector('.lista-simples [data-tarefa-detalhes]'); return !d.hidden && d.textContent.includes('Status') && d.textContent.includes('Prazo'); })()"), true, 'detalhes da tarefa aparecem ao clicar');
+    await clicar('.lista-simples [data-tarefa-abrir]');
     // tarefas do cliente: adicionar pela ficha e excluir com confirmacao
     await ev("(() => { const f = document.querySelector('.tarefa-nova'); f.querySelector('[name=titulo]').value = 'Tarefa criada na ficha'; f.querySelector('[name=prazo]').value = document.querySelector('[data-calendario]').dataset.min; f.requestSubmit(); })()");
     assert.ok(await esperar("[...document.querySelectorAll('.lista-simples li')].some(li => li.textContent.includes('Tarefa criada na ficha') && /\\d{2}\\/\\d{2}/.test(li.textContent))"), 'tarefa adicionada na ficha');

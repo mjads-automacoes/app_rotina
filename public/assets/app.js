@@ -110,6 +110,15 @@
     campo.querySelector("textarea").focus();
   });
 
+  // ---- tarefas da ficha: clicar na tarefa abre/fecha os detalhes dela
+  document.addEventListener("click", (event) => {
+    const abrir = event.target.closest("[data-tarefa-abrir]");
+    if (!abrir) return;
+    const det = abrir.closest("li").querySelector("[data-tarefa-detalhes]");
+    det.hidden = !det.hidden;
+    abrir.setAttribute("aria-expanded", det.hidden ? "false" : "true");
+  });
+
   // ---- notas da ficha: lapis abre a edicao no lugar do texto; cancelar volta (pedido do dono, 24/11/2026)
   document.addEventListener("click", (event) => {
     const editar = event.target.closest("[data-nota-editar]");
