@@ -77,10 +77,10 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return f.bottom <= c.top && Math.abs(c.top - k.top) < 2 && Math.abs(c.width - k.width) < 2 && Math.abs(c.height - k.height) < 2 && f.width > c.width * 1.8; })()"), true, 'foco na largura toda; checklist e clientes lado a lado, mesma largura e altura');
     assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-item-texto|rotina-mais-wrap|rotina-concluir', 'checklist: tres pontinhos antes do concluir');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
-    // tema escuro = visual Premium (gamificado); o claro e o visual classico, sem o seletor antigo
+    // visual Premium (gamificado) nos dois temas, sem o seletor antigo
     assert.equal(await ev("document.documentElement.dataset.tema + '|' + getComputedStyle(document.querySelector('#rotinaDias .gamer-xp')).display + '|' + !!document.querySelector('#rotinaDias .gamer-anel') + '|' + !document.querySelector('[data-visual-toggle]')"), 'escuro|block|true|true', 'escuro e o visual Premium');
     await clicar('.menu-acoes [data-theme-toggle]');
-    assert.equal(await ev("document.documentElement.dataset.tema + '|' + getComputedStyle(document.querySelector('#rotinaDias .gamer-xp')).display"), 'claro|none', 'tema claro usa o visual classico');
+    assert.equal(await ev("document.documentElement.dataset.tema + '|' + getComputedStyle(document.querySelector('#rotinaDias .gamer-xp')).display"), 'claro|block', 'tema claro tambem no visual Premium (com XP)');
     await clicar('.menu-acoes [data-theme-toggle]');
     assert.equal(await ev('document.documentElement.scrollHeight <= innerHeight + 1'), true, 'Rotina cabe na tela, sem barra de rolagem da pagina');
     // cabecalhos: tres pontinhos para editar o nome e mudar a cor
