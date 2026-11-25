@@ -1026,8 +1026,8 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
   --selecionado: #141a0c; --sombra: 0 18px 40px rgba(0, 0, 0, 0.55);
 }
 :root[data-tema=claro] {
-  --bg: #f5f6f0; --bg-menu: #ffffff; --panel: #ffffff; --panel-2: #f1f3e8; --borda: #e3e7d6; --borda-forte: #cfd6bc;
-  --texto: #0d0f0c; --muted: #5d6652; --campo: #ffffff;
+  --bg: #dfe1db; --bg-menu: #e9eae5; --panel: #eceee8; --panel-2: #e2e5dc; --borda: #d3d7ca; --borda-forte: #bfc5b3;
+  --texto: #0d0f0c; --muted: #565e4c; --campo: #f6f7f3;
   --acento: #a5b829; --acento-2: #7d8f12; --acento-fundo: rgba(165, 184, 41, 0.14); --acento-texto: #5c6b08;
   --gradiente: linear-gradient(135deg, #c5d83a 0%, #9db021 100%); --brilho: rgba(165, 184, 41, 0.10);
   --selecionado: #eef4cf; --sombra: 0 12px 30px rgba(35, 45, 10, 0.08);
@@ -1041,7 +1041,7 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 :root .marca-logo { border-radius: 50%; background: #000; color: #b4c62e; box-shadow: inset 0 0 0 2px #b4c62e, 0 0 18px rgba(180, 198, 46, 0.35); }
 /* menu lateral */
 :root[data-tema=escuro] .menu { background: linear-gradient(180deg, #0a0b09 0%, #050605 100%); border-right-color: #161a12; }
-:root[data-tema=claro] .menu { background: linear-gradient(180deg, #ffffff 0%, #f8f9f2 100%); }
+:root[data-tema=claro] .menu { background: linear-gradient(180deg, #eceee8 0%, #e5e7e0 100%); } /* cinza claro no lugar do branco (pedido do dono, 25/11/2026) */
 :root .menu nav a { border-radius: 12px; padding: 10px 12px; }
 :root .menu nav a.ativo { color: #0b0d08; background: var(--gradiente); box-shadow: 0 6px 18px rgba(180, 198, 46, 0.25); }
 :root .menu nav a.ativo .ic { color: #0b0d08; }
