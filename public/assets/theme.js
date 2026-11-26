@@ -3,7 +3,7 @@
   "use strict";
   var tema = null;
   try { tema = window.localStorage.getItem("rotina_tema"); } catch (e) { tema = null; }
-  if (tema !== "claro" && tema !== "escuro") {
+  if (tema !== "claro" && tema !== "escuro" && tema !== "neon") {
     tema = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "claro" : "escuro";
   }
   document.documentElement.dataset.tema = tema;

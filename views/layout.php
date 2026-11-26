@@ -36,7 +36,7 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
   <header class="topo-movel">
     <button class="btn btn-icone" type="button" data-menu-toggle aria-label="Abrir menu"><?= icone('menu') ?></button>
     <span class="marca"><?= e($app) ?></span>
-    <button class="btn btn-icone" type="button" data-theme-toggle aria-label="Trocar tema"><span class="so-escuro"><?= icone('sol') ?></span><span class="so-claro"><?= icone('lua') ?></span></button>
+    <button class="btn btn-icone" type="button" data-theme-toggle aria-label="Trocar tema"><span class="prox-neon" title="Tema Neon">🌴</span><span class="so-escuro prox-claro"><?= icone('sol') ?></span><span class="so-claro"><?= icone('lua') ?></span></button>
   </header>
   <div class="cortina" data-menu-toggle></div>
   <aside class="menu" id="menu">
@@ -55,7 +55,7 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
         <span class="usuario-nome"><?= e((string) $usuario['nome']) ?><small><?= $usuario['papel'] === 'admin' ? 'Administrador' : 'Gestor' ?></small></span>
       </a>
       <div class="menu-acoes">
-        <button class="btn btn-suave btn-icone" type="button" data-theme-toggle title="Trocar tema" aria-label="Trocar tema"><span class="so-escuro"><?= icone('sol') ?> Claro</span><span class="so-claro"><?= icone('lua') ?> Escuro</span></button>
+        <button class="btn btn-suave btn-icone" type="button" data-theme-toggle title="Trocar tema" aria-label="Trocar tema"><span class="prox-neon">🌴 Neon</span><span class="so-escuro prox-claro"><?= icone('sol') ?> Claro</span><span class="so-claro"><?= icone('lua') ?> Escuro</span></button>
         <form method="post" action="/logout">
           <input type="hidden" name="csrf" value="<?= e((string) $r->sessao->d['csrf']) ?>">
           <button class="btn btn-suave btn-icone" type="submit" title="Sair" aria-label="Sair"><?= icone('sair') ?> Sair</button>
@@ -67,7 +67,7 @@ $scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['a
   <main class="conteudo">
     <?php if ($usuario === null && !$embutido): ?>
       <div class="marca marca-centro"><span class="marca-logo"><?= e(mb_strtoupper(mb_substr($app, 0, 1))) ?></span><span><?= e($app) ?></span></div>
-      <div class="login-tema"><button class="btn btn-icone" type="button" data-theme-toggle aria-label="Trocar tema"><span class="so-escuro"><?= icone('sol') ?></span><span class="so-claro"><?= icone('lua') ?></span></button></div>
+      <div class="login-tema"><button class="btn btn-icone" type="button" data-theme-toggle aria-label="Trocar tema"><span class="prox-neon" title="Tema Neon">🌴</span><span class="so-escuro prox-claro"><?= icone('sol') ?></span><span class="so-claro"><?= icone('lua') ?></span></button></div>
     <?php endif; ?>
     <?php if ($flash): ?><div class="aviso aviso-<?= $flash['tipo'] === 'ok' ? 'ok' : 'erro' ?>" data-notificacao="<?= $flash['tipo'] === 'ok' ? 'ok' : 'erro' ?>" role="status"><?= e((string) $flash['msg']) ?></div><?php endif; ?>
     <?= $conteudo ?>

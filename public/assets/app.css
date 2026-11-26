@@ -1070,3 +1070,47 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 @keyframes xp-sobe { 0% { opacity: 0; transform: translateY(8px) scale(0.8); } 20% { opacity: 1; transform: translateY(0) scale(1.08); } 100% { opacity: 0; transform: translateY(-22px) scale(1); } }
 @media (max-width: 700px) { .gamer-frase { display: none; } }
 @media (prefers-reduced-motion: reduce) { .gamer-ganho { animation: none; opacity: 0; } }
+
+/* =====================================================================
+   TEMA NEON (pedido do dono, 26/11/2026): escuro inspirado no clima do GTA VI — noite de Miami, rosa-neon,
+   laranja de por do sol e um toque de ciano. O botao de tema roda: Escuro -> Neon -> Claro -> Escuro.
+   ===================================================================== */
+/* o botao mostra o proximo tema */
+.prox-neon { display: none !important; }
+:root[data-tema=escuro] .prox-neon { display: inline-flex !important; align-items: center; gap: 8px; }
+:root[data-tema=escuro] .prox-claro { display: none !important; }
+:root[data-tema=neon] .so-claro { display: none !important; }
+
+:root[data-tema=neon] {
+  --bg: #0b0616; --bg-menu: #120a22; --panel: #170e2b; --panel-2: #22143d; --borda: #2e1d4f; --borda-forte: #452a72;
+  --texto: #fdf2ff; --muted: #b9a5d6; --campo: #100822;
+  --acento: #ff3ea5; --acento-2: #ff9a3d; --acento-fundo: rgba(255, 62, 165, 0.16); --acento-texto: #ff86c8;
+  --gradiente: linear-gradient(135deg, #ff3ea5 0%, #ff8a3d 100%); --brilho: rgba(255, 62, 165, 0.14);
+  --selecionado: #2b1140; --sombra: 0 18px 40px rgba(0, 0, 0, 0.6);
+  --verde: #2ee6a6; --amarelo: #ffc23d; --vermelho: #ff4d6d;
+  color-scheme: dark;
+}
+:root[data-tema=neon] body {
+  background:
+    radial-gradient(900px 480px at 92% -140px, rgba(255, 62, 165, 0.26), transparent 70%),
+    radial-gradient(700px 420px at 60% -200px, rgba(255, 138, 61, 0.16), transparent 70%),
+    radial-gradient(800px 520px at -8% 112%, rgba(34, 211, 238, 0.14), transparent 70%),
+    linear-gradient(180deg, #120826 0%, #0b0616 60%);
+}
+:root[data-tema=neon] .menu { background: linear-gradient(180deg, #1a0d33 0%, #0b0616 100%); border-right-color: #2a1748; }
+:root[data-tema=neon] .btn-primario, :root[data-tema=neon] .menu nav a.ativo, :root[data-tema=neon] .menu nav a.ativo .ic,
+:root[data-tema=neon] .rotina-checklist .contagem, :root[data-tema=neon] #painelRotina .rotina-cabecalho .contagem,
+:root[data-tema=neon] .rotina-concluir[aria-pressed=true], :root[data-tema=neon] .gamer-ganho { color: #fff; }
+:root[data-tema=neon] .btn-primario { box-shadow: 0 6px 20px rgba(255, 62, 165, 0.35); }
+:root[data-tema=neon] .btn-primario:hover { box-shadow: 0 8px 26px rgba(255, 62, 165, 0.5); }
+:root[data-tema=neon] .menu nav a.ativo { box-shadow: 0 6px 20px rgba(255, 62, 165, 0.35); }
+:root[data-tema=neon] .marca-logo { background: #0b0616; color: #ff3ea5; box-shadow: inset 0 0 0 2px #ff3ea5, 0 0 18px rgba(255, 62, 165, 0.55), 0 0 32px rgba(34, 211, 238, 0.2); }
+:root[data-tema=neon] .marca span:last-child { background: linear-gradient(90deg, #ff3ea5, #ff9a3d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+:root[data-tema=neon] #painelRotina .cartao { box-shadow: 0 0 0 1px rgba(255, 62, 165, 0.08), var(--sombra); }
+:root[data-tema=neon] #painelRotina .rotina-foco::before { background: linear-gradient(90deg, #ff3ea5, #ff9a3d, #22d3ee); box-shadow: 0 0 24px rgba(255, 62, 165, 0.7); }
+:root[data-tema=neon] .rotina-foco-nome { text-shadow: 0 0 22px rgba(255, 62, 165, 0.35); }
+:root[data-tema=neon] .rotina-cliente.is-concluido { background: rgba(46, 230, 166, 0.10); }
+:root[data-tema=neon] #rotina .pagina-topo .rotina-controles { background: linear-gradient(90deg, rgba(255, 62, 165, 0.16), rgba(255, 138, 61, 0.06) 45%, transparent 75%), var(--panel); }
+:root[data-tema=neon] .gamer-anel .anel-valor { stroke: #ff3ea5; filter: drop-shadow(0 0 4px rgba(255, 62, 165, 0.85)); }
+:root[data-tema=neon] .gamer-xp { background: rgba(34, 211, 238, 0.14); color: #67e8f9; }
+:root[data-tema=neon] h1 { text-shadow: 0 0 18px rgba(255, 62, 165, 0.25); }

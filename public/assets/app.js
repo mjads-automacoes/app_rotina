@@ -9,7 +9,8 @@
   // ---- tema
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-theme-toggle]")) {
-      const novo = raiz.dataset.tema === "claro" ? "escuro" : "claro";
+      // tres temas, em roda: escuro -> neon (inspirado no GTA VI, 26/11/2026) -> claro -> escuro
+      const novo = { escuro: "neon", neon: "claro", claro: "escuro" }[raiz.dataset.tema] || "escuro";
       raiz.dataset.tema = novo;
       try { window.localStorage.setItem("rotina_tema", novo); } catch (e) { /* sem armazenamento: so vale nesta visita */ }
     }

@@ -79,6 +79,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');
     // visual Premium (gamificado) nos dois temas, sem o seletor antigo
     assert.equal(await ev("document.documentElement.dataset.tema + '|' + getComputedStyle(document.querySelector('#rotinaDias .gamer-xp')).display + '|' + !!document.querySelector('#rotinaDias .gamer-anel') + '|' + !document.querySelector('[data-visual-toggle]')"), 'escuro|block|true|true', 'escuro e o visual Premium');
+    // botao de tema roda: escuro -> neon (inspirado no GTA VI) -> claro -> escuro
+    await clicar('.menu-acoes [data-theme-toggle]');
+    assert.equal(await ev("document.documentElement.dataset.tema + '|' + getComputedStyle(document.body).backgroundImage.includes('gradient') + '|' + getComputedStyle(document.documentElement).getPropertyValue('--acento').trim()"), 'neon|true|#ff3ea5', 'tema Neon');
     await clicar('.menu-acoes [data-theme-toggle]');
     assert.equal(await ev("document.documentElement.dataset.tema + '|' + getComputedStyle(document.querySelector('#rotinaDias .gamer-xp')).display"), 'claro|block', 'tema claro tambem no visual Premium (com XP)');
     await clicar('.menu-acoes [data-theme-toggle]');
@@ -361,6 +364,8 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await ev("window.localStorage.setItem('rotina_tema', 'escuro')");
     await ir('/');
     assert.equal(await ev('document.documentElement.dataset.tema'), 'escuro', 'tema escolhido anteriormente e respeitado ao abrir');
+    await clicar('.menu [data-theme-toggle]');
+    assert.equal(await ev('document.documentElement.dataset.tema'), 'neon', 'trocou para o neon');
     await clicar('.menu [data-theme-toggle]');
     assert.equal(await ev('document.documentElement.dataset.tema'), 'claro', 'trocou para o claro');
     await ir('/clientes');
