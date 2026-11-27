@@ -357,9 +357,9 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
 
     // ---- Agentes: formulario montado pela especificacao; envio, detalhe e comentario
     await ir('/agentes');
-    assert.equal(await ev("[...document.querySelectorAll('.agente-card')].map(c => c.querySelector('.agente-nome').textContent).join(',')"), 'Max,Luna,Byte,Sofia', 'agentes como personagens');
+    assert.equal(await ev("[...document.querySelectorAll('.agente-card')].map(c => c.querySelector('.agente-funcao').textContent).join(',') + '|' + document.querySelectorAll('.agente-nome').length"), 'Gestor de Tráfego,Criativos,Dev Sites,Social Media|0', 'agentes como personagens, sem nome proprio');
     await ev("document.querySelector('.agente-card[data-agente=criativos] .agente-pedir').click()");
-    assert.ok(await esperar("location.pathname === '/agentes/novo' && document.getElementById('pedAgente') && document.getElementById('pedAgente').value === 'criativos'"), 'Pedir a Luna abre o formulario ja com Criativos');
+    assert.ok(await esperar("location.pathname === '/agentes/novo' && document.getElementById('pedAgente') && document.getElementById('pedAgente').value === 'criativos'"), 'Fazer pedido (Criativos) abre o formulario ja com Criativos');
     await ir('/agentes/novo');
     assert.ok(await esperar("!!document.getElementById('pedAgente')"), 'formulario de pedido carrega');
     await ev("(() => { const s = document.getElementById('pedAgente'); s.value = 'gestor_trafego'; s.dispatchEvent(new Event('change', { bubbles: true })); })()");

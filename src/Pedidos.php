@@ -130,14 +130,13 @@ final class Pedidos
     }
 
     /**
-     * Os agentes como personagens na aba (pedido do dono, 27/11/2026): nome, avatar, cor e frase de cada um.
-     * Os nomes sao sugestao; o dono pode pedir outros.
+     * Os agentes como personagens na aba (pedido do dono, 27/11/2026): avatar, cor e frase de cada um (sem nome proprio, tirado a pedido).
      */
     public const PERSONAGENS = [
-        'gestor_trafego' => ['nome' => 'Max', 'avatar' => '📈', 'cor' => '#3b82f6', 'frase' => 'Monto campanhas em rascunho e analiso contas. Quem ativa é você.'],
-        'criativos' => ['nome' => 'Luna', 'avatar' => '🎨', 'cor' => '#ec4899', 'frase' => 'Vídeos e artes no estilo do cliente, sem inventar nada real.'],
-        'dev_sites' => ['nome' => 'Byte', 'avatar' => '💻', 'cor' => '#14b8a6', 'frase' => 'Landing pages prontas para aprovar e subir na HostGator.'],
-        'social_media' => ['nome' => 'Sofia', 'avatar' => '📱', 'cor' => '#f59e0b', 'frase' => 'Posts com arte e legenda prontos para o feed do cliente.'],
+        'gestor_trafego' => ['avatar' => '📈', 'cor' => '#3b82f6', 'frase' => 'Monto campanhas em rascunho e analiso contas. Quem ativa é você.'],
+        'criativos' => ['avatar' => '🎨', 'cor' => '#ec4899', 'frase' => 'Vídeos e artes no estilo do cliente, sem inventar nada real.'],
+        'dev_sites' => ['avatar' => '💻', 'cor' => '#14b8a6', 'frase' => 'Landing pages prontas para aprovar e subir na HostGator.'],
+        'social_media' => ['avatar' => '📱', 'cor' => '#f59e0b', 'frase' => 'Posts com arte e legenda prontos para o feed do cliente.'],
     ];
 
     /** Numeros de cada agente para os cartoes de personagem (respeita o que o usuario pode ver). */

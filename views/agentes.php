@@ -11,13 +11,12 @@ $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$c
 
 <?php // os agentes como personagens (pedido do dono, 27/11/2026): avatar, nome, funcao, frase, numeros e "Pedir" ?>
 <section class="agentes-time" aria-label="Time de agentes">
-  <?php foreach ($esquema['agents'] as $chave => $a): $pp = Pedidos::PERSONAGENS[$chave] ?? ['nome' => $a['label'], 'avatar' => '🤖', 'cor' => '#8f99a3', 'frase' => '']; $nr = $resumo[$chave] ?? ['fila' => 0, 'fazendo' => 0, 'aprovar' => 0, 'concluidos' => 0]; ?>
+  <?php foreach ($esquema['agents'] as $chave => $a): $pp = Pedidos::PERSONAGENS[$chave] ?? ['avatar' => '🤖', 'cor' => '#8f99a3', 'frase' => '']; $nr = $resumo[$chave] ?? ['fila' => 0, 'fazendo' => 0, 'aprovar' => 0, 'concluidos' => 0]; ?>
     <article class="agente-card" data-agente="<?= e($chave) ?>" data-agente-cor="<?= e($pp['cor']) ?>">
       <div class="agente-topo">
         <span class="agente-avatar" aria-hidden="true"><span><?= e($pp['avatar']) ?></span></span>
       </div>
-      <h2 class="agente-nome"><?= e($pp['nome']) ?></h2>
-      <p class="agente-funcao"><?= e((string) $a['label']) ?></p>
+      <h2 class="agente-funcao"><?= e((string) $a['label']) ?></h2>
       <p class="agente-fala"><?= e($pp['frase']) ?></p>
       <div class="agente-status">
         <?php if ($nr['fazendo'] > 0): ?><span class="agente-estado is-trabalhando">● Trabalhando em <?= $nr['fazendo'] ?></span><?php else: ?><span class="agente-estado">● Disponível</span><?php endif; ?>
@@ -27,7 +26,7 @@ $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$c
         <div><dt>Para aprovar</dt><dd><?= $nr['aprovar'] ?></dd></div>
         <div><dt>Entregues</dt><dd><?= $nr['concluidos'] ?></dd></div>
       </dl>
-      <a class="btn agente-pedir" href="/agentes/novo?agente=<?= e($chave) ?>">Pedir a <?= e($pp['nome']) ?></a>
+      <a class="btn agente-pedir" href="/agentes/novo?agente=<?= e($chave) ?>">Fazer pedido</a>
     </article>
   <?php endforeach; ?>
 </section>
