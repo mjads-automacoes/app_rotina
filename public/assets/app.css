@@ -1238,3 +1238,11 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 @keyframes check-entra { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 @media (max-width: 700px) { .check-foco { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .check-da-vez .rotina-item { animation: none; } }
+/* checklist termina logo abaixo do item da vez: "Add +" no cabecalho e "Expandir/Recolher" embaixo da previa (pedido do dono, 27/11/2026) */
+.cab-extra { display: inline-flex; align-items: center; gap: 8px; }
+.btn-add-cab { min-height: 28px; padding: 2px 10px; font-size: 0.8rem; }
+.check-lado { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.rotina-ver-todos { justify-self: end; padding: 0; border: 0; background: transparent; color: var(--acento-texto); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.rotina-ver-todos:hover { text-decoration: underline; }
+.check-foco-fim { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+#painelRotina .rotina-checklist { padding-bottom: 12px; }

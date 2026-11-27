@@ -210,22 +210,28 @@
         el("button", { class: "btn btn-primario btn-mini", type: "button", "data-check": "salvar-novo", text: "Salvar" }),
         el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "fechar-novo", text: "Cancelar" }),
       ])
-      : el("button", { class: "btn btn-contorno btn-add", type: "button", "data-check": "abrir-novo", text: "Add +" });
+      : null;
+    // "Add +" fica no cabecalho, para o bloco terminar logo abaixo do item da vez (pedido do dono, 27/11/2026)
+    const botaoAdd = el("button", { class: "btn btn-contorno btn-mini btn-add-cab", type: "button", "data-check": "abrir-novo", title: "Adicionar item ao checklist", text: "Add +" });
     const verTodos = todos.length > 1 || state.checklistTodos
-      ? el("button", { class: "btn btn-suave btn-mini rotina-ver-todos", type: "button", "data-check": "ver-todos", text: state.checklistTodos ? "Mostrar só o da vez" : "Ver todos (" + todos.length + ")" })
+      ? el("button", { class: "rotina-ver-todos", type: "button", "data-check": "ver-todos", text: state.checklistTodos ? "Recolher" : "Expandir" })
       : null;
     ui.checklist.replaceChildren(...[
-      cabecalho("checklist", "h3", el("span", { class: "contagem", text: feitas + " de " + todos.length })),
+      cabecalho("checklist", "h3", el("span", { class: "cab-extra" }, [botaoAdd, el("span", { class: "contagem", text: feitas + " de " + todos.length })])),
       ...(state.checklistTodos
         ? (grupos.length ? grupos : [el("p", { class: "muted", text: "Sem itens hoje." })])
         : proximo
           ? [el("div", { class: "check-foco" }, [
             el("div", { class: "check-da-vez" }, [el("span", { class: "check-turno", text: turnoDe(proximo) }), itemEl(proximo)]),
-            seguinte ? el("div", { class: "check-previa", "aria-hidden": "true" }, [el("span", { class: "check-turno", text: "Depois · " + turnoDe(seguinte) }), el("div", { class: "rotina-item" }, [el("span", { class: "rotina-item-texto", text: seguinte.titulo })])]) : null,
+            el("div", { class: "check-lado" }, [
+              seguinte ? el("div", { class: "check-previa", "aria-hidden": "true" }, [el("span", { class: "check-turno", text: "Depois · " + turnoDe(seguinte) }), el("div", { class: "rotina-item" }, [el("span", { class: "rotina-item-texto", text: seguinte.titulo })])]) : null,
+              verTodos,
+            ].filter(Boolean)),
           ].filter(Boolean))]
-          : [el("p", { class: "check-pronto", text: todos.length ? "Tudo concluído 🏆" : "Sem itens hoje." })]),
-      el("div", { class: "rotina-check-rodape" }, [adicionar, verTodos].filter(Boolean)),
-    ]);
+          : [el("div", { class: "check-foco-fim" }, [el("p", { class: "check-pronto", text: todos.length ? "Tudo concluído 🏆" : "Sem itens hoje." }), verTodos].filter(Boolean))]),
+      adicionar ? el("div", { class: "rotina-check-rodape" }, [adicionar]) : null,
+      state.checklistTodos && verTodos ? el("div", { class: "rotina-check-rodape" }, [verTodos]) : null,
+    ].filter(Boolean));
   }
 
   // cabecalhos "Checklist do dia" e "Clientes do dia": tres pontinhos para editar o nome e mudar a cor (pedido do dono, 24/11/2026)

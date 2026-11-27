@@ -185,7 +185,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await clicar('[data-check="salvar-nome"]');
     assert.ok(await esperar("document.querySelector('#rotinaChecklist .rotina-item-texto').textContent === 'Item renomeado'"), 'nome trocado na hora');
     // checklist aparece aos poucos: "Ver todos" mostra a lista inteira
-    assert.ok(await ev("!!document.querySelector('#rotinaChecklist .rotina-item.is-proximo') && /Ver todos/.test(document.querySelector('[data-check=ver-todos]').textContent)"), 'checklist mostra o proximo e o botao Ver todos');
+    assert.ok(await ev("!!document.querySelector('#rotinaChecklist .rotina-item.is-proximo') && document.querySelector('[data-check=ver-todos]').textContent === 'Expandir'"), 'checklist mostra o proximo e o botao Expandir');
     await clicar('[data-check="ver-todos"]');
     // Add +: novo item no checklist
     const itensAntes = await n('#rotinaChecklist .rotina-item');
