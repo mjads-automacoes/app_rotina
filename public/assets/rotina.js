@@ -14,7 +14,7 @@
   const STATUS = { aberto: "A fazer", andamento: "Em andamento", fechado: "Concluído" };
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
-    checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
+    checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor") };
   const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, checklistTodos: false, menuItem: null, cabMenu: null, cabCores: null, cabEditando: null, cabTexto: "", editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
@@ -619,7 +619,6 @@
     if (event.target.id === "rotinaCabNome") state.cabTexto = event.target.value;
   });
   raiz.addEventListener("change", (event) => { if (event.target.id === "rotinaAddTurno") state.addTurno = event.target.value; });
-  if (ui.atualizar) ui.atualizar.addEventListener("click", () => carregar(false));
   if (ui.gestor) ui.gestor.addEventListener("change", () => { state.dados = null; state.foco = null; carregar(false); });
 
   carregar(false);
