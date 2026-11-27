@@ -187,6 +187,7 @@
 
   // ---- cores vindas dos dados (CSP: sem style inline no HTML, so via script)
   document.querySelectorAll("[data-cor]").forEach((n) => { n.style.background = n.dataset.cor; });
+  document.querySelectorAll("[data-agente-cor]").forEach((n) => { n.style.setProperty("--cor", n.dataset.agenteCor); }); // cor de cada personagem da aba Agentes
 
   // ---- menu de selecao (dias da rotina): atualiza o rotulo e fecha ao clicar fora
   document.addEventListener("change", (event) => {

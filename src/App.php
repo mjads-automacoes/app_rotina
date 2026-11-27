@@ -298,11 +298,11 @@ final class App
         if ($caminho === '/agentes' && $r->metodo === 'GET') {
             $f = array_intersect_key($r->query, array_flip(['agente', 'status', 'cliente_id']));
 
-            return $this->tela($r, $u, 'agentes', ['pedidos' => $this->n->pedidos->listar($u, $f), 'filtros' => $f, 'esquema' => $this->n->pedidos->esquema(), 'clientes' => $this->n->clientes->listar($u)]);
+            return $this->tela($r, $u, 'agentes', ['resumo' => $this->n->pedidos->resumoAgentes($u), 'pedidos' => $this->n->pedidos->listar($u, $f), 'filtros' => $f, 'esquema' => $this->n->pedidos->esquema(), 'clientes' => $this->n->clientes->listar($u)]);
         }
 
         if ($caminho === '/agentes/novo' && $r->metodo === 'GET') {
-            return $this->tela($r, $u, 'agentes-novo', ['clienteInicial' => (int) ($r->query['cliente'] ?? 0)]);
+            return $this->tela($r, $u, 'agentes-novo', ['clienteInicial' => (int) ($r->query['cliente'] ?? 0), 'agenteInicial' => (string) ($r->query['agente'] ?? '')]);
         }
 
         if (preg_match('#^/agentes/(\d+)(?:/(responder|aprovar|ajuste|cancelar|comentar))?$#', $caminho, $m)) {

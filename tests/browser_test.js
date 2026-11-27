@@ -356,6 +356,10 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await tema('escuro');
 
     // ---- Agentes: formulario montado pela especificacao; envio, detalhe e comentario
+    await ir('/agentes');
+    assert.equal(await ev("[...document.querySelectorAll('.agente-card')].map(c => c.querySelector('.agente-nome').textContent).join(',')"), 'Max,Luna,Byte,Sofia', 'agentes como personagens');
+    await ev("document.querySelector('.agente-card[data-agente=criativos] .agente-pedir').click()");
+    assert.ok(await esperar("location.pathname === '/agentes/novo' && document.getElementById('pedAgente') && document.getElementById('pedAgente').value === 'criativos'"), 'Pedir a Luna abre o formulario ja com Criativos');
     await ir('/agentes/novo');
     assert.ok(await esperar("!!document.getElementById('pedAgente')"), 'formulario de pedido carrega');
     await ev("(() => { const s = document.getElementById('pedAgente'); s.value = 'gestor_trafego'; s.dispatchEvent(new Event('change', { bubbles: true })); })()");

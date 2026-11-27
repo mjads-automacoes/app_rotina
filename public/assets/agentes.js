@@ -238,5 +238,5 @@
     } catch (e) { toast(e.message, true); botao.disabled = false; }
   }
 
-  chamar("GET", "/api/agentes/esquema").then((d) => { dados = d; desenhar({}); }).catch((e) => { raiz.replaceChildren(el("p", { class: "aviso aviso-erro", text: e.message })); });
+  chamar("GET", "/api/agentes/esquema").then((d) => { dados = d; desenhar({ agente: d.esquema.agents[raiz.dataset.agente] ? raiz.dataset.agente : "" }); }).catch((e) => { raiz.replaceChildren(el("p", { class: "aviso aviso-erro", text: e.message })); });
 })();

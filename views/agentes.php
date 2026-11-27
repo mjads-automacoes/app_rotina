@@ -1,5 +1,5 @@
 <?php
-/** @var Request $r @var array $usuario @var array $pedidos @var array $filtros @var array $esquema @var array $clientes */
+/** @var Request $r @var array $usuario @var array $pedidos @var array $filtros @var array $esquema @var array $clientes @var array $resumo */
 // Aba Agentes (27/11/2026): lista unica de pedidos aos agentes, filtrada por setor, status e cliente.
 $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$campo] ?? '') === $valor ? 'selected' : '';
 ?>
@@ -13,6 +13,31 @@ $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$c
   </div>
 </header>
 
+<?php // os agentes como personagens (pedido do dono, 27/11/2026): avatar, nome, funcao, frase, numeros e "Pedir" ?>
+<section class="agentes-time" aria-label="Time de agentes">
+  <?php foreach ($esquema['agents'] as $chave => $a): $pp = Pedidos::PERSONAGENS[$chave] ?? ['nome' => $a['label'], 'avatar' => '🤖', 'cor' => '#8f99a3', 'frase' => '']; $nr = $resumo[$chave] ?? ['fila' => 0, 'fazendo' => 0, 'aprovar' => 0, 'concluidos' => 0]; $nivel = 1 + intdiv($nr['concluidos'], 5); ?>
+    <article class="agente-card" data-agente="<?= e($chave) ?>" data-agente-cor="<?= e($pp['cor']) ?>">
+      <div class="agente-topo">
+        <span class="agente-avatar" aria-hidden="true"><span><?= e($pp['avatar']) ?></span></span>
+        <span class="agente-nivel" title="Sobe 1 nível a cada 5 pedidos concluídos">Nv <?= $nivel ?></span>
+      </div>
+      <h2 class="agente-nome"><?= e($pp['nome']) ?></h2>
+      <p class="agente-funcao"><?= e((string) $a['label']) ?></p>
+      <p class="agente-fala"><?= e($pp['frase']) ?></p>
+      <div class="agente-status">
+        <?php if ($nr['fazendo'] > 0): ?><span class="agente-estado is-trabalhando">● Trabalhando em <?= $nr['fazendo'] ?></span><?php else: ?><span class="agente-estado">● Disponível</span><?php endif; ?>
+      </div>
+      <dl class="agente-numeros">
+        <div><dt>Na fila</dt><dd><?= $nr['fila'] ?></dd></div>
+        <div><dt>Para aprovar</dt><dd><?= $nr['aprovar'] ?></dd></div>
+        <div><dt>Entregues</dt><dd><?= $nr['concluidos'] ?></dd></div>
+      </dl>
+      <a class="btn agente-pedir" href="/agentes/novo?agente=<?= e($chave) ?>">Pedir a <?= e($pp['nome']) ?></a>
+    </article>
+  <?php endforeach; ?>
+</section>
+
+<h2 class="agentes-subtitulo">Pedidos</h2>
 <form method="get" action="/agentes" class="filtros-barra agentes-filtros">
   <select name="agente" aria-label="Agente"><option value="">Todos os agentes</option><?php foreach ($esquema['agents'] as $chave => $a): ?><option value="<?= e($chave) ?>" <?= $sel('agente', $chave) ?>><?= e((string) $a['label']) ?></option><?php endforeach; ?></select>
   <select name="status" aria-label="Status"><option value="">Todos os status</option><?php foreach (Pedidos::STATUS as $chave => $nome): ?><option value="<?= e($chave) ?>" <?= $sel('status', $chave) ?>><?= e($nome) ?></option><?php endforeach; ?></select>

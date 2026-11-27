@@ -129,6 +129,39 @@ final class Pedidos
         return array_map([$this, 'formatar'], $st->fetchAll());
     }
 
+    /**
+     * Os agentes como personagens na aba (pedido do dono, 27/11/2026): nome, avatar, cor e frase de cada um.
+     * Os nomes sao sugestao; o dono pode pedir outros.
+     */
+    public const PERSONAGENS = [
+        'gestor_trafego' => ['nome' => 'Max', 'avatar' => '📈', 'cor' => '#3b82f6', 'frase' => 'Monto campanhas em rascunho e analiso contas. Quem ativa é você.'],
+        'criativos' => ['nome' => 'Luna', 'avatar' => '🎨', 'cor' => '#ec4899', 'frase' => 'Vídeos e artes no estilo do cliente, sem inventar nada real.'],
+        'dev_sites' => ['nome' => 'Byte', 'avatar' => '💻', 'cor' => '#14b8a6', 'frase' => 'Landing pages prontas para aprovar e subir na HostGator.'],
+        'social_media' => ['nome' => 'Sofia', 'avatar' => '📱', 'cor' => '#f59e0b', 'frase' => 'Posts com arte e legenda prontos para o feed do cliente.'],
+    ];
+
+    /** Numeros de cada agente para os cartoes de personagem (respeita o que o usuario pode ver). */
+    public function resumoAgentes(array $actor): array
+    {
+        $r = [];
+
+        foreach (array_keys($this->esquema()['agents']) as $a) {
+            $r[$a] = ['fila' => 0, 'fazendo' => 0, 'aprovar' => 0, 'concluidos' => 0];
+        }
+
+        foreach ($this->listar($actor) as $p) {
+            $k = match ($p['status']) {
+                'a_fazer', 'ajuste' => 'fila', 'fazendo', 'falta_informacao' => 'fazendo', 'para_aprovacao' => 'aprovar', 'concluido' => 'concluidos', default => null,
+            };
+
+            if ($k !== null && isset($r[$p['agente']])) {
+                $r[$p['agente']][$k]++;
+            }
+        }
+
+        return $r;
+    }
+
     public function obter(array $actor, int $id): array
     {
         $p = $this->buscar($id);
