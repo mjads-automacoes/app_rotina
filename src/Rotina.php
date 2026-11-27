@@ -39,7 +39,8 @@ final class Rotina
 
         $tarefas = $this->tarefas->listar($actor, ['responsavel_id' => $alvo, 'de' => array_key_first($semana), 'ate' => array_key_last($semana)], 2000);
         $clientes = $this->pdo->query('SELECT id, nome, descricao, link FROM clientes')->fetchAll(PDO::FETCH_UNIQUE);
-        usort($tarefas, static fn (array $a, array $b): int => [$a['cliente_nome'] ?? '', $a['id']] <=> [$b['cliente_nome'] ?? '', $b['id']]);
+        // ordem: a escolhida arrastando pelos 6 pontinhos; sem ordem, alfabetica no fim
+        usort($tarefas, static fn (array $a, array $b): int => [$a['ordem_rotina'] ?? PHP_INT_MAX, $a['cliente_nome'] ?? '', $a['id']] <=> [$b['ordem_rotina'] ?? PHP_INT_MAX, $b['cliente_nome'] ?? '', $b['id']]);
 
         // tarefas do cliente ainda abertas em cada dia (pedido do dono, 23/11/2026): o cliente so conta como concluido quando todas terminam
         $abertas = [];
@@ -150,6 +151,24 @@ final class Rotina
         $this->pdo->prepare('INSERT OR REPLACE INTO meta (chave, valor) VALUES (?, ?)')->execute(['cabecalhos:' . (int) $actor['id'], json_encode($todos, JSON_UNESCAPED_UNICODE)]);
 
         return $todos;
+    }
+
+    /** Nova ordem dos clientes de um periodo (arrastar pelos 6 pontinhos); quem veio de outro periodo passa para este. */
+    public function ordenar(array $actor, string $turno, array $ids): void
+    {
+        if (!in_array($turno, self::TURNOS, true)) {
+            throw new InvalidArgumentException('Escolha um turno válido.');
+        }
+
+        foreach (array_values($ids) as $i => $id) {
+            $t = $this->tarefas->obter($actor, (int) $id);
+
+            if ($t['turno'] !== $turno) {
+                $this->tarefas->atualizar($actor, (int) $id, ['turno' => $turno]);
+            }
+
+            $this->pdo->prepare('UPDATE tarefas SET ordem_rotina = ? WHERE id = ?')->execute([$i + 1, (int) $id]);
+        }
     }
 
     public function iniciar(array $actor, int $tarefaId): void

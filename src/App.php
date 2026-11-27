@@ -497,6 +497,12 @@ final class App
             return $ok(['cabecalhos' => $n->rotina->salvarCabecalho($u, (string) ($p['bloco'] ?? ''), array_intersect_key($p, array_flip(['nome', 'cor'])))]);
         }
 
+        if ($caminho === '/api/rotina/ordem' && $post) {
+            $n->rotina->ordenar($u, (string) ($p['turno'] ?? ''), array_map('intval', (array) ($p['ids'] ?? [])));
+
+            return $ok();
+        }
+
         if ($post && preg_match('#^/api/rotina/(iniciar|concluir|reabrir|gerar)$#', $caminho, $m)) {
             if ($m[1] === 'gerar') {
                 return $ok($n->rotina->gerarDoDia($this->agora()));

@@ -110,3 +110,17 @@ t('tempo de execucao do cliente: do Iniciar ate a ultima tarefa do dia concluida
     $n->rotina->reabrir($ana, $item['id']);
     eq(null, $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['manha']['clientes'][0]['tempo_seg'], 'reabrir zera');
 });
+
+t('arrastar pelos 6 pontinhos muda a ordem e o periodo do cliente', function (): void {
+    [$n, , $ana] = cenario_dia();
+    $seg = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos'];
+    $bill = $seg['manha']['clientes'][0]['id'];
+    $lav = $seg['tarde']['clientes'][0]['id'];
+    $n->rotina->ordenar($ana, 'tarde', [$bill, $lav]);
+    $seg = $n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos'];
+    eq([], $seg['manha']['clientes']);
+    eq(['Analisar BILL BORRACHA', 'Analisar LAVANDERIA'], array_column($seg['tarde']['clientes'], 'titulo'));
+    $n->rotina->ordenar($ana, 'tarde', [$lav, $bill]);
+    eq(['Analisar LAVANDERIA', 'Analisar BILL BORRACHA'], array_column($n->rotina->dia($ana, '2026-11-09')['semana']['2026-11-09']['turnos']['tarde']['clientes'], 'titulo'));
+    lanca(fn () => $n->rotina->ordenar($ana, 'madrugada', [$lav]));
+});

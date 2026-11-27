@@ -1253,3 +1253,14 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 #painelRotina .rotina-add-form .selecao-botao { min-height: 38px; }
 #painelRotina .rotina-add-form .btn-mini { flex: none; min-height: 38px; padding: 0 14px; }
 @media (max-width: 700px) { #painelRotina .rotina-check-rodape .rotina-add-form { flex-wrap: wrap; } #painelRotina .rotina-add-form > input { flex-basis: 100%; } }
+
+/* Rotina: 6 pontinhos na frente de cada cliente para arrastar (ordem e periodo) */
+.rotina-cliente { justify-content: flex-start; }
+.rotina-cliente .rotina-cliente-nome { flex: 1 1 auto; }
+.rotina-alca { display: grid; grid-template-columns: repeat(2, 3px); gap: 3px; flex: none; padding: 4px 3px; margin-left: -4px; border-radius: 6px; cursor: grab; opacity: 0.45; transition: opacity 0.15s, background 0.15s; }
+.rotina-alca i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
+.rotina-cliente:hover .rotina-alca { opacity: 0.9; }
+.rotina-alca:hover { background: var(--panel-2); }
+.rotina-alca:active { cursor: grabbing; }
+.rotina-cliente.arrastando { opacity: 0.5; outline: 1px dashed var(--acento); }
+.rotina-grupo:has(.rotina-cliente) .rotina-cliente-vazio { display: none; }

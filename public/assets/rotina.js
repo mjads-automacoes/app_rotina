@@ -497,9 +497,10 @@
     const partes = [cabecalho("clientes", "h2", null)];
     TURNOS.forEach(([t, rotulo]) => {
       const lista = clientesDo(t);
-      partes.push(el("div", { class: "rotina-grupo" }, [
+      partes.push(el("div", { class: "rotina-grupo", "data-grupo-turno": t }, [
         el("div", { class: "rotina-grupo-topo", "data-turno": t, text: rotulo }),
         ...(lista.length ? lista.map((c) => el("button", { class: "rotina-cliente" + (c.id === state.foco && t === state.turno ? " is-foco" : "") + (c.status_tipo === "fechado" ? " is-concluido" : ""), type: "button", "data-cliente": c.id, "data-turno": t }, [
+          el("span", { class: "rotina-alca", title: "Arraste para mudar a ordem ou o período", "aria-hidden": "true" }, [el("i"), el("i"), el("i"), el("i"), el("i"), el("i")]),
           el("span", { class: "rotina-cliente-nome", text: c.cliente_nome || c.titulo }),
           // tempo de execucao (do Iniciar ate concluir; em andamento conta ate agora) e "OK" no lugar de "Concluido" (pedido do dono, 24/11/2026)
           c.tempo_seg != null ? el("span", { class: "rotina-cliente-tempo" + (c.status_tipo === "fechado" ? " is-ok" : ""), title: c.status_tipo === "fechado" ? "Tempo de execução" : "Em execução há", text: "⏱ " + duracao(c.tempo_seg) }) : null,
@@ -511,7 +512,7 @@
   }
 
   function renderizar() {
-    if (!state.dados) return;
+    if (!state.dados || state.arrastando) return;
     escolherFoco();
     // quem estava sendo digitado continua com o cursor depois de redesenhar (a Rotina recarrega a cada minuto)
     const ativo = document.activeElement && ["rotinaNota", "rotinaEditar", "rotinaAddTexto", "rotinaCabNome"].includes(document.activeElement.id) ? document.activeElement.id : null;
@@ -624,6 +625,61 @@
   carregar(false);
   // "tudo em tempo real" (pedido do dono, 24/11/2026): busca as mudancas a cada 15 segundos e na hora em que a ficha
   // aberta em janela salva algo; ao voltar para a aba, atualiza tambem
+  // ---------- arrastar clientes pelos 6 pontinhos: muda a ordem e o periodo (Manha, Tarde, Fechamento) ----------
+  const soltarLinha = () => { if (state.arrastando) { state.arrastando.classList.remove("arrastando"); state.arrastando.draggable = false; } state.arrastando = null; };
+  ui.clientes.addEventListener("pointerdown", (ev) => { const alca = ev.target.closest(".rotina-alca"); if (alca) alca.closest(".rotina-cliente").draggable = true; });
+  ui.clientes.addEventListener("pointerup", (ev) => { const linha = ev.target.closest(".rotina-cliente"); if (linha && !state.arrastando) linha.draggable = false; });
+  ui.clientes.addEventListener("dragstart", (ev) => {
+    const linha = ev.target.closest && ev.target.closest(".rotina-cliente");
+    if (!linha || !linha.draggable) return ev.preventDefault();
+    state.arrastando = linha;
+    state.arrastoDe = linha.closest("[data-grupo-turno]").dataset.grupoTurno;
+    state.arrastoOrdem = ordemAtual();
+    linha.classList.add("arrastando");
+    ev.dataTransfer.effectAllowed = "move";
+    ev.dataTransfer.setData("text/plain", linha.dataset.cliente);
+  });
+  ui.clientes.addEventListener("dragover", (ev) => {
+    const grupo = ev.target.closest("[data-grupo-turno]");
+    const linha = state.arrastando;
+    if (!grupo || !linha) return;
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = "move";
+    const depois = [...grupo.querySelectorAll(".rotina-cliente")].find((x) => x !== linha && ev.clientY < x.getBoundingClientRect().top + x.getBoundingClientRect().height / 2);
+    if (depois) { if (depois.previousElementSibling !== linha) grupo.insertBefore(linha, depois); }
+    else if (grupo.lastElementChild !== linha) grupo.appendChild(linha);
+  });
+  ui.clientes.addEventListener("drop", (ev) => { if (state.arrastando) ev.preventDefault(); });
+  ui.clientes.addEventListener("dragend", async () => {
+    const linha = state.arrastando;
+    if (!linha) return;
+    const para = linha.closest("[data-grupo-turno]").dataset.grupoTurno;
+    const de = state.arrastoDe;
+    soltarLinha();
+    const ordem = ordemAtual();
+    if (JSON.stringify(ordem) === JSON.stringify(state.arrastoOrdem)) return;
+    // a tela ja mostra a nova ordem: atualiza os dados na hora e grava no servidor
+    const itens = {};
+    TURNOS.forEach(([t]) => clientesDo(t).forEach((c) => { itens[c.id] = c; }));
+    TURNOS.forEach(([t]) => { const d = dia().turnos[t]; if (d) d.clientes = ordem[t].map((id) => itens[id]).filter(Boolean); });
+    state.versao++;
+    state.pendentes++;
+    renderizar();
+    try {
+      for (const t of new Set([de, para])) await chamar("POST", "/api/rotina/ordem", { turno: t, ids: ordem[t] });
+    } catch (e) {
+      toast(e.message, true);
+    } finally {
+      state.pendentes--;
+    }
+    carregar(true);
+  });
+  function ordemAtual() {
+    const ordem = {};
+    ui.clientes.querySelectorAll("[data-grupo-turno]").forEach((g) => { ordem[g.dataset.grupoTurno] = [...g.querySelectorAll(".rotina-cliente")].map((x) => parseInt(x.dataset.cliente, 10)); });
+    return ordem;
+  }
+
   setInterval(() => { if (!document.hidden) carregar(true); }, 15000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) carregar(true); });
   window.Rotina.recarregarRotina = () => carregar(true);

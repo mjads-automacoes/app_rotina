@@ -72,6 +72,23 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("document.querySelector('#rotinaDias strong')"), 'a rotina carregou');
     const hoje = await ev("document.getElementById('rotina').dataset.hoje");
     assert.ok((await n('#rotinaClientes .rotina-cliente')) >= 2, 'clientes do dia aparecem');
+    // 6 pontinhos: arrastar o ultimo cliente da Tarde para a Manha e de volta (ordem e periodo gravados)
+    assert.equal(await ev("[...document.querySelectorAll('#rotinaClientes .rotina-cliente')].every(b => b.firstElementChild.classList.contains('rotina-alca') && b.querySelectorAll('.rotina-alca i').length === 6)"), true, '6 pontinhos na frente de cada cliente');
+    const arrastar = (de, para) => ev(`(async () => {
+      const linha = [...document.querySelectorAll('#rotinaClientes [data-grupo-turno="${de}"] .rotina-cliente')].pop();
+      const id = linha.dataset.cliente, g = document.querySelector('#rotinaClientes [data-grupo-turno="${para}"]');
+      linha.querySelector('.rotina-alca').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const dt = new DataTransfer();
+      linha.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer: dt }));
+      g.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt, clientY: g.getBoundingClientRect().bottom + 500 }));
+      linha.dispatchEvent(new DragEvent('dragend', { bubbles: true, dataTransfer: dt }));
+      for (let i = 0; i < 60; i++) { await new Promise(r => setTimeout(r, 150)); const r = await fetch('/api/rotina?data=' + rotina.dataset.hoje, { headers: { Accept: 'application/json' } }).then(x => x.json()); const t = r.semana[rotina.dataset.hoje].turnos['${para}'].clientes; if (t.length && t[t.length - 1].id == id) return true; }
+      return false;
+    })()`);
+    if ((await n('#rotinaClientes [data-grupo-turno="tarde"] .rotina-cliente')) > 0) {
+      assert.equal(await arrastar('tarde', 'manha'), true, 'arrastado da Tarde para o fim da Manha');
+      assert.equal(await arrastar('manha', 'tarde'), true, 'e de volta para o fim da Tarde');
+    }
     // formato: cliente em foco em cima, na largura toda; checklist e clientes lado a lado embaixo
     assert.equal(await ev("[...document.getElementById('rotinaGrade').children].map(c => c.id).join(',') + '|' + (rotinaClientes.getBoundingClientRect().left < rotinaFoco.getBoundingClientRect().left)"), 'rotinaChecklist,rotinaClientes,rotinaFoco|true', 'ordem: checklist em cima; clientes (esquerda) e foco (direita) embaixo');
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return c.bottom <= k.top && Math.abs(f.top - k.top) < 2 && Math.abs(f.width - k.width) < 2 && Math.abs(f.height - k.height) < 2 && c.width > k.width * 1.8; })()"), true, 'checklist na largura toda; clientes e foco lado a lado, mesma largura e altura');

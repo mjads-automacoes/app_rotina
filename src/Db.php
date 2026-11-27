@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 9;
+    public const VERSAO = 10;
 
     public static function open(string $caminho): PDO
     {
@@ -87,6 +87,10 @@ final class Db
                 self::v9($pdo);
             }
 
+            if ($atual < 10) {
+                self::v10($pdo);
+            }
+
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
             $pdo->commit();
         } catch (Throwable $e) {
@@ -96,6 +100,14 @@ final class Db
         }
 
         $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    /** v10 (27/11/2026): ordem dos clientes na Rotina, escolhida arrastando pelos 6 pontinhos (vazio = ordem alfabetica). */
+    private static function v10(PDO $pdo): void
+    {
+        if (!in_array('ordem_rotina', array_column($pdo->query('PRAGMA table_info(tarefas)')->fetchAll(), 'name'), true)) {
+            $pdo->exec('ALTER TABLE tarefas ADD COLUMN ordem_rotina INTEGER');
+        }
     }
 
     /**
