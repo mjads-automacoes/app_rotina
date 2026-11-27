@@ -1246,3 +1246,10 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 .rotina-ver-todos:hover { text-decoration: underline; }
 .check-foco-fim { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 #painelRotina .rotina-checklist { padding-bottom: 12px; }
+/* formulario do "Add +" do checklist numa linha so: nome | turno | Salvar | Cancelar (pedido do dono, 27/11/2026) */
+#painelRotina .rotina-check-rodape .rotina-add-form { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; margin: 0; padding: 10px; border: 1px solid var(--borda); border-radius: 12px; background: var(--panel-2); }
+#painelRotina .rotina-add-form > input { flex: 1 1 auto; min-width: 0; min-height: 38px; }
+#painelRotina .rotina-add-form > .selecao, #painelRotina .rotina-add-form > select { flex: 0 0 150px; width: 150px; }
+#painelRotina .rotina-add-form .selecao-botao { min-height: 38px; }
+#painelRotina .rotina-add-form .btn-mini { flex: none; min-height: 38px; padding: 0 14px; }
+@media (max-width: 700px) { #painelRotina .rotina-check-rodape .rotina-add-form { flex-wrap: wrap; } #painelRotina .rotina-add-form > input { flex-basis: 100%; } }
