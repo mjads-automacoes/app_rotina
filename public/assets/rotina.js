@@ -168,14 +168,7 @@
   function checklist() {
     const todos = TURNOS_CHECK.flatMap(([t]) => checklistDo(t));
     const feitas = todos.filter((i) => i.status_tipo === "fechado").length;
-    // o checklist vai aparecendo aos poucos (pedido do dono, 27/11/2026): os ja concluidos e o proximo a fazer;
-    // os demais aparecem conforme for concluindo, ou todos de uma vez em "Ver todos"
-    const proximo = todos.find((i) => i.status_tipo !== "fechado");
-    const visivel = (i) => state.checklistTodos || i.status_tipo === "fechado" || i === proximo || i.id === state.editando || i.id === state.menuItem;
-    const escondidos = todos.filter((i) => !visivel(i)).length;
-    const grupos = TURNOS_CHECK.filter(([t]) => checklistDo(t).some(visivel)).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
-      el("p", { class: "rotina-subtitulo", "data-turno": t, text: rotulo }),
-      el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).filter(visivel).map((i) => {
+    function itemEl(i) {
         const feito = i.status_tipo === "fechado";
         // pedido do dono: tres pontinhos (editar o nome) logo antes do botao de concluir, a direita
         if (state.editando === i.id) {
@@ -197,7 +190,17 @@
           ].filter(Boolean)),
           el("button", { class: "rotina-concluir", type: "button", "data-check": "concluir", "aria-pressed": feito ? "true" : "false", title: feito ? "Desfazer" : "Concluir", text: feito ? "✓ Concluído" : "Concluir" }),
         ]);
-      })),
+    }
+    // o checklist vai aparecendo aos poucos (pedido do dono, 27/11/2026): so o item da vez e, a direita, uma previa apagada
+    // do seguinte; ao concluir, o feito some e o proximo entra. "Ver todos" mostra a lista inteira (com os feitos)
+    const proximo = todos.find((i) => i.status_tipo !== "fechado");
+    const pendentes = todos.filter((i) => i.status_tipo !== "fechado");
+    const seguinte = pendentes[1] || null;
+    const turnoDe = (i) => (TURNOS_CHECK.find(([t]) => checklistDo(t).includes(i)) || [null, ""])[1];
+    const visivel = (i) => state.checklistTodos || i === proximo || i.id === state.editando;
+    const grupos = TURNOS_CHECK.filter(([t]) => checklistDo(t).some(visivel)).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
+      el("p", { class: "rotina-subtitulo", "data-turno": t, text: rotulo }),
+      el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).filter(visivel).map(itemEl)),
     ]));
     const hora = parseInt(raiz.dataset.hora || "9", 10);
     const adicionar = state.adicionando
@@ -208,12 +211,19 @@
         el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "fechar-novo", text: "Cancelar" }),
       ])
       : el("button", { class: "btn btn-contorno btn-add", type: "button", "data-check": "abrir-novo", text: "Add +" });
-    const verTodos = escondidos > 0 || state.checklistTodos
-      ? el("button", { class: "btn btn-suave btn-mini rotina-ver-todos", type: "button", "data-check": "ver-todos", text: state.checklistTodos ? "Mostrar só o próximo" : "Ver todos (+" + escondidos + ")" })
+    const verTodos = todos.length > 1 || state.checklistTodos
+      ? el("button", { class: "btn btn-suave btn-mini rotina-ver-todos", type: "button", "data-check": "ver-todos", text: state.checklistTodos ? "Mostrar só o da vez" : "Ver todos (" + todos.length + ")" })
       : null;
     ui.checklist.replaceChildren(...[
       cabecalho("checklist", "h3", el("span", { class: "contagem", text: feitas + " de " + todos.length })),
-      ...(grupos.length ? grupos : [el("p", { class: "muted", text: todos.length ? "Tudo concluído 🏆" : "Sem itens hoje." })]),
+      ...(state.checklistTodos
+        ? (grupos.length ? grupos : [el("p", { class: "muted", text: "Sem itens hoje." })])
+        : proximo
+          ? [el("div", { class: "check-foco" }, [
+            el("div", { class: "check-da-vez" }, [el("span", { class: "check-turno", text: turnoDe(proximo) }), itemEl(proximo)]),
+            seguinte ? el("div", { class: "check-previa", "aria-hidden": "true" }, [el("span", { class: "check-turno", text: "Depois · " + turnoDe(seguinte) }), el("div", { class: "rotina-item" }, [el("span", { class: "rotina-item-texto", text: seguinte.titulo })])]) : null,
+          ].filter(Boolean))]
+          : [el("p", { class: "check-pronto", text: todos.length ? "Tudo concluído 🏆" : "Sem itens hoje." })]),
       el("div", { class: "rotina-check-rodape" }, [adicionar, verTodos].filter(Boolean)),
     ]);
   }

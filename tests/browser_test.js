@@ -165,13 +165,16 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     assert.ok(await esperar("[...document.querySelectorAll('#rotinaClientes .rotina-cliente.is-concluido')].some(b => b.querySelector('.rotina-cliente-status').textContent === 'OK' && /⏱/.test(b.textContent))"), 'cliente concluido: verde, OK e tempo de execucao');
     assert.equal(await ev(semNull), true, 'sem null depois de concluir');
     await sleep(700);
-    await clicar('#rotinaChecklist .rotina-concluir');
-    const marcado = await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')");
-    assert.equal(marcado, 'true', 'item do checklist marcado');
+    // checklist um por vez: o item da vez + a previa apagada do seguinte; concluir esconde o feito e traz o proximo
+    const daVez = await texto('#rotinaChecklist .check-da-vez .rotina-item-texto');
+    const previa = await texto('#rotinaChecklist .check-previa .rotina-item-texto');
+    assert.ok(daVez !== '' && previa !== '' && await ev("getComputedStyle(document.querySelector('#rotinaChecklist .check-previa')).opacity < 0.6"), 'item da vez e previa apagada do seguinte');
+    await clicar('#rotinaChecklist .check-da-vez .rotina-concluir');
+    assert.ok(await esperar(`document.querySelector('#rotinaChecklist .check-da-vez .rotina-item-texto').textContent === ${JSON.stringify(previa)} && document.querySelector('#rotinaChecklist .contagem').textContent.startsWith('1 de')`), 'concluir esconde o feito e passa para o proximo');
     await sleep(700);
     await ir('/');
-    assert.ok(await esperar("document.querySelector('#rotinaDias strong')"));
-    assert.equal(await ev("document.querySelector('#rotinaChecklist .rotina-concluir').getAttribute('aria-pressed')"), 'true', 'o check sobrevive ao recarregar');
+    assert.ok(await esperar("document.querySelector('#rotinaDias strong') && document.querySelector('#rotinaChecklist .contagem')"));
+    assert.ok((await texto('#rotinaChecklist .contagem')).startsWith('1 de'), 'o check sobrevive ao recarregar');
     // lapis: renomeia o item
     await clicar('#rotinaChecklist .rotina-item .rotina-mais');
     assert.equal(await ev("[...document.querySelectorAll('#rotinaChecklist .rotina-item .rotina-menu-op')].map(b => b.textContent).join(',')"), 'Editar,Excluir', 'tres pontinhos: Editar e Excluir');

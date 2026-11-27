@@ -1225,3 +1225,16 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 .rotina-check-rodape .rotina-add-form { flex: 1 1 100%; }
 .rotina-ver-todos { margin-left: auto; }
 @media (max-width: 860px) { #painelRotina .rotina-checklist .rotina-itens { grid-template-columns: minmax(0, 1fr); } }
+
+/* Checklist "um por vez" (pedido do dono, 27/11/2026): o item da vez e, a direita, a previa apagada do seguinte */
+.check-foco { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.check-da-vez, .check-previa { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.check-turno { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cab-cor, var(--acento)); }
+.check-da-vez .rotina-item { padding: 12px 14px; border-radius: 12px; background: var(--acento-fundo); box-shadow: inset 3px 0 0 var(--cab-cor, var(--acento)); font-size: 1rem; animation: check-entra 0.35s ease-out; }
+.check-previa { opacity: 0.38; filter: grayscale(0.6); pointer-events: none; user-select: none; }
+.check-previa .check-turno { color: var(--muted); }
+.check-previa .rotina-item { padding: 12px 14px; border: 1px dashed var(--borda-forte); border-radius: 12px; background: transparent; box-shadow: none; }
+.check-pronto { margin: 4px 0; font-weight: 700; color: var(--verde); }
+@keyframes check-entra { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@media (max-width: 700px) { .check-foco { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .check-da-vez .rotina-item { animation: none; } }
