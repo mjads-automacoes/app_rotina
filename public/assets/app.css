@@ -1205,3 +1205,23 @@ body.embutido::-webkit-scrollbar, html:has(body.embutido)::-webkit-scrollbar { d
 @media (max-width: 560px) { .agentes-time { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .agente-avatar, .agente-estado.is-trabalhando { animation: none; } }
 .agente-funcao { margin: 10px 0 0; font-size: 0.95rem; }
+
+/* Rotina reorganizada (pedido do dono, 27/11/2026): Checklist em cima na largura toda; embaixo Clientes do dia e o cliente em foco + tarefas */
+#painelRotina .rotina-checklist { grid-column: 1 / -1; }
+#painelRotina .rotina-foco { grid-column: auto; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+#painelRotina .rotina-foco::-webkit-scrollbar { display: none; }
+#painelRotina .rotina-clientes, #painelRotina .rotina-foco { align-self: stretch; }
+#painelRotina .rotina-checklist { align-self: start; }
+.rotina-grade { grid-template-rows: auto minmax(0, 1fr); }
+/* no bloco da direita, o foco e as tarefas do cliente ficam um embaixo do outro */
+#painelRotina .rotina-foco-corpo { grid-template-columns: minmax(0, 1fr); }
+#painelRotina .rotina-foco-principal { padding-right: 0; }
+#painelRotina .rotina-foco-tarefas { margin-top: 16px; padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--borda-forte); }
+/* checklist aos poucos: itens em linhas mais compactas, o proximo em destaque */
+#painelRotina .rotina-checklist .rotina-itens { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 4px 14px; }
+.rotina-item.is-proximo { background: var(--acento-fundo); box-shadow: inset 3px 0 0 var(--acento); }
+.rotina-check-rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.rotina-check-rodape .btn-add, .rotina-check-rodape .rotina-add-form { margin-top: 0; }
+.rotina-check-rodape .rotina-add-form { flex: 1 1 100%; }
+.rotina-ver-todos { margin-left: auto; }
+@media (max-width: 860px) { #painelRotina .rotina-checklist .rotina-itens { grid-template-columns: minmax(0, 1fr); } }

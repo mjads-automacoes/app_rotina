@@ -15,7 +15,7 @@
   const $ = (id) => document.getElementById(id);
   const ui = { texto: $("rotinaProgressoTexto"), barra: $("rotinaBarra"), barraWrap: $("rotinaBarraWrap"), dias: $("rotinaDias"), erro: $("rotinaErro"),
     checklist: $("rotinaChecklist"), foco: $("rotinaFoco"), clientes: $("rotinaClientes"), gestor: $("rotinaGestor"), atualizar: $("rotinaAtualizar") };
-  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, menuItem: null, cabMenu: null, cabCores: null, cabEditando: null, cabTexto: "", editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
+  const state = { dados: null, data: null, turno: null, foco: null, nota: "", pendentes: 0, versao: 0, tarefasCliente: {}, checklistTodos: false, menuItem: null, cabMenu: null, cabCores: null, cabEditando: null, cabTexto: "", editando: null, editTexto: "", adicionando: false, addTexto: "", addTurno: null };
 
   // so existe a rotina de hoje: sem dia da semana para escolher (fim de semana = dia vazio)
   const VAZIO = { dia: "", turnos: { manha: { clientes: [], checklist: [] }, tarde: { clientes: [], checklist: [] }, fechamento: { clientes: [], checklist: [] } } };
@@ -168,9 +168,14 @@
   function checklist() {
     const todos = TURNOS_CHECK.flatMap(([t]) => checklistDo(t));
     const feitas = todos.filter((i) => i.status_tipo === "fechado").length;
-    const grupos = TURNOS_CHECK.filter(([t]) => checklistDo(t).length > 0).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
+    // o checklist vai aparecendo aos poucos (pedido do dono, 27/11/2026): os ja concluidos e o proximo a fazer;
+    // os demais aparecem conforme for concluindo, ou todos de uma vez em "Ver todos"
+    const proximo = todos.find((i) => i.status_tipo !== "fechado");
+    const visivel = (i) => state.checklistTodos || i.status_tipo === "fechado" || i === proximo || i.id === state.editando || i.id === state.menuItem;
+    const escondidos = todos.filter((i) => !visivel(i)).length;
+    const grupos = TURNOS_CHECK.filter(([t]) => checklistDo(t).some(visivel)).map(([t, rotulo]) => el("div", { class: "rotina-grupo" }, [
       el("p", { class: "rotina-subtitulo", "data-turno": t, text: rotulo }),
-      el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).map((i) => {
+      el("div", { class: "rotina-itens", role: "group", "aria-label": rotulo }, checklistDo(t).filter(visivel).map((i) => {
         const feito = i.status_tipo === "fechado";
         // pedido do dono: tres pontinhos (editar o nome) logo antes do botao de concluir, a direita
         if (state.editando === i.id) {
@@ -180,7 +185,7 @@
             el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "cancelar", text: "Cancelar" }),
           ]);
         }
-        return el("div", { class: "rotina-item" + (feito ? " is-feito" : ""), "data-item": i.id }, [
+        return el("div", { class: "rotina-item" + (feito ? " is-feito" : "") + (i === proximo ? " is-proximo" : ""), "data-item": i.id }, [
           el("span", { class: "rotina-item-texto", text: i.titulo }),
           // tres pontinhos: abre o menu com Editar e Excluir (pedido do dono)
           el("span", { class: "rotina-mais-wrap" }, [
@@ -203,11 +208,14 @@
         el("button", { class: "btn btn-contorno btn-mini", type: "button", "data-check": "fechar-novo", text: "Cancelar" }),
       ])
       : el("button", { class: "btn btn-contorno btn-add", type: "button", "data-check": "abrir-novo", text: "Add +" });
-    ui.checklist.replaceChildren(
+    const verTodos = escondidos > 0 || state.checklistTodos
+      ? el("button", { class: "btn btn-suave btn-mini rotina-ver-todos", type: "button", "data-check": "ver-todos", text: state.checklistTodos ? "Mostrar só o próximo" : "Ver todos (+" + escondidos + ")" })
+      : null;
+    ui.checklist.replaceChildren(...[
       cabecalho("checklist", "h3", el("span", { class: "contagem", text: feitas + " de " + todos.length })),
-      ...(grupos.length ? grupos : [el("p", { class: "muted", text: "Sem itens hoje." })]),
-      adicionar,
-    );
+      ...(grupos.length ? grupos : [el("p", { class: "muted", text: todos.length ? "Tudo concluído 🏆" : "Sem itens hoje." })]),
+      el("div", { class: "rotina-check-rodape" }, [adicionar, verTodos].filter(Boolean)),
+    ]);
   }
 
   // cabecalhos "Checklist do dia" e "Clientes do dia": tres pontinhos para editar o nome e mudar a cor (pedido do dono, 24/11/2026)
@@ -531,6 +539,7 @@
     if (state.menuItem !== null && (!check || !["menu", "editar", "excluir"].includes(check.dataset.check))) { state.menuItem = null; renderizar(); }
     if (check) {
       const tipo = check.dataset.check;
+      if (tipo === "ver-todos") { state.checklistTodos = !state.checklistTodos; return renderizar(); }
       if (tipo === "abrir-novo") { state.adicionando = true; renderizar(); const c = $("rotinaAddTexto"); if (c) c.focus(); return; }
       if (tipo === "fechar-novo") { state.adicionando = false; state.addTexto = ""; return renderizar(); }
       if (tipo === "salvar-novo") return salvarNovo(check);

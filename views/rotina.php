@@ -24,10 +24,10 @@
   <div class="aviso aviso-erro" id="rotinaErro" hidden role="alert"></div>
 
   <div class="rotina-grade" id="rotinaGrade">
-    <section class="cartao rotina-foco" id="rotinaFoco" aria-live="polite"></section>
-    <?php // Clientes do dia a esquerda e Checklist a direita (trocados a pedido do dono, 27/11/2026) ?>
-    <aside class="cartao rotina-clientes" id="rotinaClientes" aria-label="Clientes do dia"></aside>
+    <?php // 27/11/2026, a pedido do dono: Checklist em cima (largura toda); embaixo Clientes do dia (esquerda) e o cliente em foco + tarefas (direita) ?>
     <section class="cartao rotina-checklist" id="rotinaChecklist" aria-label="Checklist do dia"></section>
+    <aside class="cartao rotina-clientes" id="rotinaClientes" aria-label="Clientes do dia"></aside>
+    <section class="cartao rotina-foco" id="rotinaFoco" aria-live="polite"></section>
   </div>
 </div>
 
