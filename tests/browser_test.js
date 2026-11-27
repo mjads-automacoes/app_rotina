@@ -73,7 +73,7 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     const hoje = await ev("document.getElementById('rotina').dataset.hoje");
     assert.ok((await n('#rotinaClientes .rotina-cliente')) >= 2, 'clientes do dia aparecem');
     // formato: cliente em foco em cima, na largura toda; checklist e clientes lado a lado embaixo
-    assert.equal(await ev("[...document.getElementById('rotinaGrade').children].map(c => c.id).join(',')"), 'rotinaFoco,rotinaChecklist,rotinaClientes', 'ordem: foco, checklist, clientes');
+    assert.equal(await ev("[...document.getElementById('rotinaGrade').children].map(c => c.id).join(',') + '|' + (rotinaClientes.getBoundingClientRect().left < rotinaChecklist.getBoundingClientRect().left)"), 'rotinaFoco,rotinaClientes,rotinaChecklist|true', 'ordem: foco, clientes (esquerda), checklist (direita)');
     assert.equal(await ev("(() => { const f = rotinaFoco.getBoundingClientRect(), c = rotinaChecklist.getBoundingClientRect(), k = rotinaClientes.getBoundingClientRect(); return f.bottom <= c.top && Math.abs(c.top - k.top) < 2 && Math.abs(c.width - k.width) < 2 && Math.abs(c.height - k.height) < 2 && f.width > c.width * 1.8; })()"), true, 'foco na largura toda; checklist e clientes lado a lado, mesma largura e altura');
     assert.equal(await ev("(() => { const i = document.querySelector('#rotinaChecklist .rotina-item'); return [...i.children].map(c => c.className).join('|'); })()"), 'rotina-item-texto|rotina-mais-wrap|rotina-concluir', 'checklist: tres pontinhos antes do concluir');
     assert.ok((await texto('#rotinaDias small')).endsWith('concluídos'), 'barra do dia: N de M concluidos');

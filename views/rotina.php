@@ -25,8 +25,9 @@
 
   <div class="rotina-grade" id="rotinaGrade">
     <section class="cartao rotina-foco" id="rotinaFoco" aria-live="polite"></section>
-    <section class="cartao rotina-checklist" id="rotinaChecklist" aria-label="Checklist do dia"></section>
+    <?php // Clientes do dia a esquerda e Checklist a direita (trocados a pedido do dono, 27/11/2026) ?>
     <aside class="cartao rotina-clientes" id="rotinaClientes" aria-label="Clientes do dia"></aside>
+    <section class="cartao rotina-checklist" id="rotinaChecklist" aria-label="Checklist do dia"></section>
   </div>
 </div>
 
