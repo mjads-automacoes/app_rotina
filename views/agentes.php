@@ -11,11 +11,10 @@ $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$c
 
 <?php // os agentes como personagens (pedido do dono, 27/11/2026): avatar, nome, funcao, frase, numeros e "Pedir" ?>
 <section class="agentes-time" aria-label="Time de agentes">
-  <?php foreach ($esquema['agents'] as $chave => $a): $pp = Pedidos::PERSONAGENS[$chave] ?? ['nome' => $a['label'], 'avatar' => '🤖', 'cor' => '#8f99a3', 'frase' => '']; $nr = $resumo[$chave] ?? ['fila' => 0, 'fazendo' => 0, 'aprovar' => 0, 'concluidos' => 0]; $nivel = 1 + intdiv($nr['concluidos'], 5); ?>
+  <?php foreach ($esquema['agents'] as $chave => $a): $pp = Pedidos::PERSONAGENS[$chave] ?? ['nome' => $a['label'], 'avatar' => '🤖', 'cor' => '#8f99a3', 'frase' => '']; $nr = $resumo[$chave] ?? ['fila' => 0, 'fazendo' => 0, 'aprovar' => 0, 'concluidos' => 0]; ?>
     <article class="agente-card" data-agente="<?= e($chave) ?>" data-agente-cor="<?= e($pp['cor']) ?>">
       <div class="agente-topo">
         <span class="agente-avatar" aria-hidden="true"><span><?= e($pp['avatar']) ?></span></span>
-        <span class="agente-nivel" title="Sobe 1 nível a cada 5 pedidos concluídos">Nv <?= $nivel ?></span>
       </div>
       <h2 class="agente-nome"><?= e($pp['nome']) ?></h2>
       <p class="agente-funcao"><?= e((string) $a['label']) ?></p>
