@@ -421,7 +421,7 @@
         ]),
       ]),
       el("div", { class: "rotina-foco-acoes" }, [
-        el("button", { class: "btn btn-contorno", type: "button", "data-acao": "abrir-cliente", text: "Ver informações" }),
+        el("button", { class: "btn btn-contorno", type: "button", "data-acao": "abrir-cliente", text: "Ver Mais" }),
         tipo === "aberto" ? el("button", { class: "btn btn-primario", type: "button", "data-acao": "iniciar", text: "Iniciar" }) : null,
         tipo === "fechado" ? el("button", { class: "btn btn-contorno", type: "button", "data-acao": "reabrir", text: "Reabrir" }) : null,
       ]),
