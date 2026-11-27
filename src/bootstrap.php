@@ -10,6 +10,7 @@ require_once __DIR__ . '/Tarefas.php';
 require_once __DIR__ . '/Automacoes.php';
 require_once __DIR__ . '/Rotina.php';
 require_once __DIR__ . '/Importacao.php';
+require_once __DIR__ . '/Pedidos.php';
 require_once __DIR__ . '/Nucleo.php';
 require_once __DIR__ . '/Demo.php';
 require_once __DIR__ . '/App.php';

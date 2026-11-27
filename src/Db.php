@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 final class Db
 {
-    public const VERSAO = 8;
+    public const VERSAO = 9;
 
     public static function open(string $caminho): PDO
     {
@@ -83,6 +83,10 @@ final class Db
                 self::v8($pdo);
             }
 
+            if ($atual < 9) {
+                self::v9($pdo);
+            }
+
             $pdo->exec('PRAGMA user_version = ' . self::VERSAO);
             $pdo->commit();
         } catch (Throwable $e) {
@@ -92,6 +96,51 @@ final class Db
         }
 
         $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    /**
+     * v9 (27/11/2026, aba Agentes): dados da ficha que os formularios dos agentes puxam, e os pedidos aos agentes
+     * com a linha do tempo de cada um (status, perguntas, respostas, entregas, aprovacao).
+     */
+    private static function v9(PDO $pdo): void
+    {
+        $colunas = array_column($pdo->query('PRAGMA table_info(clientes)')->fetchAll(), 'name');
+
+        foreach (['meta_conta_id', 'meta_paginas', 'google_ads_id', 'whatsapp_comercial', 'dominio', 'cores', 'logo', 'endereco', 'horario'] as $coluna) {
+            if (!in_array($coluna, $colunas, true)) {
+                $pdo->exec("ALTER TABLE clientes ADD COLUMN {$coluna} TEXT NOT NULL DEFAULT ''");
+            }
+        }
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS pedidos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agente TEXT NOT NULL,
+            tipo TEXT NOT NULL,
+            cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
+            cliente_nome TEXT NOT NULL DEFAULT '',
+            prioridade TEXT NOT NULL DEFAULT 'normal',
+            prazo TEXT NOT NULL,
+            solicitante_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+            aprovador_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+            status TEXT NOT NULL DEFAULT 'a_fazer' CHECK (status IN ('a_fazer','fazendo','falta_informacao','para_aprovacao','ajuste','concluido','cancelado')),
+            campos TEXT NOT NULL DEFAULT '{}',
+            versao INTEGER NOT NULL DEFAULT 0,
+            criado_em TEXT NOT NULL,
+            atualizado_em TEXT NOT NULL
+        )");
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pedidos_status ON pedidos(status)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pedidos_cliente ON pedidos(cliente_id)');
+        $pdo->exec("CREATE TABLE IF NOT EXISTS pedido_eventos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pedido_id INTEGER NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+            autor TEXT NOT NULL DEFAULT '',
+            usuario_id INTEGER,
+            tipo TEXT NOT NULL,
+            texto TEXT NOT NULL DEFAULT '',
+            dados TEXT NOT NULL DEFAULT '{}',
+            criado_em TEXT NOT NULL
+        )");
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pedido_eventos ON pedido_eventos(pedido_id)');
     }
 
     /**

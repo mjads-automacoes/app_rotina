@@ -165,7 +165,10 @@ final class Clientes
             ->execute([$gestorId, $v['nome'], $v['empresa'], $v['descricao'], $v['link'], implode(',', $v['dias']), $v['turno'], $v['status'], $v['contato_nome'], $v['contato_telefone'],
                 $v['contato_email'], implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], $dados['clickup_id'] ?? null, $dados['clickup_dados'] ?? null, $agora, $agora, $v['cnpj'], $v['cidade'], $v['estado'], $v['entregaveis']]);
 
-        return (int) $this->pdo->lastInsertId();
+        $novoId = (int) $this->pdo->lastInsertId();
+        $this->salvarExtras($novoId, $v);
+
+        return $novoId;
     }
 
     public function atualizar(array $actor, int $id, array $dados): void
@@ -182,6 +185,7 @@ final class Clientes
             plataformas = ?, orcamento = ?, observacoes = ?, clickup_dados = ?, atualizado_em = ?, cnpj = ?, cidade = ?, estado = ?, entregaveis = ? WHERE id = ?')
             ->execute([$gestorId, $v['nome'], $v['empresa'], $v['descricao'], $v['link'], implode(',', $v['dias']), $v['turno'], $v['status'], $v['contato_nome'], $v['contato_telefone'], $v['contato_email'],
                 implode(',', $v['plataformas']), $v['orcamento'], $v['observacoes'], array_key_exists('clickup_dados', $dados) ? $dados['clickup_dados'] : $atual['clickup_dados'], date(DATE_ATOM), $v['cnpj'], $v['cidade'], $v['estado'], $v['entregaveis'], $id]);
+        $this->salvarExtras($id, $v);
     }
 
     /** O responsavel do cliente precisa ser um usuario ativo da equipe. */
@@ -398,7 +402,59 @@ final class Clientes
             throw new InvalidArgumentException('Escolha um estado válido.');
         }
 
-        return ['entregaveis' => $entregaveis, 'cnpj' => $cnpj, 'cidade' => $cidade, 'estado' => $estado, 'nome' => $nome, 'link' => $link, 'dias' => $dias, 'turno' => $turno, 'status' => $status, 'contato_email' => $email, 'plataformas' => $plataformas, 'observacoes' => $observacoes] + $curtos;
+        return $this->validarExtras($d) + ['entregaveis' => $entregaveis, 'cnpj' => $cnpj, 'cidade' => $cidade, 'estado' => $estado, 'nome' => $nome, 'link' => $link, 'dias' => $dias, 'turno' => $turno, 'status' => $status, 'contato_email' => $email, 'plataformas' => $plataformas, 'observacoes' => $observacoes] + $curtos;
+    }
+
+    /** Dados da ficha usados pelos formularios dos agentes (aba Agentes, 27/11/2026). */
+    public const CAMPOS_AGENTES = [
+        'meta_conta_id' => 40, 'meta_paginas' => 300, 'google_ads_id' => 20, 'whatsapp_comercial' => 30,
+        'dominio' => 120, 'cores' => 200, 'logo' => 500, 'endereco' => 300, 'horario' => 200,
+    ];
+
+    private function salvarExtras(int $id, array $v): void
+    {
+        $sets = implode(', ', array_map(static fn (string $c): string => $c . ' = ?', array_keys(self::CAMPOS_AGENTES)));
+        $args = array_map(static fn (string $c): string => $v[$c] ?? '', array_keys(self::CAMPOS_AGENTES));
+        $this->pdo->prepare('UPDATE clientes SET ' . $sets . ' WHERE id = ?')->execute([...$args, $id]);
+    }
+
+    private function validarExtras(array $d): array
+    {
+        $r = [];
+
+        foreach (self::CAMPOS_AGENTES as $campo => $max) {
+            $valor = trim((string) ($d[$campo] ?? ''));
+
+            if (mb_strlen($valor) > $max) {
+                throw new InvalidArgumentException('O campo ' . $campo . ' é muito longo (máximo ' . $max . ' caracteres).');
+            }
+
+            $r[$campo] = $valor;
+        }
+
+        if ($r['meta_conta_id'] !== '' && !preg_match('/^(act_)?\d{5,20}$/', $r['meta_conta_id'])) {
+            throw new InvalidArgumentException('O ID da conta Meta tem só números (pode começar com act_).');
+        }
+
+        if ($r['google_ads_id'] !== '' && !preg_match('/^\d{3}-?\d{3}-?\d{4}$/', $r['google_ads_id'])) {
+            throw new InvalidArgumentException('O ID do Google Ads tem 10 números (ex.: 123-456-7890).');
+        }
+
+        $zap = preg_replace('/\D/', '', $r['whatsapp_comercial']);
+
+        if ($r['whatsapp_comercial'] !== '' && (strlen((string) $zap) < 10 || strlen((string) $zap) > 13)) {
+            throw new InvalidArgumentException('O WhatsApp comercial precisa ter DDD e número.');
+        }
+
+        if ($r['dominio'] !== '' && !preg_match('/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)?$/i', $r['dominio'])) {
+            throw new InvalidArgumentException('Informe um domínio válido (ex.: site.com.br).');
+        }
+
+        if ($r['logo'] !== '' && !preg_match('#^https?://#i', $r['logo'])) {
+            throw new InvalidArgumentException('O link da logo precisa começar com http:// ou https://.');
+        }
+
+        return $r;
     }
 
     private function formatar(array $c): array

@@ -355,6 +355,22 @@ const EXT = ['-d', 'extension=pdo_sqlite', '-d', 'extension=sqlite3'];
     await shot('10-cliente-ficha-claro.png');
     await tema('escuro');
 
+    // ---- Agentes: formulario montado pela especificacao; envio, detalhe e comentario
+    await ir('/agentes/novo');
+    assert.ok(await esperar("!!document.getElementById('pedAgente')"), 'formulario de pedido carrega');
+    await ev("(() => { const s = document.getElementById('pedAgente'); s.value = 'gestor_trafego'; s.dispatchEvent(new Event('change', { bubbles: true })); })()");
+    await ev("(() => { const s = document.getElementById('pedTipo'); s.value = 'outro'; s.dispatchEvent(new Event('change', { bubbles: true })); })()");
+    assert.ok(await esperar("document.querySelectorAll('.pedido-campo').length > 10"), 'campos do tipo aparecem');
+    await ev("document.querySelector('.pedido-form button[type=submit]').click()");
+    assert.ok(await esperar("!!document.querySelector('.pedido-campo.is-erro')"), 'falta campo obrigatorio: marca o campo');
+    const idPedido = await ev(`(async () => { const d = await window.Rotina.chamar('GET', '/api/agentes/esquema'); const campos = {}; d.esquema.agents.gestor_trafego.forms.outro.fields.forEach(f => { if (f.required && !f.required_if) campos[f.id] = f.allow_none_option ? { nenhum: f.allow_none_option } : (f.options ? (typeof f.options[0] === 'object' ? f.options[0].value : f.options[0]) : 'teste'); }); const r = await window.Rotina.chamar('POST', '/api/pedidos', { agente: 'gestor_trafego', tipo: 'outro', cliente_id: d.clientes[0].id, prioridade: 'normal', prazo: d.hoje, campos }); return r.id; })()`);
+    assert.ok(idPedido > 0, 'pedido criado');
+    await ir('/agentes/' + idPedido);
+    assert.ok((await texto('main')).includes('Pedido enviado') && (await texto('.pedido-status')).includes('A fazer'), 'detalhe do pedido com a linha do tempo');
+    await ev("(() => { const f = document.querySelector('.pedido-comentar'); f.querySelector('textarea').value = 'Comentario de teste'; f.requestSubmit(); })()");
+    assert.ok(await esperar("document.readyState === 'complete' && document.querySelector('.pedido-linha').textContent.includes('Comentario de teste')"), 'comentario no pedido');
+    await ir('/agentes');
+    assert.ok((await n('.pedido-cartao')) >= 1, 'pedido aparece na lista');
     // ---- Integracoes
     await ir('/integracoes');
     assert.ok((await texto('main')).includes('Integrações') && (await texto('main')).includes('ClickUp'), 'tela de integracoes');

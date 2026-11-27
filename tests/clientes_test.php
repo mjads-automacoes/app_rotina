@@ -113,3 +113,15 @@ t('ficha: entregavel e uma etiqueta da lista; o admin edita a lista e quem tinha
     eq('', $n->clientes->buscar($ana, $id)['entregaveis'], 'etiqueta excluida: cliente fica sem');
     lanca(fn () => $n->clientes->salvarEntregaveis($admin, [['nome' => 'X', 'cor' => '#123456']]), 'cores');
 });
+
+t('ficha: dados para os agentes (IDs Meta e Google, WhatsApp, dominio, logo...) validados e salvos', function (): void {
+    [$n, , $ana] = nucleo_teste();
+    $id = $n->clientes->criar($ana, ['nome' => 'X', 'meta_conta_id' => 'act_123456789', 'google_ads_id' => '123-456-7890', 'whatsapp_comercial' => '(18) 99999-0000', 'dominio' => 'site.com.br', 'logo' => 'https://drive.google.com/x', 'cores' => 'preto e lima']);
+    $c = $n->clientes->buscar($ana, $id);
+    eq(['act_123456789', '123-456-7890', '(18) 99999-0000', 'site.com.br', 'preto e lima'], [$c['meta_conta_id'], $c['google_ads_id'], $c['whatsapp_comercial'], $c['dominio'], $c['cores']]);
+    $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'cidade' => 'Santos']);
+    eq('act_123456789', $n->clientes->buscar($ana, $id)['meta_conta_id'], 'salvar outro campo nao apaga');
+    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'google_ads_id' => '12']), 'Google Ads');
+    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'whatsapp_comercial' => '999']), 'DDD');
+    lanca(fn () => $n->clientes->atualizar($ana, $id, ['nome' => 'X', 'logo' => 'javascript:x']), 'logo');
+});

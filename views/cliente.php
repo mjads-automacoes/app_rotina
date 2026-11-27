@@ -51,6 +51,18 @@ $clickup = $c['clickup_dados'] ? (json_decode((string) $c['clickup_dados'], true
         <select name="estado"><option value="">—</option><?php foreach (Clientes::UFS as $uf): ?><option value="<?= e($uf) ?>" <?= $c['estado'] === $uf ? 'selected' : '' ?>><?= e($uf) ?></option><?php endforeach; ?></select>
       </label>
 
+      <h3 class="form-secao largo">Para os agentes</h3>
+      <?php // dados que os formularios da aba Agentes ja trazem preenchidos, com o selo "da ficha" (27/11/2026) ?>
+      <label>ID da conta Meta <input type="text" name="meta_conta_id" data-sem-emoji value="<?= e((string) $c['meta_conta_id']) ?>" maxlength="40" placeholder="act_123456789"></label>
+      <label>ID do Google Ads <input type="text" name="google_ads_id" data-sem-emoji value="<?= e((string) $c['google_ads_id']) ?>" maxlength="20" placeholder="123-456-7890"></label>
+      <label>WhatsApp comercial <input type="text" name="whatsapp_comercial" data-sem-emoji value="<?= e((string) $c['whatsapp_comercial']) ?>" maxlength="30" placeholder="(18) 99999-0000"></label>
+      <label class="largo">Páginas do Facebook e Instagram <input type="text" name="meta_paginas" data-sem-emoji value="<?= e((string) $c['meta_paginas']) ?>" maxlength="300" placeholder="facebook.com/… · @instagram"></label>
+      <label>Domínio do site <input type="text" name="dominio" data-sem-emoji value="<?= e((string) $c['dominio']) ?>" maxlength="120" placeholder="site.com.br"></label>
+      <label>Cores da marca <input type="text" name="cores" value="<?= e((string) $c['cores']) ?>" maxlength="200" placeholder="Ex.: preto e verde-lima"></label>
+      <label>Logo (link do Drive) <input type="text" name="logo" data-sem-emoji value="<?= e((string) $c['logo']) ?>" maxlength="500" placeholder="https://drive.google.com/…"></label>
+      <label class="largo">Endereço <input type="text" name="endereco" value="<?= e((string) $c['endereco']) ?>" maxlength="300" placeholder="Rua, número, bairro"></label>
+      <label class="largo">Horário de atendimento <input type="text" name="horario" value="<?= e((string) $c['horario']) ?>" maxlength="200" placeholder="Seg a sex 8h às 18h · sáb 8h às 12h"></label>
+
       <?php // Plataformas | Entregavel, separados por uma linha (pedido do dono, 24/11/2026)
       $entregavelAtual = in_array($c['entregaveis'], array_column($entregaveis, 'id'), true) ? $c['entregaveis'] : ''; ?>
       <div class="largo plat-entregas">

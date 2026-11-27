@@ -1,0 +1,1625 @@
+{
+  "version": "2026-11-27",
+  "statuses": [
+    {
+      "value": "a_fazer",
+      "label": "A fazer",
+      "set_by": "sistema"
+    },
+    {
+      "value": "fazendo",
+      "label": "Fazendo",
+      "set_by": "agente"
+    },
+    {
+      "value": "falta_informacao",
+      "label": "Falta informação",
+      "set_by": "agente"
+    },
+    {
+      "value": "para_aprovacao",
+      "label": "Para aprovação",
+      "set_by": "agente",
+      "alert_after_hours": 24
+    },
+    {
+      "value": "ajuste",
+      "label": "Ajuste",
+      "set_by": "aprovador",
+      "comment_required": true
+    },
+    {
+      "value": "concluido",
+      "label": "Concluído",
+      "set_by": "aprovador"
+    },
+    {
+      "value": "cancelado",
+      "label": "Cancelado",
+      "set_by": [
+        "solicitante",
+        "aprovador"
+      ],
+      "comment_required": true
+    }
+  ],
+  "common_fields": [
+    {
+      "id": "agente",
+      "label": "Agente",
+      "type": "select",
+      "required": true,
+      "options": [
+        {
+          "value": "gestor_trafego",
+          "label": "Gestor de Tráfego"
+        },
+        {
+          "value": "criativos",
+          "label": "Criativos"
+        },
+        {
+          "value": "dev_sites",
+          "label": "Dev Sites"
+        },
+        {
+          "value": "social_media",
+          "label": "Social Media"
+        }
+      ]
+    },
+    {
+      "id": "tipo",
+      "label": "Tipo de pedido",
+      "type": "select",
+      "required": true,
+      "options_from": "agente"
+    },
+    {
+      "id": "cliente_id",
+      "label": "Cliente",
+      "type": "client_lookup",
+      "required": true,
+      "help": "Abre a ficha ao lado e pré-preenche campos marcados com prefill.",
+      "validation": {
+        "must_exist": true
+      }
+    },
+    {
+      "id": "prioridade",
+      "label": "Prioridade",
+      "type": "select",
+      "required": true,
+      "options": [
+        {
+          "value": "urgente",
+          "label": "Urgente"
+        },
+        {
+          "value": "alta",
+          "label": "Alta"
+        },
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "baixa",
+          "label": "Baixa"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "id": "prioridade_motivo",
+      "label": "Motivo da urgência",
+      "type": "text",
+      "required": false,
+      "required_if": {
+        "field": "prioridade",
+        "in": [
+          "urgente"
+        ]
+      }
+    },
+    {
+      "id": "prazo",
+      "label": "Prazo",
+      "type": "date",
+      "required": true,
+      "validation": {
+        "min": "today"
+      },
+      "warn_if_below_min_lead_time": true
+    },
+    {
+      "id": "solicitante_id",
+      "label": "Solicitante",
+      "type": "current_user",
+      "required": true,
+      "readonly": true
+    },
+    {
+      "id": "aprovador_id",
+      "label": "Responsável pela aprovação",
+      "type": "user",
+      "required": true,
+      "default_by_agent": {
+        "gestor_trafego": "gestor_do_cliente",
+        "criativos": "solicitante",
+        "dev_sites": "solicitante",
+        "social_media": "pablo"
+      }
+    },
+    {
+      "id": "observacoes",
+      "label": "Observações",
+      "type": "textarea",
+      "required": false
+    },
+    {
+      "id": "anexos",
+      "label": "Anexos gerais",
+      "type": "upload_or_drive",
+      "required": false,
+      "validation": {
+        "max_mb_per_file": 50
+      },
+      "audio_transcribe": true
+    }
+  ],
+  "min_lead_time": {
+    "same_day_if_before": "16:00",
+    "same_day_types": [
+      "criativos.imagem",
+      "social_media.post",
+      "gestor_trafego.analise_conta"
+    ],
+    "next_business_day_types": [
+      "criativos.video",
+      "dev_sites.lp_nova",
+      "gestor_trafego.campanha_meta",
+      "gestor_trafego.campanha_google"
+    ]
+  },
+  "agents": {
+    "gestor_trafego": {
+      "label": "Gestor de Tráfego",
+      "notice": "A campanha fica em rascunho/pausada. Quem revisa e ativa é o gestor. O agente nunca mexe em orçamento de campanha ativa, lance ou pagamento.",
+      "forms": {
+        "campanha_meta": {
+          "label": "Campanha no Meta (rascunho)",
+          "fields": [
+            {
+              "id": "meta_ad_account_id",
+              "label": "ID da conta de anúncio",
+              "type": "text",
+              "required": true,
+              "prefill": "ficha.meta_ad_account_id",
+              "offer_save_to_ficha": true
+            },
+            {
+              "id": "paginas",
+              "label": "Página do Facebook e Instagram",
+              "type": "text",
+              "required": true,
+              "prefill": "ficha.paginas"
+            },
+            {
+              "id": "objetivo",
+              "label": "Objetivo",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "whatsapp",
+                  "label": "Conversas no WhatsApp"
+                },
+                {
+                  "value": "leads",
+                  "label": "Leads"
+                },
+                {
+                  "value": "landing_page",
+                  "label": "Acessos à landing page"
+                }
+              ]
+            },
+            {
+              "id": "destino",
+              "label": "Destino do anúncio",
+              "type": "phone_or_url",
+              "required": true,
+              "type_from": {
+                "field": "objetivo",
+                "whatsapp": "phone",
+                "landing_page": "url",
+                "leads": "url"
+              },
+              "prefill": "ficha.whatsapp_comercial",
+              "validation": {
+                "phone": "ddd_required",
+                "url": "https_only"
+              }
+            },
+            {
+              "id": "orcamento_diario",
+              "label": "Orçamento diário combinado",
+              "type": "currency_brl",
+              "required": true,
+              "warn_if_above": "ficha.orcamento_combinado"
+            },
+            {
+              "id": "produto_servico",
+              "label": "Produto ou serviço",
+              "type": "text",
+              "required": true,
+              "help": "Um foco por campanha."
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": true,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "today"
+              }
+            },
+            {
+              "id": "cidade_raio",
+              "label": "Cidade e raio",
+              "type": "city_radius",
+              "required": true,
+              "prefill": "ficha.cidade"
+            },
+            {
+              "id": "publico",
+              "label": "Público",
+              "type": "textarea",
+              "required": true,
+              "help": "Idade, perfil e interesses."
+            },
+            {
+              "id": "criativos",
+              "label": "Criativos aprovados",
+              "type": "request_ref_or_upload",
+              "required": true,
+              "source": {
+                "agent": "criativos",
+                "client": "same",
+                "status": "concluido"
+              }
+            },
+            {
+              "id": "textos",
+              "label": "Textos aprovados",
+              "type": "text_or_link",
+              "required": true,
+              "allow_none_option": "criar_com_base_na_ficha"
+            },
+            {
+              "id": "data_publicar",
+              "label": "Data desejada para publicar",
+              "type": "date",
+              "required": true
+            },
+            {
+              "id": "gestor_id",
+              "label": "Gestor que vai revisar e publicar",
+              "type": "user",
+              "required": true,
+              "sets": "aprovador_id"
+            }
+          ],
+          "returns": [
+            "link_rascunho",
+            "resumo_estrutura",
+            "checklist_ativacao"
+          ]
+        },
+        "analise_conta": {
+          "label": "Análise da conta",
+          "fields": [
+            {
+              "id": "plataforma",
+              "label": "Plataforma",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "meta",
+                  "label": "Meta"
+                },
+                {
+                  "value": "google",
+                  "label": "Google"
+                },
+                {
+                  "value": "ambas",
+                  "label": "Ambas"
+                }
+              ]
+            },
+            {
+              "id": "conta_id",
+              "label": "ID da conta de anúncio",
+              "type": "text",
+              "required": true,
+              "prefill_by": "plataforma",
+              "help": "Google: conta sob o MCC 7755113695."
+            },
+            {
+              "id": "periodo",
+              "label": "Período",
+              "type": "period",
+              "required": true,
+              "presets": [
+                "7d",
+                "14d",
+                "30d"
+              ],
+              "allow_custom_range": true
+            },
+            {
+              "id": "campanhas",
+              "label": "Campanha a olhar",
+              "type": "multiselect_or_text",
+              "required": true,
+              "options_from": "integracao.campanhas",
+              "allow_all": true
+            },
+            {
+              "id": "motivo",
+              "label": "O que motivou a análise",
+              "type": "textarea",
+              "required": true
+            },
+            {
+              "id": "resultado_esperado",
+              "label": "Resultado esperado",
+              "type": "text",
+              "required": false
+            },
+            {
+              "id": "mudancas_recentes",
+              "label": "Mudanças recentes",
+              "type": "multiselect",
+              "required": true,
+              "options": [
+                "criativo",
+                "orcamento",
+                "publico",
+                "oferta",
+                "nenhuma"
+              ],
+              "detail_text": true
+            },
+            {
+              "id": "qualidade_contatos",
+              "label": "Qualidade dos contatos",
+              "type": "textarea",
+              "required": false
+            },
+            {
+              "id": "pergunta",
+              "label": "Pergunta a responder",
+              "type": "textarea",
+              "required": true
+            }
+          ],
+          "returns": [
+            "diagnostico",
+            "recomendacoes",
+            "otm_sugeridas"
+          ]
+        },
+        "campanha_google": {
+          "label": "Campanha no Google (rascunho)",
+          "suggested": true,
+          "fields": [
+            {
+              "id": "google_ads_customer_id",
+              "label": "Conta Google Ads",
+              "type": "text",
+              "required": true,
+              "prefill": "ficha.google_ads_id",
+              "validation": {
+                "under_mcc": "7755113695"
+              }
+            },
+            {
+              "id": "objetivo",
+              "label": "Objetivo",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "ligacoes",
+                  "label": "Ligações"
+                },
+                {
+                  "value": "whatsapp",
+                  "label": "WhatsApp"
+                },
+                {
+                  "value": "site",
+                  "label": "Formulário ou site"
+                }
+              ]
+            },
+            {
+              "id": "pagina_destino",
+              "label": "Página de destino",
+              "type": "url_or_request_ref",
+              "required": true,
+              "source": {
+                "agent": "dev_sites",
+                "status": "concluido"
+              }
+            },
+            {
+              "id": "servicos",
+              "label": "Serviços a anunciar",
+              "type": "list",
+              "required": true,
+              "validation": {
+                "min_items": 1,
+                "max_items": 4
+              },
+              "help": "Cada serviço vira um grupo de anúncios."
+            },
+            {
+              "id": "cidade_raio",
+              "label": "Cidade e raio",
+              "type": "city_radius",
+              "required": true,
+              "prefill": "ficha.cidade"
+            },
+            {
+              "id": "termos_nao_atende",
+              "label": "Termos que o cliente NÃO atende",
+              "type": "textarea",
+              "required": false
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": true,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "today"
+              }
+            },
+            {
+              "id": "orcamento_previsto",
+              "label": "Orçamento diário previsto",
+              "type": "currency_brl",
+              "required": false,
+              "help": "Só informativo. O agente não define orçamento."
+            },
+            {
+              "id": "gestor_id",
+              "label": "Gestor que vai revisar e ativar",
+              "type": "user",
+              "required": true,
+              "sets": "aprovador_id"
+            }
+          ],
+          "returns": [
+            "codigo_cmp",
+            "link_campanha_pausada",
+            "checklist_ativacao"
+          ]
+        },
+        "outro": {
+          "label": "Outro",
+          "shared_across_agents": true,
+          "fields": [
+            {
+              "id": "o_que_precisa",
+              "label": "O que você precisa",
+              "type": "text",
+              "required": true
+            },
+            {
+              "id": "uso",
+              "label": "Para que será usado",
+              "type": "textarea",
+              "required": true
+            },
+            {
+              "id": "entrega",
+              "label": "Como deve ser a entrega",
+              "type": "select_with_text",
+              "required": true,
+              "options": [
+                "arquivo",
+                "texto",
+                "link"
+              ]
+            },
+            {
+              "id": "informacoes",
+              "label": "Informações necessárias",
+              "type": "textarea",
+              "required": true
+            },
+            {
+              "id": "arquivos",
+              "label": "Arquivos",
+              "type": "upload_or_drive",
+              "required": false,
+              "allow_none_option": "nao_se_aplica"
+            },
+            {
+              "id": "imagens",
+              "label": "Imagens",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "usar_fotos_cliente",
+                  "label": "Usar as fotos do cliente"
+                },
+                {
+                  "value": "melhorar_fotos_ia",
+                  "label": "Melhorar as fotos do cliente com IA"
+                },
+                {
+                  "value": "gerar_ia",
+                  "label": "Gerar com IA"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ]
+            },
+            {
+              "id": "imagem_gerada_descricao",
+              "label": "O que a imagem gerada deve mostrar",
+              "type": "textarea",
+              "required": false,
+              "required_if": {
+                "field": "imagens",
+                "in": [
+                  "melhorar_fotos_ia",
+                  "gerar_ia"
+                ]
+              },
+              "help": "Cena, produto, ambiente. A IA nunca inventa fachada, equipe, dono ou trabalho real do cliente."
+            },
+            {
+              "id": "referencia",
+              "label": "Referência",
+              "type": "link_or_upload",
+              "required": false,
+              "allow_none_option": "sem_referencia"
+            },
+            {
+              "id": "nao_pode",
+              "label": "O que NÃO pode aparecer ou ser dito",
+              "type": "textarea",
+              "required": false
+            }
+          ]
+        }
+      },
+      "approval_cards": {
+        "otm": {
+          "label": "Otimização (OTM)",
+          "created_by": "agente",
+          "code_pattern": "OTM-NNN",
+          "item_kinds": {
+            "auto": "o escritório faz após aprovo",
+            "manual": "o gestor faz"
+          },
+          "auto_allowed": [
+            "negativas",
+            "adicionar_palavra",
+            "pausar_palavra",
+            "pausar_anuncio",
+            "criar_anuncio"
+          ],
+          "never_auto": [
+            "orcamento",
+            "lance",
+            "metas_conversao",
+            "ativar_campanha",
+            "pagamento"
+          ],
+          "actions": [
+            "aprovar_selecionados",
+            "recusar",
+            "desfazer"
+          ],
+          "who": "gestor_do_cliente",
+          "after_execution": "mostrar_antes_e_depois"
+        }
+      }
+    },
+    "criativos": {
+      "label": "Criativos",
+      "notice": "A IA cria cenas do tipo de serviço. Nunca inventa a fachada, a equipe ou o trabalho real do cliente.",
+      "forms": {
+        "video": {
+          "label": "Vídeo",
+          "fields": [
+            {
+              "id": "uso",
+              "label": "1. Para que é o vídeo?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "anuncio",
+                  "label": "Anúncio pago"
+                },
+                {
+                  "value": "reels_cliente",
+                  "label": "Reels no Instagram do cliente"
+                }
+              ]
+            },
+            {
+              "id": "duracao",
+              "label": "2. Duração",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "15s",
+                  "label": "Curto: 15 segundos"
+                },
+                {
+                  "value": "30s",
+                  "label": "Médio: 30 segundos"
+                },
+                {
+                  "value": "45s",
+                  "label": "Longo: até 45 segundos"
+                }
+              ]
+            },
+            {
+              "id": "formato",
+              "label": "2. Formato",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "vertical",
+                  "label": "Em pé (Reels e Stories)"
+                },
+                {
+                  "value": "quadrado",
+                  "label": "Quadrado"
+                },
+                {
+                  "value": "feed",
+                  "label": "Feed"
+                }
+              ],
+              "default": "vertical"
+            },
+            {
+              "id": "material",
+              "label": "3. O que o cliente já mandou?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "videos",
+                  "label": "Vídeos que o cliente gravou"
+                },
+                {
+                  "value": "fotos",
+                  "label": "Só fotos"
+                },
+                {
+                  "value": "nada",
+                  "label": "Nada: o escritório monta com imagens"
+                }
+              ]
+            },
+            {
+              "id": "material_arquivos",
+              "label": "Arquivos do cliente",
+              "type": "upload_or_drive",
+              "required": false,
+              "required_if": {
+                "field": "material",
+                "in": [
+                  "videos",
+                  "fotos"
+                ]
+              },
+              "multiple": true
+            },
+            {
+              "id": "narracao",
+              "label": "4. Voz de locutor (narração)?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "masculina",
+                  "label": "Sim, voz masculina"
+                },
+                {
+                  "value": "feminina",
+                  "label": "Sim, voz feminina"
+                },
+                {
+                  "value": "fala_cliente",
+                  "label": "Não: manter a fala do cliente"
+                },
+                {
+                  "value": "so_musica",
+                  "label": "Não: só música"
+                }
+              ],
+              "help": "O escritório escreve o texto da narração. Ele vem junto com o vídeo para você conferir.",
+              "option_visible_if": {
+                "fala_cliente": {
+                  "field": "material",
+                  "in": [
+                    "videos"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "legenda",
+              "label": "5. Legenda escrita na tela?",
+              "type": "boolean",
+              "required": true,
+              "default": true,
+              "help": "Recomendado: muita gente assiste sem som."
+            },
+            {
+              "id": "imagens_extras",
+              "label": "6. Imagens extras?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "so_cliente",
+                  "label": "Usar só o que o cliente mandou"
+                },
+                {
+                  "value": "completar_ia",
+                  "label": "Completar com imagens feitas por IA"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ],
+              "option_disabled_if": {
+                "so_cliente": {
+                  "field": "material",
+                  "in": [
+                    "nada"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "clima",
+              "label": "Clima",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "animado",
+                  "label": "Animado"
+                },
+                {
+                  "value": "serio",
+                  "label": "Sério e confiável"
+                },
+                {
+                  "value": "sofisticado",
+                  "label": "Sofisticado"
+                },
+                {
+                  "value": "divertido",
+                  "label": "Divertido"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ]
+            },
+            {
+              "id": "recado",
+              "label": "8. Recado principal",
+              "type": "text",
+              "required": true,
+              "help": "Escreva como se estivesse explicando para um amigo."
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": true,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "today"
+              }
+            },
+            {
+              "id": "chamada",
+              "label": "10. O que a pessoa deve fazer no fim?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "whatsapp",
+                  "label": "Chamar no WhatsApp"
+                },
+                {
+                  "value": "loja",
+                  "label": "Ir até a loja"
+                },
+                {
+                  "value": "ligar",
+                  "label": "Ligar"
+                }
+              ]
+            },
+            {
+              "id": "nao_pode",
+              "label": "11. Algo que NÃO pode?",
+              "type": "textarea",
+              "required": true,
+              "allow_none_option": "nada"
+            },
+            {
+              "id": "video_referencia",
+              "label": "12. Vídeo de referência",
+              "type": "link_or_upload",
+              "required": false,
+              "allow_none_option": "sem_referencia",
+              "help": "O escritório copia o jeito de editar (ritmo, legenda, animações, música), nunca o conteúdo."
+            }
+          ],
+          "returns": [
+            "previa_video",
+            "arquivo_final",
+            "texto_narracao",
+            "legenda_texto"
+          ]
+        },
+        "imagem": {
+          "label": "Imagem",
+          "fields": [
+            {
+              "id": "uso",
+              "label": "1. Para que é a imagem?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "anuncio",
+                  "label": "Anúncio pago"
+                },
+                {
+                  "value": "feed",
+                  "label": "Post no feed do cliente"
+                },
+                {
+                  "value": "stories",
+                  "label": "Stories"
+                },
+                {
+                  "value": "capa_destaque",
+                  "label": "Capa ou destaque"
+                }
+              ]
+            },
+            {
+              "id": "quantidade",
+              "label": "2. Quantas?",
+              "type": "select_with_number",
+              "required": true,
+              "options": [
+                "1",
+                "3_variacoes",
+                "carrossel"
+              ],
+              "number_if": {
+                "carrossel": {
+                  "min": 2,
+                  "max": 10
+                }
+              }
+            },
+            {
+              "id": "formatos",
+              "label": "2. Formato",
+              "type": "multiselect",
+              "required": true,
+              "options": [
+                "1080x1350",
+                "1080x1920",
+                "1080x1080"
+              ]
+            },
+            {
+              "id": "material",
+              "label": "3. O que o cliente já mandou?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "fotos",
+                  "label": "Fotos do cliente"
+                },
+                {
+                  "value": "so_logo",
+                  "label": "Só a logo"
+                },
+                {
+                  "value": "nada",
+                  "label": "Nada"
+                }
+              ]
+            },
+            {
+              "id": "material_arquivos",
+              "label": "Arquivos do cliente",
+              "type": "upload_or_drive",
+              "required": false,
+              "required_if": {
+                "field": "material",
+                "in": [
+                  "fotos"
+                ]
+              },
+              "multiple": true,
+              "prefill_logo": "ficha.logo"
+            },
+            {
+              "id": "imagens",
+              "label": "4. Imagens extras?",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "so_cliente",
+                  "label": "Usar só o que o cliente mandou"
+                },
+                {
+                  "value": "melhorar_fotos_ia",
+                  "label": "Melhorar as fotos do cliente com IA"
+                },
+                {
+                  "value": "gerar_ia",
+                  "label": "Completar com imagens feitas por IA"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ]
+            },
+            {
+              "id": "imagem_gerada_descricao",
+              "label": "O que a imagem gerada deve mostrar",
+              "type": "textarea",
+              "required": false,
+              "required_if": {
+                "field": "imagens",
+                "in": [
+                  "melhorar_fotos_ia",
+                  "gerar_ia"
+                ]
+              },
+              "help": "Cena, produto, ambiente. A IA nunca inventa fachada, equipe, dono ou trabalho real do cliente."
+            },
+            {
+              "id": "clima",
+              "label": "Clima",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "animado",
+                  "label": "Animado"
+                },
+                {
+                  "value": "serio",
+                  "label": "Sério e confiável"
+                },
+                {
+                  "value": "sofisticado",
+                  "label": "Sofisticado"
+                },
+                {
+                  "value": "divertido",
+                  "label": "Divertido"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ]
+            },
+            {
+              "id": "recado",
+              "label": "6. Recado principal",
+              "type": "text",
+              "required": true
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": true,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "today"
+              }
+            },
+            {
+              "id": "chamada",
+              "label": "8. Chamada",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "whatsapp",
+                  "label": "Chamar no WhatsApp"
+                },
+                {
+                  "value": "loja",
+                  "label": "Ir até a loja"
+                },
+                {
+                  "value": "ligar",
+                  "label": "Ligar"
+                },
+                {
+                  "value": "site",
+                  "label": "Acessar o site"
+                }
+              ]
+            },
+            {
+              "id": "texto_arte",
+              "label": "9. Texto na arte",
+              "type": "textarea",
+              "required": true,
+              "allow_none_option": "escritorio_cria"
+            },
+            {
+              "id": "nao_pode",
+              "label": "10. Algo que NÃO pode?",
+              "type": "textarea",
+              "required": true,
+              "allow_none_option": "nada"
+            },
+            {
+              "id": "referencia",
+              "label": "11. Arte de referência",
+              "type": "link_or_upload",
+              "required": false,
+              "allow_none_option": "sem_referencia",
+              "help": "O escritório copia o estilo (cores, composição, tipografia), nunca o conteúdo."
+            }
+          ],
+          "returns": [
+            "artes_png"
+          ]
+        },
+        "outro": {
+          "$ref": "#/agents/gestor_trafego/forms/outro"
+        }
+      }
+    },
+    "dev_sites": {
+      "label": "Dev Sites",
+      "notice": "A publicação na HostGator é sempre manual. O agente entrega a página pronta para aprovação.",
+      "forms": {
+        "lp_nova": {
+          "label": "Landing page nova",
+          "fields": [
+            {
+              "id": "dominio",
+              "label": "Domínio ou subdomínio",
+              "type": "domain",
+              "required": true,
+              "help": "Sem isso a página não pode ser finalizada.",
+              "soft_required": true
+            },
+            {
+              "id": "objetivo",
+              "label": "Objetivo da página",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "whatsapp",
+                  "label": "Conversa no WhatsApp"
+                },
+                {
+                  "value": "agendamento",
+                  "label": "Agendamento"
+                },
+                {
+                  "value": "orcamento",
+                  "label": "Orçamento"
+                }
+              ]
+            },
+            {
+              "id": "whatsapp",
+              "label": "WhatsApp que recebe os contatos",
+              "type": "phone",
+              "required": true,
+              "prefill": "ficha.whatsapp_comercial",
+              "validation": {
+                "phone": "ddd_required"
+              }
+            },
+            {
+              "id": "mensagem_botao",
+              "label": "Mensagem automática do botão",
+              "type": "text",
+              "required": true
+            },
+            {
+              "id": "servico_principal",
+              "label": "Produto ou serviço principal",
+              "type": "text",
+              "required": true
+            },
+            {
+              "id": "outros_servicos",
+              "label": "Outros serviços a citar",
+              "type": "list",
+              "required": false
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": true,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "today"
+              }
+            },
+            {
+              "id": "cidade_regiao",
+              "label": "Cidade e região atendidas",
+              "type": "text",
+              "required": true,
+              "prefill": "ficha.cidade"
+            },
+            {
+              "id": "endereco_horario",
+              "label": "Endereço e horário",
+              "type": "textarea",
+              "required": true,
+              "prefill": "ficha.endereco"
+            },
+            {
+              "id": "publico",
+              "label": "Público",
+              "type": "textarea",
+              "required": true
+            },
+            {
+              "id": "diferenciais",
+              "label": "Diferenciais reais",
+              "type": "textarea",
+              "required": true
+            },
+            {
+              "id": "provas",
+              "label": "Provas reais",
+              "type": "textarea_with_upload",
+              "required": true,
+              "allow_none_option": "nao_temos",
+              "confirm_checkbox": "Os depoimentos são reais e autorizados"
+            },
+            {
+              "id": "faq",
+              "label": "Perguntas frequentes",
+              "type": "qa_list",
+              "required": false
+            },
+            {
+              "id": "fotos_logo",
+              "label": "Fotos e logo",
+              "type": "upload_or_drive",
+              "required": true,
+              "prefill_logo": "ficha.logo"
+            },
+            {
+              "id": "imagens",
+              "label": "Imagens",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "usar_fotos_cliente",
+                  "label": "Usar as fotos do cliente"
+                },
+                {
+                  "value": "melhorar_fotos_ia",
+                  "label": "Melhorar as fotos do cliente com IA"
+                },
+                {
+                  "value": "gerar_ia",
+                  "label": "Gerar com IA"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ]
+            },
+            {
+              "id": "imagem_gerada_descricao",
+              "label": "O que a imagem gerada deve mostrar",
+              "type": "textarea",
+              "required": false,
+              "required_if": {
+                "field": "imagens",
+                "in": [
+                  "melhorar_fotos_ia",
+                  "gerar_ia"
+                ]
+              },
+              "help": "Cena, produto, ambiente. A IA nunca inventa fachada, equipe, dono ou trabalho real do cliente."
+            },
+            {
+              "id": "cores_estilo",
+              "label": "Cores e estilo",
+              "type": "text",
+              "required": true,
+              "allow_none_option": "usar_da_ficha"
+            },
+            {
+              "id": "site_referencia",
+              "label": "Site de referência",
+              "type": "url",
+              "required": false,
+              "allow_none_option": "sem_referencia"
+            },
+            {
+              "id": "nao_pode",
+              "label": "O que NÃO pode aparecer ou ser dito",
+              "type": "textarea",
+              "required": false
+            }
+          ],
+          "returns": [
+            "link_previa",
+            "arquivos_lp",
+            "checklist_publicacao",
+            "url_final_preenchida_por_humano"
+          ]
+        },
+        "lp_ajuste": {
+          "label": "Ajuste em landing page",
+          "fields": [
+            {
+              "id": "pagina",
+              "label": "Página",
+              "type": "url_or_request_ref",
+              "required": true,
+              "source": {
+                "agent": "dev_sites",
+                "client": "same",
+                "status": "concluido"
+              }
+            },
+            {
+              "id": "ajustes",
+              "label": "Ajustes",
+              "type": "repeater",
+              "required": true,
+              "validation": {
+                "min_items": 1
+              },
+              "item_fields": [
+                {
+                  "id": "onde",
+                  "label": "Onde",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "id": "como_esta",
+                  "label": "Como está",
+                  "type": "textarea",
+                  "required": true
+                },
+                {
+                  "id": "como_deve_ficar",
+                  "label": "Como deve ficar",
+                  "type": "textarea",
+                  "required": true
+                },
+                {
+                  "id": "print",
+                  "label": "Print",
+                  "type": "upload",
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": "arquivos_novos",
+              "label": "Arquivos novos",
+              "type": "upload_or_drive",
+              "required": false,
+              "allow_none_option": "nao_se_aplica"
+            },
+            {
+              "id": "motivo",
+              "label": "Motivo do ajuste",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "pedido_cliente",
+                  "label": "Pedido do cliente"
+                },
+                {
+                  "value": "correcao",
+                  "label": "Correção"
+                },
+                {
+                  "value": "nova_oferta",
+                  "label": "Nova oferta"
+                }
+              ]
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": false,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "today"
+              },
+              "required_if": {
+                "field": "motivo",
+                "in": [
+                  "nova_oferta"
+                ]
+              }
+            }
+          ],
+          "returns": [
+            "link_previa",
+            "lista_ajustes_feitos",
+            "arquivos_lp"
+          ]
+        },
+        "outro": {
+          "$ref": "#/agents/gestor_trafego/forms/outro"
+        }
+      }
+    },
+    "social_media": {
+      "label": "Social Media",
+      "notice": "Toda arte segue o estilo do Instagram do cliente, usa a logo sem fundo e fala do serviço real. Nada é publicado sem o aprovo do Pablo.",
+      "forms": {
+        "post": {
+          "label": "Post de social",
+          "fields": [
+            {
+              "id": "data_postagem",
+              "label": "Data prevista da postagem",
+              "type": "datetime",
+              "required": true,
+              "suggest_from": "clickup.social_media.dia_do_cliente"
+            },
+            {
+              "id": "formato",
+              "label": "Formato",
+              "type": "select_with_text",
+              "required": true,
+              "options": [
+                "estatico",
+                "carrossel",
+                "reels",
+                "stories",
+                "outro"
+              ],
+              "extends_if": {
+                "reels": "criativos.video:duracao,narracao,legenda"
+              }
+            },
+            {
+              "id": "tema",
+              "label": "Tema",
+              "type": "text",
+              "required": true
+            },
+            {
+              "id": "objetivo",
+              "label": "Objetivo",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "educar",
+                  "label": "Educar"
+                },
+                {
+                  "value": "bastidor",
+                  "label": "Mostrar bastidor"
+                },
+                {
+                  "value": "confianca",
+                  "label": "Gerar confiança"
+                },
+                {
+                  "value": "divulgar_servico",
+                  "label": "Divulgar serviço"
+                },
+                {
+                  "value": "oferta",
+                  "label": "Oferta"
+                }
+              ]
+            },
+            {
+              "id": "mensagem",
+              "label": "Mensagem principal",
+              "type": "textarea",
+              "required": true
+            },
+            {
+              "id": "texto_arte",
+              "label": "Texto na arte",
+              "type": "textarea",
+              "required": true,
+              "allow_none_option": "a_escolha"
+            },
+            {
+              "id": "oferta",
+              "label": "Oferta real e validade",
+              "type": "offer",
+              "required": true,
+              "help": "Oferta + data de validade, ou 'sem oferta'.",
+              "validation": {
+                "allow_none_option": "sem_oferta",
+                "valid_until_required_if_offer": true,
+                "valid_until_min": "data_postagem"
+              },
+              "required_if_note": "obrigatória com oferta se objetivo = oferta"
+            },
+            {
+              "id": "cta_legenda",
+              "label": "Chamada para ação da legenda",
+              "type": "text",
+              "required": true
+            },
+            {
+              "id": "foto",
+              "label": "Foto a usar",
+              "type": "upload_or_drive",
+              "required": false,
+              "required_if": {
+                "field": "imagens",
+                "in": [
+                  "usar_fotos_cliente",
+                  "melhorar_fotos_ia"
+                ]
+              },
+              "allow_none_option": "nao_se_aplica"
+            },
+            {
+              "id": "imagens",
+              "label": "Imagens",
+              "type": "select",
+              "required": true,
+              "options": [
+                {
+                  "value": "usar_fotos_cliente",
+                  "label": "Usar as fotos do cliente"
+                },
+                {
+                  "value": "melhorar_fotos_ia",
+                  "label": "Melhorar as fotos do cliente com IA"
+                },
+                {
+                  "value": "gerar_ia",
+                  "label": "Gerar com IA"
+                },
+                {
+                  "value": "escritorio_decide",
+                  "label": "O escritório decide"
+                }
+              ]
+            },
+            {
+              "id": "imagem_gerada_descricao",
+              "label": "O que a imagem gerada deve mostrar",
+              "type": "textarea",
+              "required": false,
+              "required_if": {
+                "field": "imagens",
+                "in": [
+                  "melhorar_fotos_ia",
+                  "gerar_ia"
+                ]
+              },
+              "help": "Cena, produto, ambiente. A IA nunca inventa fachada, equipe, dono ou trabalho real do cliente."
+            },
+            {
+              "id": "data_especial",
+              "label": "Data ou contexto especial",
+              "type": "text",
+              "required": false,
+              "allow_none_option": "nao_se_aplica"
+            },
+            {
+              "id": "referencia",
+              "label": "Referência",
+              "type": "link_or_upload",
+              "required": false,
+              "allow_none_option": "sem_referencia"
+            },
+            {
+              "id": "nao_pode",
+              "label": "O que NÃO pode aparecer ou ser dito",
+              "type": "textarea",
+              "required": false
+            }
+          ],
+          "auto_created_by": "rotina_diaria_social (seg-sex 7h), solicitante='Rotina diária', entra em para_aprovacao",
+          "returns": [
+            "artes",
+            "legenda",
+            "data_hora_publicacao"
+          ],
+          "on_concluido": "agendar_publicacao_instagram (ou 'publicação manual' se o Instagram não estiver no portfólio)"
+        },
+        "outro": {
+          "$ref": "#/agents/gestor_trafego/forms/outro"
+        }
+      }
+    }
+  },
+  "delivery": {
+    "fields": [
+      "resumo",
+      "arquivos",
+      "links",
+      "textos",
+      "checklist_aprovador",
+      "versao"
+    ],
+    "approver_actions": [
+      "aprovar",
+      "pedir_ajuste",
+      "cancelar"
+    ]
+  }
+}

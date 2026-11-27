@@ -294,6 +294,41 @@ final class App
             ]);
         }
 
+        // ---- aba Agentes (27/11/2026): lista, novo pedido, detalhe e as acoes de quem pediu
+        if ($caminho === '/agentes' && $r->metodo === 'GET') {
+            $f = array_intersect_key($r->query, array_flip(['agente', 'status', 'cliente_id']));
+
+            return $this->tela($r, $u, 'agentes', ['pedidos' => $this->n->pedidos->listar($u, $f), 'filtros' => $f, 'esquema' => $this->n->pedidos->esquema(), 'clientes' => $this->n->clientes->listar($u)]);
+        }
+
+        if ($caminho === '/agentes/novo' && $r->metodo === 'GET') {
+            return $this->tela($r, $u, 'agentes-novo', ['clienteInicial' => (int) ($r->query['cliente'] ?? 0)]);
+        }
+
+        if (preg_match('#^/agentes/(\d+)(?:/(responder|aprovar|ajuste|cancelar|comentar))?$#', $caminho, $m)) {
+            $id = (int) $m[1];
+
+            if ($r->metodo === 'POST') {
+                $texto = (string) ($r->post['texto'] ?? '');
+                $acao = $m[2] ?? '';
+
+                if ($acao === 'responder') {
+                    $this->n->pedidos->responder($u, $id, $texto);
+                    $this->flash($r, 'ok', 'Resposta enviada ao agente.');
+                } elseif ($acao === 'comentar') {
+                    $this->n->pedidos->comentar($u, $id, $texto);
+                    $this->flash($r, 'ok', 'Comentário adicionado.');
+                } elseif (in_array($acao, ['aprovar', 'ajuste', 'cancelar'], true)) {
+                    $this->n->pedidos->decidir($u, $id, $acao, $texto);
+                    $this->flash($r, 'ok', ['aprovar' => 'Pedido aprovado.', 'ajuste' => 'Ajuste pedido ao agente.', 'cancelar' => 'Pedido cancelado.'][$acao]);
+                }
+
+                return Response::redirect('/agentes/' . $id);
+            }
+
+            return $this->tela($r, $u, 'agentes-pedido', ['pedido' => $this->n->pedidos->obter($u, $id), 'esquema' => $this->n->pedidos->esquema()]);
+        }
+
         // "Importar" virou "Integracoes" (19/11/2026); os enderecos antigos /importar continuam funcionando
         if ($caminho === '/importar' && $r->metodo === 'GET') {
             return Response::redirect('/integracoes' . (isset($r->query['listas']) ? '?listas=1' : ''));
@@ -441,6 +476,17 @@ final class App
         // ---- rotina do dia
         if ($caminho === '/api/rotina' && $get) {
             return $ok($n->rotina->dia($u, (string) ($r->query['data'] ?? $this->agora()->format('Y-m-d')), isset($r->query['gestor']) ? (int) $r->query['gestor'] : null) + ['cabecalhos' => $n->rotina->cabecalhos($u)]);
+        }
+
+        // aba Agentes: o formulario e montado no navegador a partir da especificacao
+        if ($caminho === '/api/agentes/esquema' && $get) {
+            $clientes = array_map(static fn (array $c): array => array_intersect_key($c, array_flip(['id', 'nome', 'gestor_id', 'cidade', 'estado', 'orcamento', 'meta_conta_id', 'meta_paginas', 'google_ads_id', 'whatsapp_comercial', 'dominio', 'cores', 'logo', 'endereco', 'horario'])), $n->clientes->listar($u));
+
+            return $ok(['esquema' => $n->pedidos->esquema(), 'clientes' => $clientes, 'usuarios' => array_map(static fn (array $x): array => ['id' => (int) $x['id'], 'nome' => $x['nome']], $this->gestores()), 'eu' => ['id' => (int) $u['id'], 'nome' => $u['nome']], 'hoje' => $this->agora()->format('Y-m-d')]);
+        }
+
+        if ($caminho === '/api/pedidos' && $post) {
+            return $ok(['id' => $n->pedidos->criar($u, $p)]);
         }
 
         if ($caminho === '/api/entregaveis' && $post) {
@@ -598,7 +644,7 @@ final class App
             $post['plataformas'] = [];
         }
 
-        return array_intersect_key($post, array_flip(['nome', 'empresa', 'descricao', 'link', 'cnpj', 'cidade', 'estado', 'entregaveis', 'dias', 'turno', 'status', 'gestor_id', 'contato_nome', 'contato_telefone', 'contato_email', 'plataformas', 'orcamento', 'observacoes']));
+        return array_intersect_key($post, array_flip(['nome', 'empresa', 'descricao', 'link', 'cnpj', 'cidade', 'estado', 'entregaveis', 'meta_conta_id', 'meta_paginas', 'google_ads_id', 'whatsapp_comercial', 'dominio', 'cores', 'logo', 'endereco', 'horario', 'dias', 'turno', 'status', 'gestor_id', 'contato_nome', 'contato_telefone', 'contato_email', 'plataformas', 'orcamento', 'observacoes']));
     }
 
     private function gestores(): array

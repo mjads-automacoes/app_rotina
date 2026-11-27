@@ -6,6 +6,7 @@ $menu = [
     'Trabalho' => [
         'rotina' => ['/', 'Rotina', 'rotina'],
         'clientes' => ['/clientes', 'Clientes', 'clientes'],
+        'agentes' => ['/agentes', 'Agentes', 'robo'],
     ],
     'Sistema' => [
         'automacoes' => ['/automacoes', 'Automações', 'automacoes'],
@@ -18,8 +19,8 @@ if ($usuario !== null && $usuario['papel'] === 'admin') {
     $menu['Sistema']['equipe'] = ['/equipe', 'Equipe', 'equipe'];
 }
 
-$ativoMenu = $ativo === 'cliente' ? 'clientes' : $ativo;
-$scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['automacoes.js'], 'clientes' => ['clientes.js'], 'cliente' => ['entregaveis.js']][$ativo] ?? [];
+$ativoMenu = $ativo === 'cliente' ? 'clientes' : (str_starts_with((string) $ativo, 'agentes') ? 'agentes' : $ativo);
+$scriptsDaPagina = ['rotina' => ['rotina.js', 'tarefas.js'], 'automacoes' => ['automacoes.js'], 'clientes' => ['clientes.js'], 'cliente' => ['entregaveis.js'], 'agentes-novo' => ['agentes.js']][$ativo] ?? [];
 ?><!doctype html>
 <html lang="pt-BR" data-tema="escuro">
 <head>

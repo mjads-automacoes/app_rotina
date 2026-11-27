@@ -122,7 +122,7 @@ function cenario_http(): array
 t('todas as paginas abrem para o admin logado', function (): void {
     [$app, , $admin] = cenario_http();
 
-    foreach (['/', '/clientes', '/automacoes', '/integracoes', '/equipe', '/conta'] as $p) {
+    foreach (['/', '/clientes', '/automacoes', '/agentes', '/agentes/novo', '/integracoes', '/equipe', '/conta'] as $p) {
         $r = req($app, $admin, 'GET', $p);
         eq(200, $r->status, $p . ' => ' . $r->status);
         ok(str_contains($r->body, 'data-theme-toggle'), $p . ' tem o botao de tema');

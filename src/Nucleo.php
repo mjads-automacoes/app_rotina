@@ -12,6 +12,7 @@ final class Nucleo
     public Automacoes $automacoes;
     public Rotina $rotina;
     public Importacao $importacao;
+    public Pedidos $pedidos;
 
     private function __construct(public PDO $pdo)
     {
@@ -23,6 +24,7 @@ final class Nucleo
         $this->tarefas->definirAutomacoes($this->automacoes);
         $this->rotina = new Rotina($pdo, $this->tarefas, $this->automacoes);
         $this->importacao = new Importacao($pdo, $this->clientes);
+        $this->pedidos = new Pedidos($pdo, $this->clientes);
     }
 
     public static function montar(PDO $pdo): self
