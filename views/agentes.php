@@ -6,10 +6,6 @@ $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$c
 <header class="pagina-topo">
   <div>
     <h1>Agentes</h1>
-    <p class="muted">Pedidos ao escritório. Cada pedido é de um cliente só; quem pede também aprova a entrega.</p>
-  </div>
-  <div class="topo-acoes">
-    <a class="btn btn-primario" href="/agentes/novo"><?= icone('mais') ?> Novo pedido</a>
   </div>
 </header>
 
@@ -45,12 +41,7 @@ $sel = static fn (string $campo, string $valor): string => (string) ($filtros[$c
   <button class="btn btn-contorno" type="submit">Filtrar</button>
 </form>
 
-<?php if ($pedidos === []): ?>
-  <section class="cartao agentes-vazio">
-    <p class="muted">Nenhum pedido por aqui ainda.</p>
-    <a class="btn btn-primario" href="/agentes/novo">Fazer o primeiro pedido</a>
-  </section>
-<?php else: ?>
+<?php if ($pedidos !== []): ?>
   <div class="pedidos-lista">
     <?php foreach ($pedidos as $p): ?>
       <a class="cartao pedido-cartao status-<?= e($p['status']) ?>" href="/agentes/<?= (int) $p['id'] ?>">
